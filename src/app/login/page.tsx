@@ -8,7 +8,7 @@ import { Eye, EyeOff, Check, BellRing, Users, User, LockKeyhole, ArrowRight, Hel
 import ResetPasswordPage from './reset/page';
 
 export default function GlobalLoginPage() {
-    const { login, user } = useAuth();
+    const { login, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
 
     const [email, setEmail] = useState('');
@@ -36,8 +36,20 @@ export default function GlobalLoginPage() {
         }
     }, [user, router]);
 
+    if (authLoading) return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    );
     if (isResetPath) return <ResetPasswordPage />;
-    if (user) return null;
+    if (user) return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <div className="text-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-slate-600 font-medium">Redirigiendo a tu panel...</p>
+            </div>
+        </div>
+    );
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
