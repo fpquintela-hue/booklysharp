@@ -1,0 +1,379 @@
+/* 
+   =========================================================
+   DESIGN SYSTEM: Pristine Sanctuary (Admin Login)
+   =========================================================
+   Core Brand: #133156 (Primary Corporate Blue)
+   Creative North Star: "Fluid Calm & Efforless Luxury"
+   =========================================================
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --tl-primary: #001c3b;
+    --tl-primary-container: #133156;
+    --tl-surface: #f7f9fb;
+    --tl-surface-low: #f2f4f6;
+    --tl-surface-lowest: #ffffff;
+    --tl-surface-highest: #e0e3e5;
+    --tl-on-surface: #191c1e;
+    --tl-on-surface-variant: #43474e;
+    --tl-outline-variant: #c4c6cf;
+    
+    --tl-font-headline: 'Manrope', sans-serif;
+    --tl-font-body: 'Inter', sans-serif;
+    
+    --tl-radius-box: 1rem; /* 16px */
+    --tl-radius-btn: 1.5rem; /* 24px - ROUND_FULL style */
+    
+    /* Ambient Shadow: 40px blur, extremely light */
+    --tl-shadow-ambient: 0 10px 40px rgba(25, 28, 30, 0.06);
+    --tl-shadow-deep: 0 20px 60px rgba(25, 28, 30, 0.08);
+    
+    --tl-glass-bg: rgba(255, 255, 255, 0.7);
+    --tl-glass-blur: blur(20px);
+    
+    --tl-gradient-primary: linear-gradient(135deg, #133156 0%, #001c3b 100%);
+}
+
+.tl-root {
+    min-height: 100vh;
+    background-color: var(--tl-surface);
+    color: var(--tl-on-surface);
+    font-family: var(--tl-font-body);
+    font-weight: 500; /* Standard medium for sanctuary feel */
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    color-scheme: light only;
+}
+
+/* ─── Layout: Editorial Asymmetry ─────────────── */
+.tl-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ─── Left Panel: Branding & Pattern ─────────── */
+.tl-brand-panel {
+    flex: 1.2;
+    background: var(--tl-primary-container);
+    position: relative;
+    padding: 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    color: white;
+}
+
+/* Pure CSS Pattern for texture */
+.tl-brand-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: 
+        radial-gradient(circle at 2px 2px, white 1px, transparent 0);
+    background-size: 32px 32px;
+}
+
+.tl-brand-glow {
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(69, 95, 135, 0.3) 0%, transparent 70%);
+    filter: blur(80px);
+}
+
+.tl-brand-content {
+    position: relative;
+    z-index: 10;
+}
+
+.tl-brand-logo-wrap {
+    width: 56px;
+    height: 56px;
+    background: white;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.tl-brand-logo-wrap img { width: 32px; }
+
+.tl-brand-headline {
+    font-family: var(--tl-font-headline);
+    font-size: 3.5rem; /* display-lg */
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+}
+
+.tl-brand-headline em {
+    font-style: normal;
+    background: linear-gradient(135deg, #adc8f5 0%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tl-brand-desc {
+    font-size: 1.125rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    max-width: 480px;
+    margin-bottom: 3rem;
+}
+
+.tl-brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tl-brand-feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+}
+
+.tl-brand-feature-dot {
+    width: 6px;
+    height: 6px;
+    background: #adc8f5;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(173, 200, 245, 0.5);
+}
+
+.tl-brand-footer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.tl-brand-tenant { font-weight: 700; letter-spacing: 0.05em; opacity: 0.9; }
+.tl-brand-badge { font-size: 0.8rem; opacity: 0.6; }
+
+/* ─── Right Panel: Form Section ─────────────── */
+.tl-form-panel {
+    flex: 1;
+    background: var(--tl-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.tl-form-wrap {
+    width: 100%;
+    max-width: 440px;
+}
+
+.tl-card {
+    background: var(--tl-surface-lowest);
+    border-radius: var(--tl-radius-box);
+    padding: 3.5rem 3rem;
+    box-shadow: var(--tl-shadow-ambient); /* Natural lift per system guide */
+    transition: all 0.4s ease;
+}
+
+.tl-card:hover {
+    box-shadow: var(--tl-shadow-deep);
+}
+
+.tl-card-header {
+    margin-bottom: 2.5rem;
+}
+
+.tl-eyebrow {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--tl-on-surface-variant);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.tl-card-title {
+    font-family: var(--tl-font-headline);
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--tl-primary);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+}
+
+.tl-card-subtitle {
+    color: var(--tl-on-surface-variant);
+    font-size: 0.95rem;
+}
+
+/* ─── Form Inputs: Pristine Style ──────────── */
+.tl-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tl-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.tl-field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tl-on-surface-variant);
+}
+
+.tl-field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Ghost Border: outline-variant at 20% opacity */
+.tl-input {
+    width: 100%;
+    background: var(--tl-surface-lowest);
+    border: 1px solid rgba(196, 198, 207, 0.3); /* Ghost border */
+    border-radius: 1rem;
+    padding: 1rem 1.25rem 1rem 3rem;
+    font-family: var(--tl-font-body);
+    font-size: 1rem;
+    color: var(--tl-on-surface);
+    transition: all 0.3s ease;
+}
+
+.tl-input:focus {
+    outline: none;
+    border-color: var(--tl-primary-container);
+    box-shadow: 0 0 0 4px rgba(19, 49, 86, 0.04); /* Subtle ambient glow */
+}
+
+.tl-field-icon {
+    position: absolute;
+    left: 1.25rem;
+    color: var(--tl-on-surface-variant);
+    pointer-events: none;
+}
+
+.tl-eye-btn {
+    position: absolute;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    color: var(--tl-on-surface-variant);
+    cursor: pointer;
+    padding: 0;
+}
+
+/* ─── Form Actions ────────────────────────── */
+.tl-form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.tl-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+}
+
+.tl-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--tl-outline-variant);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.tl-checkbox.checked {
+    background: var(--tl-primary-container);
+    border-color: var(--tl-primary-container);
+}
+
+.tl-forgot-link {
+    background: none;
+    border: none;
+    color: var(--tl-primary-container);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tl-submit-btn {
+    background: var(--tl-gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--tl-radius-btn);
+    padding: 1.25rem;
+    font-family: var(--tl-font-headline);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-top: 1rem;
+    box-shadow: 0 8px 25px rgba(19, 49, 86, 0.1);
+}
+
+.tl-submit-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(19, 49, 86, 0.2);
+}
+
+.tl-card-footer {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--tl-surface-low);
+    text-align: center;
+}
+
+.tl-card-footer-text {
+    font-size: 0.8rem;
+    color: var(--tl-on-surface-variant);
+    margin-bottom: 1rem;
+}
+
+.tl-tenant-badge {
+    background: var(--tl-surface-low);
+    color: var(--tl-primary-container);
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+/* ─── Mobile Styles ────────────────────────── */
+@media (max-width: 1024px) {
+    .tl-brand-panel { display: none; }
+    .tl-mobile-logo { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+}
+
+@media (min-width: 1025px) {
+    .tl-mobile-logo { display: none; }
+}

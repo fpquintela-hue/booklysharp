@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Pepito grillo",
+    "phone": "01232",
+    "email": "lolo@lolo.com",
+    "id": "p733",
+    "history": []
+  },
+  {
+    "name": "Fernando Perez Quintela",
+    "phone": "986099200",
+    "email": "fperez@vilagarcia.gal",
+    "id": "p102",
+    "history": []
+  },
+  {
+    "name": "Mercedes Gomez Lopez",
+    "phone": "986563215",
+    "email": "mer@miercoles.com",
+    "id": "p787",
+    "history": []
+  },
+  {
+    "name": "Raquel Mariño",
+    "phone": "986 50 50 50 ",
+    "email": "rauqel@marino.com",
+    "id": "p527",
+    "history": []
+  },
+  {
+    "name": "Jordi Perez",
+    "phone": "986 50 10 10 ",
+    "email": "jor@gmail.com",
+    "id": "p898",
+    "history": []
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "patientId": "p733",
+    "patientName": "Pepito grillo",
+    "expediente": "2026 0001",
+    "start": "2026-02-06T11:00:00.000Z",
+    "end": "2026-02-06T12:00:00.000Z",
+    "type": "URGENCY",
+    "status": "SCHEDULED",
+    "notes": "notas importantes",
+    "id": "vwefkzyv0"
+  },
+  {
+    "patientId": "p102",
+    "patientName": "Fernando Perez Quintela",
+    "expediente": "p102",
+    "start": "2026-02-09T09:00:00.000Z",
+    "end": "2026-02-09T10:00:00.000Z",
+    "type": "BLOCKED",
+    "status": "SCHEDULED",
+    "notes": "",
+    "id": "a63mohaa6"
+  },
+  {
+    "patientId": "p733",
+    "patientName": "Pepito grillo",
+    "expediente": "p733",
+    "start": "2026-02-04T13:00:00.000Z",
+    "end": "2026-02-04T14:00:00.000Z",
+    "type": "ORDINARY",
+    "status": "SCHEDULED",
+    "notes": "",
+    "id": "f9ddohge5"
+  },
+  {
+    "patientId": "p102",
+    "patientName": "Fernando Perez Quintela",
+    "expediente": "sdkjfbksdbf",
+    "start": "2026-02-11T10:30:00.000Z",
+    "end": "2026-02-11T11:30:00.000Z",
+    "type": "ORDINARY",
+    "status": "SCHEDULED",
+    "notes": "",
+    "id": "cqle55ux3"
+  },
+  {
+    "patientId": "p787",
+    "patientName": "Mercedes Gomez Lopez",
+    "expediente": "p787",
+    "start": "2026-02-09T10:00:00.000Z",
+    "end": "2026-02-09T11:00:00.000Z",
+    "type": "ORDINARY",
+    "status": "SCHEDULED",
+    "notes": "",
+    "id": "oeve9o9dj"
+  },
+  {
+    "patientId": "p527",
+    "patientName": "Raquel Mariño",
+    "expediente": "p527",
+    "start": "2026-02-13T09:00:00.000Z",
+    "end": "2026-02-13T10:30:00.000Z",
+    "type": "URGENCY",
+    "status": "SCHEDULED",
+    "notes": "probando",
+    "id": "2pm4ivs4x"
+  }
+]

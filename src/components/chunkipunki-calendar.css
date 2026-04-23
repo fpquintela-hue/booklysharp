@@ -1,0 +1,384 @@
+/* 
+    Chunkipunki Calendar Theme - Vista Mes
+    Design System: Clinical Precision & Editorial Grace 
+*/
+.chunkipunki-theme {
+    --cp-primary: #005bc4;
+    --cp-primary-container: #4388fd;
+    --cp-primary-dim: #004fad;
+    --cp-on-primary: #f9f8ff;
+    
+    --cp-surface: #f7f9fb;
+    --cp-surface-container-lowest: #ffffff;
+    --cp-surface-container-low: #f0f4f7;
+    --cp-surface-container: #eaeff2;
+    --cp-on-surface: #2c3437;
+    --cp-on-surface-variant: #596064;
+    
+    --cp-outline-variant: #acb3b7;
+    --cp-tertiary: #684cb6;
+    --cp-tertiary-container: #a589f8;
+    --cp-tertiary-dim: #5b3fa9;
+    --cp-error: #a83836;
+    --cp-error-container: #fa746f;
+    --cp-error-dim: #67040d;
+    --cp-secondary-container: #d3e4fe;
+    --cp-on-secondary-container: #435368;
+    --cp-secondary-dim: #44546a;
+}
+
+.dark .chunkipunki-theme,
+.dark.chunkipunki-theme {
+    --cp-primary: #3b82f6;
+    --cp-primary-container: #1d4ed8;
+    --cp-primary-dim: #60a5fa;
+    --cp-on-primary: #ffffff;
+    
+    --cp-surface: #0f172a;
+    --cp-surface-container-lowest: #1e293b;
+    --cp-surface-container-low: #1e293b;
+    --cp-surface-container: #334155;
+    --cp-on-surface: #f8fafc;
+    --cp-on-surface-variant: #94a3b8;
+    
+    --cp-outline-variant: #334155;
+    --cp-tertiary: #a78bfa;
+    --cp-tertiary-container: #4c1d95;
+    --cp-tertiary-dim: #c4b5fd;
+    --cp-error: #f87171;
+    --cp-error-container: #7f1d1d;
+    --cp-error-dim: #fca5a5;
+    --cp-secondary-container: #1e293b;
+    --cp-on-secondary-container: #f1f5f9;
+    --cp-secondary-dim: #94a3b8;
+}
+
+/* Structural wrapper */
+.chunkipunki-theme {
+    font-family: 'Inter', sans-serif;
+    color: var(--cp-on-surface);
+}
+
+/* Custom Scrollbar */
+.chunkipunki-theme ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.chunkipunki-theme ::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chunkipunki-theme ::-webkit-scrollbar-thumb {
+    background: #acb3b744;
+    border-radius: 10px;
+}
+
+/* react-big-calendar Overrides for Month View */
+.chunkipunki-theme .rbc-month-view {
+    border: none !important;
+    background-color: var(--cp-surface-container-lowest);
+    border-radius: 0.75rem; /* rounded-xl */
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent) !important;
+}
+
+.chunkipunki-theme .rbc-month-row {
+    border-top: none !important;
+}
+
+.chunkipunki-theme .rbc-month-row + .rbc-month-row {
+    border-top: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent) !important;
+}
+
+.chunkipunki-theme .rbc-day-bg {
+    border: none !important;
+    transition: background-color 0.2s ease;
+}
+
+.chunkipunki-theme .rbc-day-bg + .rbc-day-bg {
+    border-left: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent) !important;
+}
+
+.chunkipunki-theme .rbc-day-bg:hover {
+    background-color: color-mix(in srgb, var(--cp-primary-container) 5%, transparent);
+}
+
+.chunkipunki-theme .rbc-off-range-bg {
+    background-color: transparent !important;
+}
+
+.chunkipunki-theme .rbc-month-header {
+    border-bottom: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent) !important;
+}
+
+.chunkipunki-theme .rbc-header {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+.chunkipunki-theme .rbc-header + .rbc-header {
+    border-left: none !important;
+}
+
+/* Remove default event styles in chunkipunki to apply custom CSS */
+.chunkipunki-theme .rbc-event {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* In schedule settings, we want the events (blocks) to be solid blue */
+.chunkipunki-theme.schedule-settings-theme .rbc-event {
+    background-color: #004ac6 !important;
+    opacity: 1 !important;
+}
+
+/* Event Pill Styles Customization */
+.chunkipunki-theme .cp-event-pill {
+    font-family: 'Inter', sans-serif;
+    background-color: color-mix(in srgb, var(--cp-primary-container) 10%, transparent);
+    color: var(--cp-primary-dim);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px; /* px-2 py-1 */
+    border-radius: 0.375rem; /* rounded-md */
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: transform 0.2s ease;
+}
+
+.chunkipunki-theme .cp-event-pill:hover {
+    transform: scale(1.02);
+}
+
+.chunkipunki-theme .cp-event-urgency {
+    background-color: color-mix(in srgb, var(--cp-tertiary) 90%, black);
+    color: white;
+}
+
+.chunkipunki-theme .cp-event-blocked {
+    background-color: color-mix(in srgb, var(--cp-error-container) 15%, transparent);
+    color: var(--cp-error-dim);
+}
+
+/* WEEK VIEW SPECIFIC STYLES - GHOST BORDER GRID */
+.chunkipunki-theme .rbc-time-view {
+    border: none !important;
+    background-color: transparent !important;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.chunkipunki-theme .rbc-time-header {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.chunkipunki-theme .rbc-time-header-content {
+    border-left: none !important;
+    background: transparent !important;
+}
+
+.chunkipunki-theme .rbc-time-content {
+    border-top: none !important;
+}
+
+.chunkipunki-theme .rbc-day-slot {
+    border-left: 1px solid var(--cp-outline-variant) !important;
+    border-right: none !important;
+    background-color: transparent !important;
+}
+
+.chunkipunki-theme .rbc-time-content > * + * {
+    border-left: none !important; /* disabled to prevent double lines */
+}
+
+/* Fix double border after the gutter: hide the day-slot's first left border if gutter already has right border */
+.chunkipunki-theme .rbc-time-gutter + .rbc-day-slot {
+    border-left: none !important;
+}
+
+.chunkipunki-theme .rbc-time-content .rbc-today {
+    background-color: color-mix(in srgb, var(--cp-primary) 3%, transparent) !important;
+}
+
+.chunkipunki-theme .rbc-timeslot-group {
+    border-bottom: 1px solid #acb3b722 !important; /* Very fine gray */
+    min-height: 50px !important; /* Reduced from 100px to 50px */
+}
+
+/* Permit schedule settings calendar grid to auto-adapt exactly to container sizes */
+.chunkipunki-theme.schedule-settings-theme .rbc-timeslot-group {
+    min-height: 15px !important;
+}
+.chunkipunki-theme.schedule-settings-theme .rbc-time-header,
+.chunkipunki-theme.schedule-settings-theme .rbc-time-header-content {
+    min-height: 70px !important; /* increased slightly to be safe */
+}
+.chunkipunki-theme.schedule-settings-theme .rbc-time-gutter .rbc-timeslot-group {
+    font-size: 0.65rem !important;
+}
+
+/* Remove duplicated border selector */
+
+.chunkipunki-theme .rbc-time-gutter {
+    border-right: 1px solid var(--cp-outline-variant) !important;
+    background-color: transparent !important;
+}
+
+.chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
+    border: none !important;
+    color: var(--cp-outline);
+    font-size: 0.75rem; /* label-sm */
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 0.5rem;
+}
+
+/* Hide All-Day row completely to match snippet */
+.chunkipunki-theme .rbc-allday-cell {
+    display: none !important;
+}
+.chunkipunki-theme .rbc-time-header.rbc-overflowing {
+    border-right: none !important;
+}
+
+/* Current Time Indicator */
+.chunkipunki-theme .rbc-current-time-indicator {
+    background-color: rgba(168, 56, 54, 0.4) !important; /* bg-error/40 */
+    height: 2px !important;
+}
+.chunkipunki-theme .rbc-current-time-indicator::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: var(--cp-error);
+    border-radius: 9999px;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Week Event Card */
+.chunkipunki-theme .cp-week-event-card {
+    /* Background given inline via React now */
+    border-radius: 0.5rem; /* slightly smaller rounded corners */
+    padding: 0.4rem 0.5rem; /* Reduced padding from 0.75rem */
+    height: calc(100% - 6px); /* Reduced gap */
+    width: calc(100% - 6px);
+    margin: 3px; /* Reduced margin from 8px */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s;
+    overflow: hidden;
+    color: white;
+}
+
+.chunkipunki-theme .cp-week-event-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+}
+
+.chunkipunki-theme .cp-week-event-urgency {
+    border-left: 4px solid var(--cp-tertiary);
+}
+
+.chunkipunki-theme .cp-week-event-blocked {
+    background-color: color-mix(in srgb, var(--cp-error-container) 20%, white) !important;
+    border-left: 4px solid var(--cp-error);
+}
+
+.chunkipunki-theme .cp-week-time {
+    font-size: 0.65rem; /* smaller font */
+    color: var(--cp-primary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.1rem;
+    line-height: 1;
+}
+
+.chunkipunki-theme .cp-week-event-urgency .cp-week-time {
+    color: white;
+}
+.chunkipunki-theme .cp-week-event-blocked .cp-week-time {
+    color: var(--cp-error);
+}
+
+.chunkipunki-theme .cp-week-patient {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem; /* reduced from 0.875rem */
+    color: var(--cp-on-surface);
+    line-height: 1.1;
+    margin-bottom: 0.1rem;
+}
+
+.chunkipunki-theme .cp-week-type {
+    font-size: 0.6rem; /* extra small for type */
+    font-weight: 600;
+    text-transform: uppercase;
+    opacity: 0.7;
+    line-height: 1;
+}
+
+/* Top toolbar specific typography (if required) */
+.chunkipunki-theme .cp-topbar-title {
+    font-family: 'Manrope', sans-serif;
+    color: var(--cp-primary);
+}
+
+/* Right Sidebar Dashboard Overrides */
+.chunkipunki-sidebar {
+    gap: 2rem !important; /* 8 */
+    width: 20rem !important; /* w-80 */
+}
+
+.chunkipunki-sidebar .cp-prof-card {
+    background-color: var(--cp-surface-container-lowest);
+    border-radius: 0.75rem; /* xl */
+    padding: 1.5rem; /* 6 */
+    border: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.chunkipunki-sidebar .cp-cal-card {
+    background-color: color-mix(in srgb, var(--cp-surface-container-low) 50%, transparent);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--cp-outline-variant) 10%, transparent);
+}
+
+.chunkipunki-sidebar .cp-cap-card {
+    background-color: color-mix(in srgb, var(--cp-primary) 5%, transparent);
+    border-radius: 1rem; /* 2xl */
+    padding: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--cp-primary) 10%, transparent);
+    position: relative;
+    overflow: hidden;
+    margin-top: auto;
+}
+
+/* Ensure the wrapper link spans the whole header cell so absolute elements reference the bounds */
+.chunkipunki-theme .rbc-header {
+    position: relative !important;
+}
+.chunkipunki-theme .rbc-header .rbc-button-link {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+}

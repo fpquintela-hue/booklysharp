@@ -1,0 +1,517 @@
+/* 
+   =========================================================
+   DESIGN REFINEMENT: Clinical Ethereal High-Fidelity
+   =========================================================
+   - Square Calendar Aspect
+   - Persistent Bottom Glass Bar
+   - Step breadcrumb header
+   - Editorial Asymmetrical Layouts
+   =========================================================
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --ce-primary: #001c3b;
+    --ce-primary-container: #133156;
+    --ce-surface: #f7fafc;
+    --ce-surface-low: #f1f4f6;
+    --ce-surface-lowest: #ffffff;
+    --ce-surface-highest: #e0e3e5;
+    --ce-on-surface: #181c1e;
+    --ce-on-surface-variant: #43474e;
+    --ce-surface-tint: #455f87;
+    --ce-outline-variant: rgba(196, 198, 207, 0.15); 
+    
+    --ce-font-headline: 'Manrope', sans-serif;
+    --ce-font-body: 'Inter', sans-serif;
+    
+    --ce-radius-card: 1.5rem; 
+    --ce-radius-btn: 1rem; 
+    --ce-radius-bar: 3rem; /* Signature bar rounding */
+    
+    --ce-shadow-ambient: 0 20px 40px rgba(19, 49, 86, 0.08); 
+    --ce-gradient-primary: linear-gradient(135deg, #133156 0%, #455f87 100%);
+    
+    --ce-glass-bg: rgba(255, 255, 255, 0.82);
+    --ce-glass-blur: blur(24px);
+}
+
+.ce-root {
+    min-height: 100vh;
+    background-color: var(--ce-surface);
+    color: var(--ce-on-surface);
+    font-family: var(--ce-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 7rem; /* Space for bottom bar */
+    color-scheme: light only;
+}
+
+/* ─── Breadcrumb Header ─────────────────────────── */
+.ce-stepper-wrap {
+    padding: 2.5rem 1.5rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ce-stepper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+}
+
+.ce-stepper::-webkit-scrollbar { display: none; }
+
+.ce-step-crumb {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+}
+
+.ce-step-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ce-surface-highest);
+    color: var(--ce-on-surface-variant);
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.ce-step-text {
+    font-family: var(--ce-font-headline);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--ce-on-surface-variant);
+    transition: all 0.3s;
+}
+
+.ce-step-crumb.active .ce-step-circle {
+    background: var(--ce-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 28, 59, 0.2);
+}
+
+.ce-step-crumb.active .ce-step-text { color: var(--ce-primary); }
+
+.ce-step-crumb.passed .ce-step-circle {
+    background: #e6f7ef;
+    color: #059669;
+}
+
+.ce-step-sep {
+    color: var(--ce-surface-highest);
+    font-weight: 300;
+}
+
+/* ─── Main Layout: Asymmetrical Card ───────────── */
+.ce-page {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+}
+
+.ce-portal {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--ce-surface-lowest);
+    border-radius: var(--ce-radius-card);
+    box-shadow: var(--ce-shadow-ambient);
+    padding: 4rem;
+    min-height: 600px;
+}
+
+.ce-section-header {
+    margin-bottom: 3.5rem;
+}
+
+.ce-section-title {
+    font-family: var(--ce-font-headline);
+    font-size: 2.75rem; /* display-md */
+    font-weight: 800;
+    color: var(--ce-primary);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.ce-section-subtitle {
+    margin-top: 1rem;
+    color: var(--ce-on-surface-variant);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+/* ─── Square Calendar ────────────────────────── */
+.ce-calendar-square-wrap {
+    background: #ffffff; /* Solid clean white */
+    border-radius: 1rem;
+    padding: 1.5rem 2.5rem; /* Less vertical padding, keeping horizontal wide */
+    max-width: 520px; /* Slightly wider to match spacing in image */
+    box-shadow: 0 10px 40px rgba(19, 49, 86, 0.08); /* Soft diffuse shadow */
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.ce-calendar-grid {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    width: 100%;
+}
+
+/* Force RDP root to expand to full width, overriding w-fit */
+.ce-calendar-grid > div,
+.ce-calendar-grid .rdp-root,
+.ce-calendar-grid .rdp-months,
+.ce-calendar-grid .rdp-month {
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+.ce-calendar-grid .rdp {
+    --rdp-cell-size: 38px; /* Slightly smaller cells */
+    margin: 0;
+    width: 100%;
+}
+
+/* Encaebzado del mes (Left aligned, bold) */
+.ce-calendar-grid .rdp-month_caption {
+    justify-content: flex-start !important; /* ALIGN LEFT */
+    padding-left: 0 !important;
+    margin-bottom: 1.25rem !important; /* Reduced gap before days to condense height */
+}
+
+.ce-calendar-grid .rdp-caption_label {
+    font-weight: 700 !important; /* Bold */
+    font-size: 1.5rem !important; /* Larger text */
+    color: var(--ce-primary);
+}
+
+/* Botones Navegación (Right aligned, rounded squares) */
+.ce-calendar-grid .rdp-nav {
+    justify-content: flex-end !important;
+    gap: 0.5rem !important;
+    padding-right: 0 !important;
+    top: -0.25rem !important; /* adjust slightly relative to large text */
+}
+
+.ce-calendar-grid .rdp-nav_button {
+    background: #f1f5f9 !important; /* slate-100 grey bg */
+    border: none !important;
+    border-radius: 0.5rem !important; /* rounded squares not perfect circles */
+    color: var(--ce-primary) !important;
+    transition: all 0.2s;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+}
+.ce-calendar-grid .rdp-nav_button:hover {
+    background: #e2e8f0 !important; /* slate-200 */
+}
+
+/* Grid & Weekdays */
+.ce-calendar-grid .rdp-table {
+    width: 100%;
+    max-width: none;
+    border-collapse: separate;
+    border-spacing: 0.2rem 0.2rem !important; /* Drastically reduced vertical gap between cells */
+}
+
+.ce-calendar-grid .rdp-weekday {
+    text-transform: uppercase !important; /* Like image 2 */
+    font-weight: 700 !important; /* Bold */
+    color: #94a3b8 !important;
+    letter-spacing: 0.15em;
+    font-size: 0.75rem;
+    padding-bottom: 0.75rem !important; /* Reduced padding to squeeze height */
+}
+
+/* Days / Numbers */
+.ce-calendar-grid .rdp-cell {
+    padding: 0;
+    text-align: center;
+}
+
+.ce-calendar-grid .rdp-day {
+    width: 2.4rem !important; /* Fixed width instead of 100% to keep circle from stretching */
+    height: 2.4rem !important; /* Fixed height */
+    aspect-ratio: auto !important;
+    margin: 0 auto !important; /* Center inside cell */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important; /* Perfect circles */
+    font-weight: 500 !important;
+    color: var(--ce-primary) !important;
+    background: transparent !important;
+    transition: all 0.2s;
+    border: 1px solid transparent !important;
+}
+
+.ce-calendar-grid .rdp-day_disabled {
+    color: #cbd5e1 !important; /* light grey text */
+    pointer-events: none;
+}
+
+.ce-calendar-grid .rdp-day:not(.rdp-day_disabled):not(.rdp-day_selected):hover {
+    border-color: var(--ce-primary) !important;
+    background: transparent !important;
+}
+
+/* Selected Date */
+.ce-calendar-grid .rdp-day_selected {
+    background-color: var(--ce-primary) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    border-radius: 50% !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(0, 28, 59, 0.25) !important; /* Added shadow like image 2 selected state */
+}
+
+/* ─── Cards (Services & Professionals) ─────── */
+.ce-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.ce-card-editorial {
+    background: var(--ce-surface-low);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: none;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+}
+
+.ce-card-editorial.ce-active {
+    background: white;
+    border: 2px solid var(--ce-primary);
+    box-shadow: 0 10px 30px rgba(0, 28, 59, 0.12);
+}
+
+.ce-card-editorial:hover:not(.ce-active) {
+    background: white;
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(19, 49, 86, 0.06);
+}
+
+.ce-icon-box {
+    width: 64px;
+    height: 64px;
+    background: white;
+    border-radius: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.ce-card-name {
+    font-family: var(--ce-font-headline);
+    font-size: 1.375rem; /* title-lg */
+    font-weight: 700;
+    color: var(--ce-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* ─── Time Slots ────────────────────────────── */
+.ce-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.5rem;
+}
+
+.ce-slot-btn {
+    background: var(--ce-surface-low);
+    color: var(--ce-primary);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    font-family: var(--ce-font-headline);
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    font-size: 1.125rem;
+}
+
+.ce-slot-btn:hover {
+    background: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.ce-slot-btn.active {
+    background: var(--ce-primary);
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 28, 59, 0.2);
+}
+
+/* ─── Form Elements ─────────────────────────── */
+.ce-form-layout {
+    display: grid;
+    gap: 2.5rem;
+}
+
+.ce-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ce-field-label {
+    font-family: var(--ce-font-headline);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--ce-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ce-input {
+    background: var(--ce-surface-low);
+    border: 2px solid transparent;
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+    font-family: var(--ce-font-body);
+    font-size: 1rem;
+    color: var(--ce-on-surface);
+    transition: all 0.3s;
+}
+
+.ce-input:focus {
+    background: white;
+    border-color: var(--ce-primary);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+/* ─── Success & Summary ─────────────────────── */
+.ce-success-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.ce-summary-box {
+    width: 100%;
+    background: var(--ce-surface-low);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.ce-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.ce-summary-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ce-summary-label {
+    font-family: var(--ce-font-headline);
+    font-weight: 600;
+    color: var(--ce-on-surface-variant);
+    font-size: 0.9rem;
+}
+
+.ce-summary-val {
+    font-family: var(--ce-font-headline);
+    font-weight: 700;
+    color: var(--ce-primary);
+    text-align: right;
+}
+
+/* ─── Bottom Navigation Bar ─────────────────── */
+.ce-bottom-nav {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 3rem);
+    max-width: 900px;
+    height: 5rem;
+    background: var(--ce-glass-bg);
+    backdrop-filter: var(--ce-glass-blur);
+    border-radius: var(--ce-radius-bar);
+    box-shadow: 0 20px 60px rgba(19, 49, 86, 0.12);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+.ce-btn-primary {
+    background: var(--ce-gradient-primary);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    font-family: var(--ce-font-headline);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s;
+}
+
+.ce-btn-primary:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(19, 49, 86, 0.2);
+}
+
+.ce-btn-ghost {
+    background: transparent;
+    color: var(--ce-primary);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+/* ─── Success Status Glow ───────────────────── */
+.ce-status-glow {
+    width: 96px;
+    height: 96px;
+    background: #e6f7ef;
+    color: #059669;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2.5rem;
+    position: relative;
+    box-shadow: 0 0 32px rgba(5, 150, 105, 0.3); /* The glow */
+}
+
+@media (max-width: 768px) {
+    .ce-portal { padding: 2.5rem; }
+    .ce-section-title { font-size: 2rem; }
+}

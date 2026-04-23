@@ -1,0 +1,16 @@
+[
+  {
+    "id": "admin",
+    "name": "Admin User",
+    "email": "admin",
+    "role": "ADMIN",
+    "password": "1234admin"
+  },
+  {
+    "email": "lolo@lolo.com",
+    "name": "mostrador",
+    "role": "USER",
+    "id": "yavaqd6ce",
+    "password": "123"
+  }
+]
