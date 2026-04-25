@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import NextImage from 'next/image';
 
 export function Footer() {
   return (
@@ -8,9 +9,13 @@ export function Footer() {
           
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="font-bold text-2xl tracking-tight flex items-center font-[Inter]">
-                <span className="text-white">Bookly</span><span className="text-[#2563EB]">Sharp</span>
-              </span>
+              <NextImage 
+                src="/booklysharp_logotb.png" 
+                alt="BooklySharp Logo" 
+                width={150} 
+                height={28} 
+                className="h-7 w-auto" 
+              />
             </Link>
             <p className="text-sm text-slate-400 mb-6">
               La plataforma de reservas online que automatiza tu agenda y multiplica tus ingresos sin comisiones abusivas.

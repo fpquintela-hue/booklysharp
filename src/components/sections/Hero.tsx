@@ -66,7 +66,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <Button size="lg" variant="accent" className="w-full sm:w-auto group shadow-xl shadow-amber-500/20" asChild>
+          <Button size="lg" variant="accent" className="w-full sm:w-auto group shadow-xl shadow-[#0c63ce]/20" asChild>
             <Link href="/registro">
               Empieza gratis hoy
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -114,7 +114,7 @@ export function Hero() {
 
           {/* Sidebar */}
           <div className="w-20 hidden md:flex flex-col items-center py-6 pt-16 bg-slate-900/50 border-r border-white/10 z-10 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center mb-8">
+            <div className="w-10 h-10 rounded-xl bg-[#0c63ce]/20 text-[#0c63ce] flex items-center justify-center mb-8">
               <span className="font-bold">B</span>
             </div>
             <div className="flex flex-col gap-6">
@@ -143,7 +143,7 @@ export function Hero() {
                   <div className="px-3 py-1 text-xs font-medium text-white bg-white/10 rounded-md">Semana</div>
                   <div className="px-3 py-1 text-xs font-medium text-slate-400">Mes</div>
                 </div>
-                <div className="h-8 px-4 bg-primary text-white text-xs font-semibold rounded-lg flex items-center hover:bg-primary-dark cursor-pointer transition-colors shadow-lg shadow-primary/20">
+                <div className="h-8 px-4 bg-[#0c63ce] text-white text-xs font-semibold rounded-lg flex items-center cursor-pointer transition-colors shadow-lg shadow-[#0c63ce]/20">
                   + Nueva Cita
                 </div>
               </div>

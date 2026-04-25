@@ -1,13 +1,18 @@
 import crypto from 'crypto';
 
-// The key must be exactly 32 bytes (256 bits) long.
-// We use a default key for development, but in production, you MUST provide an ENCRYPTION_KEY in .env
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default_secret_key_needs_32_bytes_!';
+// Enforce ENCRYPTION_KEY in production to avoid hardcoded default key usage
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+if (process.env.NODE_ENV === 'production' && (!ENCRYPTION_KEY || ENCRYPTION_KEY === 'default_secret_key_needs_32_bytes_!')) {
+    throw new Error('CRITICAL: ENCRYPTION_KEY must be securely set in production.');
+}
+
+const ACTIVE_KEY = ENCRYPTION_KEY || 'default_secret_key_needs_32_bytes_!';
 const ALGORITHM = 'aes-256-gcm';
 
 // Helper to ensure key is exactly 32 bytes
 const getKey = () => {
-    return crypto.createHash('sha256').update(String(ENCRYPTION_KEY)).digest('base64').substring(0, 32);
+    return crypto.createHash('sha256').update(String(ACTIVE_KEY)).digest('base64').substring(0, 32);
 };
 
 export const encrypt = (text: string | null | undefined): string | null => {
@@ -27,7 +32,7 @@ export const encrypt = (text: string | null | undefined): string | null => {
         return `ENC:${iv.toString('hex')}:${authTag}:${encrypted}`;
     } catch (error) {
         console.error('Encryption error:', error);
-        return text; // Fallback to plain text on error (or throw?)
+        throw new Error('Encryption failed. Aborting to prevent data exposure.');
     }
 };
 
@@ -54,6 +59,6 @@ export const decrypt = (encryptedText: string | null | undefined): string | null
         return decrypted;
     } catch (error) {
         console.error('Decryption error:', error);
-        return encryptedText; // Fallback to returning the encrypted string on error to avoid breaking the UI completely
+        throw new Error('Decryption failed.');
     }
 };

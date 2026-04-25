@@ -48,7 +48,7 @@ export function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Por qué Booklysharp es la <span className="text-primary">única herramienta</span> de reservas que necesitarás
+            Por qué Booklysharp es la <span className="text-[#0c63ce]">única herramienta</span> de reservas que necesitarás
           </motion.h2>
           <motion.p 
             className="text-lg text-slate-600"

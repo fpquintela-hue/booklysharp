@@ -8,7 +8,7 @@ import { Eye, EyeOff, Check, BellRing, Users, User, LockKeyhole, ArrowRight, Hel
 import ResetPasswordPage from './reset/page';
 
 export default function GlobalLoginPage() {
-    const { login, user, isLoading: authLoading } = useAuth();
+    const { login, logout, user, isLoading: authLoading } = useAuth();
     const router = useRouter();
 
     const [email, setEmail] = useState('');
@@ -25,16 +25,24 @@ export default function GlobalLoginPage() {
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         if (searchParams.has('token')) { setIsResetPath(true); return; }
+        
+        if (searchParams.has('logout')) {
+            logout();
+            window.history.replaceState({}, document.title, '/login');
+            return;
+        }
+
         if (user) {
             if (user.role === 'SUPERADMIN') {
                 router.push('/superadminlogin');
             } else if (user.tenantAlias) {
                 router.push(`/${user.tenantAlias}`);
             } else {
-                router.push('/');
+                // If they don't have a tenant, they haven't finished registration or their account is orphaned.
+                router.push('/registro');
             }
         }
-    }, [user, router]);
+    }, [user, router, logout]);
 
     if (authLoading) return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -90,13 +98,10 @@ export default function GlobalLoginPage() {
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIV3y9ktODDYaBaTuInbUNeBrMF907xZ0YHC3SMhNcT92olLME5E6TJC0uUsg7mQwL-el6W4-THcyzMMbdq2YMuKk3Bzm4HI0gDgxynS4nO-j4QHj22w7S1mJeSK4TWDOIndcR_QxsDeriKNHRss8sYeDJZFpYyNKgog_meM6gBuqXBHsyEdS_Cwt8hRakbkPf5kiRVffZ_KMxWcrA2gdPhg2mXQkFEwLN0Ly7Hc8iMratazwEGCXJWpenf_thHrX6B5sGK6h3DAYI"
                 />
                 {/* Branding Overlay */}
-                <div className="absolute inset-0 flex flex-col justify-between p-16 text-[#f9f8ff]" style={{ background: 'rgba(0, 91, 196, 0.75)', backdropFilter: 'blur(12px)' }}>
+                <div className="absolute inset-0 flex flex-col justify-between p-16 text-[#f9f8ff]" style={{ background: 'rgba(12, 99, 206, 0.75)', backdropFilter: 'blur(12px)' }}>
                     <div>
-                        <div className="flex items-center gap-3 mb-12">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                                <Stethoscope className="text-[#005bc4]" size={24} />
-                            </div>
-                            <span className="font-sans font-extrabold text-2xl tracking-tight text-white">BooklySharp</span>
+                        <div className="mb-12">
+                            <img src="/booklysharp_logotb.png" alt="BooklySharp Logo" className="h-12 w-auto" />
                         </div>
                         
                         <div className="max-w-xl">
@@ -139,10 +144,7 @@ export default function GlobalLoginPage() {
                 <div className="w-full max-w-md">
                     {/* Mobile Header (Hidden on LG) */}
                     <div className="lg:hidden flex flex-col items-center mb-10 text-center">
-                        <div className="w-12 h-12 bg-[#005bc4] rounded-2xl flex items-center justify-center shadow-xl mb-4">
-                            <Stethoscope className="text-white" size={24} />
-                        </div>
-                        <h2 className="font-sans font-bold text-2xl text-[#005bc4]">BooklySharp</h2>
+                        <img src="/booklysharp_logo.png?v=1" alt="BooklySharp Logo" className="h-10 w-auto" />
                     </div>
 
                     {/* Main Card Header */}
@@ -158,11 +160,11 @@ export default function GlobalLoginPage() {
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-[#2c3437] ml-1" htmlFor="email">Correo Electrónico</label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#747c80] group-focus-within:text-[#005bc4] transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#747c80] group-focus-within:text-[#0c63ce] transition-colors">
                                     <Mail size={20} />
                                 </div>
                                 <input 
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-[#eaeff2] border-transparent focus:border-[#005bc4] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none" 
+                                    className="block w-full pl-12 pr-4 py-3.5 bg-[#eaeff2] border-transparent focus:border-[#0c63ce] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none" 
                                     id="email" 
                                     name="email" 
                                     placeholder="tunombre@ejemplo.com" 
@@ -180,11 +182,11 @@ export default function GlobalLoginPage() {
                                 <label className="block text-sm font-semibold text-[#2c3437]" htmlFor="password">Contraseña</label>
                             </div>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#747c80] group-focus-within:text-[#005bc4] transition-colors">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#747c80] group-focus-within:text-[#0c63ce] transition-colors">
                                     <LockKeyhole size={20} />
                                 </div>
                                 <input 
-                                    className="block w-full pl-12 pr-12 py-3.5 bg-[#eaeff2] border-transparent focus:border-[#005bc4] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none" 
+                                    className="block w-full pl-12 pr-12 py-3.5 bg-[#eaeff2] border-transparent focus:border-[#0c63ce] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none" 
                                     id="password" 
                                     name="password" 
                                     placeholder="••••••••••••" 
@@ -194,7 +196,7 @@ export default function GlobalLoginPage() {
                                     required
                                 />
                                 <button 
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#747c80] hover:text-[#005bc4] transition-colors" 
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#747c80] hover:text-[#0c63ce] transition-colors" 
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
@@ -207,14 +209,14 @@ export default function GlobalLoginPage() {
                         <div className="flex items-center justify-between px-1 py-1">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input 
-                                    className="w-5 h-5 rounded border-[#acb3b7] text-[#005bc4] focus:ring-[#005bc4]/20 bg-[#eaeff2] transition-all outline-none" 
+                                    className="w-5 h-5 rounded border-[#acb3b7] text-[#0c63ce] focus:ring-[#0c63ce]/20 bg-[#eaeff2] transition-all outline-none" 
                                     type="checkbox"
                                     checked={rememberMe}
                                     onChange={() => setRememberMe(!rememberMe)}
                                 />
                                 <span className="text-sm font-medium text-[#596064]">Recordarme</span>
                             </label>
-                            <button type="button" className="text-sm font-semibold text-[#005bc4] hover:text-[#004fad] transition-colors" onClick={() => setShowForgotDialog(true)}>
+                            <button type="button" className="text-sm font-semibold text-[#0c63ce] hover:text-[#004fad] transition-colors" onClick={() => setShowForgotDialog(true)}>
                                 ¿Olvidaste tu contraseña?
                             </button>
                         </div>
@@ -223,8 +225,8 @@ export default function GlobalLoginPage() {
 
                         {/* Primary CTA */}
                         <button 
-                            className="w-full text-white py-4 px-6 rounded-xl font-sans font-bold text-lg flex items-center justify-center gap-3 shadow-[0_8px_30px_rgb(0,91,196,0.2)] hover:shadow-[0_8px_40px_rgb(0,91,196,0.3)] hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:hover:scale-100" 
-                            style={{ background: 'linear-gradient(135deg, #005bc4 0%, #4388fd 100%)' }}
+                            className="w-full text-white py-4 px-6 rounded-xl font-sans font-bold text-lg flex items-center justify-center gap-3 shadow-[0_8px_30px_rgba(12,99,206,0.2)] hover:shadow-[0_8px_40px_rgba(12,99,206,0.3)] hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:hover:scale-100" 
+                            style={{ background: 'linear-gradient(135deg, #0c63ce 0%, #4388fd 100%)' }}
                             type="submit"
                             disabled={isSubmitting}
                         >
@@ -233,7 +235,7 @@ export default function GlobalLoginPage() {
                         </button>
                         
                         <div className="mt-4 text-center">
-                            <button type="button" onClick={() => router.push('/registro')} className="text-sm font-semibold text-[#005bc4] hover:underline">
+                            <button type="button" onClick={() => router.push('/registro')} className="text-sm font-semibold text-[#0c63ce] hover:underline">
                                 ¿No tienes un negocio aún? Crea tu cuenta
                             </button>
                         </div>
@@ -252,7 +254,7 @@ export default function GlobalLoginPage() {
 
             {/* Support Floating Bubble (Material Style) - hidden on lg */}
             <div className="fixed bottom-8 right-8 z-50 lg:hidden">
-                <button className="w-14 h-14 bg-white shadow-2xl rounded-full flex items-center justify-center text-[#005bc4] border border-[#acb3b7]/10">
+                <button className="w-14 h-14 bg-white shadow-2xl rounded-full flex items-center justify-center text-[#0c63ce] border border-[#acb3b7]/10">
                     <HelpCircle size={28} />
                 </button>
             </div>
@@ -267,7 +269,7 @@ export default function GlobalLoginPage() {
                         <h3 className="font-sans font-bold text-xl mb-2 text-[#2c3437]">Recuperar clave</h3>
                         <p className="text-sm text-[#596064] mb-6">Introduce tu email y te enviaremos instrucciones.</p>
                         <input 
-                            className="block w-full px-4 py-3 bg-[#eaeff2] border-transparent focus:border-[#005bc4] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none mb-4" 
+                            className="block w-full px-4 py-3 bg-[#eaeff2] border-transparent focus:border-[#0c63ce] focus:ring-0 rounded-xl text-[#2c3437] placeholder:text-[#747c80] transition-all outline-none mb-4" 
                             placeholder="tu@email.com" 
                             type="email"
                             value={forgotEmail} 
@@ -275,7 +277,7 @@ export default function GlobalLoginPage() {
                         />
                         <button 
                             className="w-full text-white py-3 px-6 rounded-xl font-sans font-bold flex items-center justify-center transition-all" 
-                            style={{ background: 'linear-gradient(135deg, #005bc4 0%, #4388fd 100%)' }}
+                            style={{ background: 'linear-gradient(135deg, #0c63ce 0%, #4388fd 100%)' }}
                             onClick={handleForgotSubmit} 
                             disabled={isSendingForgot}
                         >

@@ -59,7 +59,7 @@ export function ExportDialog() {
                 'Profesional': app.professionalName
             }));
 
-            exportToExcel(dataToExport, `${t('export.filename')}_${startDate}_${endDate}`);
+            await exportToExcel(dataToExport, `${t('export.filename')}_${startDate}_${endDate}`);
             toast.success(t('settings.save_success'));
             setOpen(false);
         } catch (error) {

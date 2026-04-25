@@ -59,7 +59,7 @@ export async function POST(request: Request) {
                 } else {
                     await (prisma.user as any).create({
                         data: {
-                            id: u.id || Math.random().toString(36).substring(2, 15),
+                            id: u.id || crypto.randomUUID(),
                             email: u.email,
                             tenantId,
                             ...cleanData

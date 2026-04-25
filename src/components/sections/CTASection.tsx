@@ -43,7 +43,7 @@ export function CTASection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Button size="lg" variant="accent" className="group shadow-xl shadow-amber-500/20" asChild>
+            <Button size="lg" variant="accent" className="group shadow-xl shadow-[#0c63ce]/20" asChild>
               <NextLink href="/registro">
                 Crear mi cuenta gratis
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

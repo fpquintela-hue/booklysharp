@@ -113,7 +113,7 @@ export const patientService = {
             } else {
                 toImport.push({
                     ...p,
-                    id: `p${existingPatients.length + toImport.length + 1 + Math.floor(Math.random() * 1000)}`,
+                    id: crypto.randomUUID(),
                     history: []
                 });
             }

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const EVOLUTION_API_URL = 'http://192.168.1.6:8080';
-const EVOLUTION_API_KEY = 'TuClaveSegura123';
+const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://localhost:8080';
+const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || '';
 
 async function getTenantAlias(req: Request) {
     const authHeader = req.headers.get('tenant-id');

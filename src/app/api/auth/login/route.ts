@@ -38,12 +38,8 @@ export async function POST(request: Request) {
                 where: { username: 'superadmin' }
             });
 
-            // Si no existe, créalo temporalmente (development wipe fallback)
             if (!superadmin) {
-                const hashed = await bcrypt.hash('1234admin', 10);
-                superadmin = await prisma.superAdmin.create({
-                    data: { username: 'superadmin', password: hashed }
-                });
+                return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
             }
 
             if (superadmin && await checkAndUpdatePassword(superadmin, password, true)) {

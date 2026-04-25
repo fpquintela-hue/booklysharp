@@ -57,18 +57,18 @@ export async function POST(req: Request) {
             // Check phone match
             if (normalizedPhone && p.phone) {
                 const decPhone = decrypt(p.phone)?.replace(/\s+/g, '').replace('+', '');
-                console.log(`[Matching] Trying phone: ${normalizedPhone} vs stored: ${decPhone}`);
+
                 if (decPhone === normalizedPhone) {
-                    console.log(`[Matching] Phone MATCH found for patient ${p.id}`);
+
                     return true;
                 }
             }
             // Check email match if provided
             if (email && p.email) {
                 const decEmail = decrypt(p.email)?.toLowerCase().trim();
-                console.log(`[Matching] Trying email: ${email} vs stored: ${decEmail}`);
+
                 if (decEmail === email.toLowerCase().trim()) {
-                    console.log(`[Matching] Email MATCH found for patient ${p.id}`);
+
                     return true;
                 }
             }
@@ -95,13 +95,13 @@ export async function POST(req: Request) {
 
             // If name is different, update (e.g., Fernando instead of Mercedes)
             if (name && currentName !== name) {
-                console.log(`[Updating] Name change detected: ${currentName} -> ${name}`);
+
                 updates.name = encrypt(name);
             }
             
             // If phone is different (normalized match failed but email match succeeded), update
             if (phone && currentPhone !== phone) {
-                console.log(`[Updating] Phone change detected: ${currentPhone} -> ${phone}`);
+
                 updates.phone = encrypt(phone);
             }
 
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
                     where: { id: patient.id },
                     data: updates
                 });
-                console.log(`[Sync] Patient ${patient.id} updated successfully.`);
+
             }
         }
 

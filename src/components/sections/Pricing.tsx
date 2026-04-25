@@ -35,8 +35,8 @@ export function Pricing() {
         
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
           {plans.map((plan, i) => (
-            <div key={i} className={`p-8 rounded-3xl ${plan.highlighted ? 'bg-slate-900 text-white shadow-2xl scale-105 border-primary border-2' : 'bg-white border text-slate-900'}`}>
-              {plan.highlighted && <div className="text-primary-light text-sm font-bold tracking-widest uppercase mb-4">Más popular</div>}
+            <div key={i} className={`p-8 rounded-3xl ${plan.highlighted ? 'bg-slate-900 text-white shadow-2xl scale-105 border-[#0c63ce] border-2' : 'bg-white border text-slate-900'}`}>
+              {plan.highlighted && <div className="text-[#0c63ce] text-sm font-bold tracking-widest uppercase mb-4">Más popular</div>}
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <p className={`mb-6 text-sm ${plan.highlighted ? 'text-slate-400' : 'text-slate-500'}`}>{plan.description}</p>
               <div className="text-4xl font-extrabold mb-6">{plan.monthlyPrice}<span className="text-lg font-normal text-slate-500">/mes</span></div>
@@ -44,12 +44,12 @@ export function Pricing() {
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feat, j) => (
                   <li key={j} className="flex items-center gap-3">
-                    <CheckCircle2 className={`w-5 h-5 ${plan.highlighted ? 'text-primary' : 'text-green-500'}`} />
+                    <CheckCircle2 className={`w-5 h-5 ${plan.highlighted ? 'text-[#0c63ce]' : 'text-green-500'}`} />
                     <span>{feat}</span>
                   </li>
                 ))}
               </ul>
-              <Button className={`w-full ${plan.highlighted ? 'bg-primary hover:bg-primary/90 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`} size="lg">
+              <Button className={`w-full ${plan.highlighted ? 'bg-[#0c63ce] hover:bg-[#0c63ce]/90 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`} size="lg">
                 Elegir {plan.name}
               </Button>
             </div>

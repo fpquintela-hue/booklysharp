@@ -11,7 +11,7 @@ import { Calendar, Clock, FileSpreadsheet, Upload, Trash2, AlertTriangle, Layout
 import { exportToExcel } from '@/lib/export-utils';
 import { useAuth } from '@/context/auth-context';
 import { usePathname, useParams } from 'next/navigation';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import {
     Dialog,
     DialogContent,
@@ -56,11 +56,31 @@ export default function PatientsPage() {
 
         const reader = new FileReader();
         reader.onload = async (evt) => {
-            const bstr = evt.target?.result;
-            const wb = XLSX.read(bstr, { type: 'binary' });
-            const wsname = wb.SheetNames[0];
-            const ws = wb.Sheets[wsname];
-            const data = XLSX.utils.sheet_to_json(ws) as any[];
+            const buffer = evt.target?.result;
+            if (!buffer) return;
+            
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buffer as ArrayBuffer);
+            const ws = wb.worksheets[0];
+            
+            const data: any[] = [];
+            const headers: string[] = [];
+            
+            ws.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) {
+                    row.eachCell((cell, colNumber) => {
+                        headers[colNumber] = cell.value?.toString() || '';
+                    });
+                } else {
+                    const rowData: any = {};
+                    row.eachCell((cell, colNumber) => {
+                        if (headers[colNumber]) {
+                            rowData[headers[colNumber]] = cell.value;
+                        }
+                    });
+                    data.push(rowData);
+                }
+            });
 
             // Map data and filter to match name, phone, email
             const newPatients = data.map(row => {
@@ -86,7 +106,7 @@ export default function PatientsPage() {
                 alert('No se encontraron datos válidos en el archivo. El Excel debe tener columnas: name, phone, email.');
             }
         };
-        reader.readAsBinaryString(file);
+        reader.readAsArrayBuffer(file);
 
         // Reset input
         e.target.value = '';

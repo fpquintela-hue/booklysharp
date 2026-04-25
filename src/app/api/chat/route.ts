@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const DIFY_API_KEY = process.env.DIFY_API_KEY || 'app-9KuNDI5GpKxsA8TSIOrU3nFB'; // Reemplazar con tu clave real
-const DIFY_URL = process.env.DIFY_URL || 'http://192.168.1.7/v1'; // Cambiar si usas Dify autoalojado
+const DIFY_API_KEY = process.env.DIFY_API_KEY || '';
+const DIFY_URL = process.env.DIFY_URL || 'http://localhost/v1';
 
 export async function POST(req: Request) {
     try {

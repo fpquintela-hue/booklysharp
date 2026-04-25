@@ -3,8 +3,13 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import NextImage from 'next/image';
+
+import { useAuth } from '@/context/auth-context';
 
 export function Navbar() {
+  const { user, logout } = useAuth();
+
   return (
     <motion.header
       className="fixed top-0 inset-x-0 z-50 bg-white/75 backdrop-blur-[8px] shadow-sm"
@@ -14,9 +19,11 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="font-bold text-2xl tracking-tight flex items-center font-[Inter]">
-            <span className="text-black">Bookly</span><span className="text-[#2563EB]">Sharp</span>
-          </span>
+          <img 
+            src="/booklysharp_logo.png?v=1" 
+            alt="BooklySharp Logo" 
+            className="h-8 w-auto"
+          />
         </Link>
         
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-900">
@@ -26,12 +33,27 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="http://192.168.1.6/login" className="hidden sm:block text-sm font-medium text-slate-900 hover:text-primary transition-colors">
-            Iniciar sesión
-          </Link>
-          <Button asChild>
-            <Link href="/registro">Empezar ahora</Link>
-          </Button>
+          {user ? (
+            <>
+              <button onClick={logout} className="hidden sm:block text-sm font-medium text-slate-900 hover:text-red-600 transition-colors">
+                Cerrar sesión
+              </button>
+              <Button variant="accent" asChild>
+                <Link href={user.role === 'SUPERADMIN' ? '/superadminlogin' : (user.tenantAlias ? `/${user.tenantAlias}` : '/registro')}>
+                  Ir al panel
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="hidden sm:block text-sm font-medium text-slate-900 hover:text-[#0c63ce] transition-colors">
+                Iniciar sesión
+              </Link>
+              <Button variant="accent" asChild>
+                <Link href="/registro">Empezar ahora</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </motion.header>
