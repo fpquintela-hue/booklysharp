@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://localhost:8080';
+const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://192.168.1.6:8080';
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || '';
 
 async function getTenantAlias(req: Request) {
@@ -128,9 +128,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ qr: qrBase64 });
         }
 
+        console.error('QR Generation Failed. API Response:', JSON.stringify(createData, null, 2));
+
         return NextResponse.json({ 
             error: 'No se pudo obtener el código QR.', 
-            details: 'La instancia podría estar ya conectada.',
+            details: 'Verifica que la instancia no esté ya conectada o que la API Key sea correcta.',
             apiResponse: createData 
         }, { status: 200 });
 

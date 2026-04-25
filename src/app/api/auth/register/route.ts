@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { getTransporter } from '@/lib/notifications';
+import { normalizePlanId, getPlanById } from '@/lib/subscription-plans';
 
 export async function POST(request: Request) {
     try {
@@ -32,9 +33,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'El email ya está registrado' }, { status: 400 });
         }
 
-        // Calculate subscription date 14 days trial by default
+        // Resolve canonical plan and derive trial period from plan definition
+        const canonicalPlanId = normalizePlanId(nivel_de_suscripcion);
+        const selectedPlan = getPlanById(canonicalPlanId);
         const trialEndDate = new Date();
-        trialEndDate.setDate(trialEndDate.getDate() + 14);
+        trialEndDate.setDate(trialEndDate.getDate() + selectedPlan.trialDays);
 
         // Transaction to create Tenant and Admin User
         const tenant = await prisma.$transaction(async (tx) => {
@@ -43,7 +46,7 @@ export async function POST(request: Request) {
                     alias,
                     nombre_comercial,
                     telefono,
-                    nivel_de_suscripcion: nivel_de_suscripcion || 'Free Trial',
+                    nivel_de_suscripcion: canonicalPlanId,
                     fecha_fin_suscripcion: trialEndDate,
                     pais, provincia, ciudad, calle, numero, codigo_postal,
                     facturacion_pais, facturacion_provincia, facturacion_ciudad, facturacion_calle, facturacion_numero, facturacion_codigo_postal,

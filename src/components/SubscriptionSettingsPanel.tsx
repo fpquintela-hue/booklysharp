@@ -6,6 +6,7 @@ import { useAuth } from '@/context/auth-context';
 import { useTranslation } from '@/hooks/useTranslation';
 import { apiFetch } from '@/lib/mock-service';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
+import { SUBSCRIPTION_PLANS, normalizePlanId } from '@/lib/subscription-plans';
 
 export function SubscriptionSettingsPanel() {
     const { user, updateUser } = useAuth();
@@ -240,37 +241,42 @@ export function SubscriptionSettingsPanel() {
                 </div>
             </div>
 
-            {/* PLAN SELECTOR (Placeholder view) */}
+            {/* PLAN SELECTOR */}
             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8">
                 <h4 className="text-xl font-black text-slate-900 dark:text-white mb-6 text-center">
                     Mejora tu Plan
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {['Gratuito', 'Individual', 'Profesional'].map(plan => (
-                        <div key={plan} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col">
-                            <h5 className="font-black text-lg mb-2 text-slate-900 dark:text-white">{plan}</h5>
-                            <p className="text-2xl font-bold text-[#004ac6] mb-4">
-                                {plan === 'Gratuito' ? '0€' : plan === 'Individual' ? '29€/mes' : '59€/mes'}
+                    {SUBSCRIPTION_PLANS.map(plan => (
+                        <div key={plan.id} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col">
+                            {plan.badgeLabel && (
+                                <span className="self-start mb-2 text-[10px] font-black tracking-widest uppercase bg-[#004ac6] text-white px-2 py-0.5 rounded-full">
+                                    {plan.badgeLabel}
+                                </span>
+                            )}
+                            <h5 className="font-black text-lg mb-2 text-slate-900 dark:text-white">{plan.name}</h5>
+                            <p className="text-2xl font-bold text-[#004ac6] mb-1">
+                                {plan.monthlyPrice === 0 ? 'Gratis' : `${plan.monthlyPrice.toFixed(2).replace('.', ',')} €`}
+                                {plan.monthlyPrice > 0 && <span className="text-sm font-normal text-slate-500">/mes</span>}
                             </p>
+                            <p className="text-xs text-slate-400 mb-4">{plan.description}</p>
                             <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-2 mb-6 flex-1">
-                                <li className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-[#004ac6] flex-shrink-0" /> Funciones básicas
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 mt-0.5 text-[#004ac6] flex-shrink-0" /> Soporte por email
-                                </li>
-                                {plan !== 'Gratuito' && (
-                                    <li className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-4 h-4 mt-0.5 text-[#004ac6] flex-shrink-0" /> Informes avanzados
+                                {plan.features.map((feat, i) => (
+                                    <li key={i} className="flex items-start gap-2">
+                                        <CheckCircle2 className="w-4 h-4 mt-0.5 text-[#004ac6] flex-shrink-0" />
+                                        {feat}
                                     </li>
-                                )}
+                                ))}
                             </ul>
-                            <button className={`w-full py-2 font-bold rounded-lg border ${
-                                planName === plan 
-                                ? 'bg-slate-100 text-slate-400 border-transparent cursor-not-allowed dark:bg-slate-800 dark:text-slate-500' 
-                                : 'bg-transparent text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:border-[#004ac6]'} transition-colors`
-                            } disabled={planName === plan}>
-                                {planName === plan ? 'Plan Actual' : 'Cambiar Plan'}
+                            <button
+                                className={`w-full py-2 font-bold rounded-lg border transition-colors ${
+                                    normalizePlanId(planName) === plan.id
+                                    ? 'bg-slate-100 text-slate-400 border-transparent cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
+                                    : 'bg-transparent text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:border-[#004ac6]'
+                                }`}
+                                disabled={normalizePlanId(planName) === plan.id}
+                            >
+                                {normalizePlanId(planName) === plan.id ? 'Plan Actual' : 'Cambiar Plan'}
                             </button>
                         </div>
                     ))}

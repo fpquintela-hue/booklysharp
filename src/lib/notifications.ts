@@ -2,10 +2,88 @@ import prisma from './prisma';
 import nodemailer from 'nodemailer';
 import { decrypt } from './encryption';
 
-const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://localhost:8080';
+const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://192.168.1.6:8080';
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || '';
 
+/** URL de imagen de marca por defecto cuando el tenant no tiene logo configurado */
+const DEFAULT_BRAND_IMAGE_URL = process.env.DEFAULT_WHATSAPP_IMAGE_URL ||
+    'https://booklysharp.com/images/whatsapp-reminder-default.png';
+
 const getFullInstanceName = (alias: string) => `BooklySharp_${alias.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+/**
+ * Construye la URL pública de confirmación de asistencia.
+ * Formato: {NEXT_PUBLIC_APP_URL}/{alias}/confirm/{appointmentId}
+ */
+function buildConfirmationUrl(tenantAlias: string, appointmentId: string): string {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://booklysharp.com';
+    return `${baseUrl}/${tenantAlias}/confirm/${appointmentId}`;
+}
+
+/**
+ * Envía un mensaje de WhatsApp con imagen + caption a través de Evolution API.
+ * Usa /message/sendMedia en lugar de /message/sendText.
+ *
+ * Manejo de errores:
+ * - Timeout de red (AbortSignal) → lanza error para que el caller reintente o marque como FAILED
+ * - HTTP 4xx de Evolution (número inválido, sesión no conectada, etc.) → lanza error con el mensaje de la API
+ * - HTTP 5xx → lanza error genérico
+ */
+async function sendWhatsAppMedia({
+    instanceName,
+    number,
+    imageUrl,
+    caption,
+}: {
+    instanceName: string;
+    number: string;
+    imageUrl: string;
+    caption: string;
+}): Promise<void> {
+    const controller = new AbortController();
+    // Timeout de 15 segundos para evitar bloqueos en el job de recordatorios
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+    let response: Response;
+    try {
+        response = await fetch(
+            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': EVOLUTION_API_KEY,
+                },
+                body: JSON.stringify({
+                    number,
+                    mediatype: 'image',
+                    mimetype: 'image/png',
+                    media: imageUrl,      // URL pública accesible por Evolution API
+                    caption,
+                }),
+                signal: controller.signal,
+            }
+        );
+    } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') {
+            throw new Error('Evolution API timeout: la petición superó los 15 segundos');
+        }
+        throw new Error(`Error de red con Evolution API: ${String(err)}`);
+    } finally {
+        clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) {
+        let apiMessage = `HTTP ${response.status}`;
+        try {
+            const body = await response.json() as { message?: string; error?: string };
+            apiMessage = body.message || body.error || apiMessage;
+        } catch {
+            // ignoramos errores al parsear el body de error
+        }
+        throw new Error(`Evolution API error: ${apiMessage}`);
+    }
+}
 
 export async function getTransporter() {
     // Priority 1: Environment Variables
@@ -102,12 +180,28 @@ export async function sendImmediateNotification(appointment: any, tenant: any, t
             const finalNumber = (cleanNumber.length === 9) ? `34${cleanNumber}` : cleanNumber;
 
             const fullInstanceName = getFullInstanceName(tenant.alias);
-            const response = await fetch(`${EVOLUTION_API_URL}/message/sendText/${fullInstanceName}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_API_KEY },
-                body: JSON.stringify({ number: finalNumber, text: finalMessage })
-            });
-            return response.ok;
+
+            // Imagen corporativa: logo del tenant si existe, sino imagen por defecto
+            const imageUrl = (settings.logoUrl && !settings.logoUrl.startsWith('/'))
+                ? settings.logoUrl
+                : DEFAULT_BRAND_IMAGE_URL;
+
+            // Caption de confirmación de reserva (sin profesional en este flujo inmediato)
+            const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
+            const caption = `${finalMessage}\n\n✅ Confirma tu asistencia aquí: ${confirmUrl}`;
+
+            try {
+                await sendWhatsAppMedia({
+                    instanceName: fullInstanceName,
+                    number: finalNumber,
+                    imageUrl,
+                    caption,
+                });
+                return true;
+            } catch (err: unknown) {
+                console.error('[WhatsApp] Error enviando media en notificación inmediata:', err);
+                return false;
+            }
         } 
         else if (type === 'EMAIL' && patientEmail) {
             const emailSystem = await getTransporter();

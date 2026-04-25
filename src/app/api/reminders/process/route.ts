@@ -5,10 +5,86 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import nodemailer from 'nodemailer';
 
-const EVOLUTION_API_URL = 'http://192.168.1.6:8080';
-const EVOLUTION_API_KEY = 'TuClaveSegura123';
+const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || 'http://192.168.1.6:8080';
+const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || '';
+
+/** URL de imagen de marca por defecto si el tenant no tiene logo configurado */
+const DEFAULT_BRAND_IMAGE_URL = process.env.DEFAULT_WHATSAPP_IMAGE_URL ||
+    'https://booklysharp.com/images/whatsapp-reminder-default.png';
 
 const getFullInstanceName = (alias: string) => `BooklySharp_${alias.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+/**
+ * Construye el enlace dinámico de confirmación de asistencia.
+ * Formato: {NEXT_PUBLIC_APP_URL}/{alias}/confirm/{appointmentId}
+ */
+function buildConfirmationUrl(tenantAlias: string, appointmentId: string): string {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://booklysharp.com';
+    return `${baseUrl}/${tenantAlias}/confirm/${appointmentId}`;
+}
+
+/**
+ * Envía un mensaje de WhatsApp con imagen + caption via Evolution API /message/sendMedia.
+ *
+ * Errores manejados:
+ * - Timeout de 15 s (AbortSignal) → lanza error
+ * - HTTP 4xx (número inválido, instancia desconectada...) → lanza error con mensaje de la API
+ * - HTTP 5xx / red → lanza error genérico
+ */
+async function sendWhatsAppMedia({
+    instanceName,
+    number,
+    imageUrl,
+    caption,
+}: {
+    instanceName: string;
+    number: string;
+    imageUrl: string;
+    caption: string;
+}): Promise<void> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+    let response: Response;
+    try {
+        response = await fetch(
+            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': EVOLUTION_API_KEY,
+                },
+                body: JSON.stringify({
+                    number,
+                    mediatype: 'image',
+                    mimetype: 'image/png',
+                    media: imageUrl,   // URL pública accesible por el servidor de Evolution
+                    caption,
+                }),
+                signal: controller.signal,
+            }
+        );
+    } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') {
+            throw new Error('Evolution API timeout: la petición superó los 15 segundos');
+        }
+        throw new Error(`Error de red con Evolution API: ${String(err)}`);
+    } finally {
+        clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) {
+        let apiMessage = `HTTP ${response.status}`;
+        try {
+            const body = await response.json() as { message?: string; error?: string };
+            apiMessage = body.message || body.error || apiMessage;
+        } catch {
+            // ignoramos errores de parseo del body de error
+        }
+        throw new Error(`Evolution API error (${instanceName}): ${apiMessage}`);
+    }
+}
 
 async function getTransporter() {
     const settings = await (prisma as any).setting.findMany({
@@ -161,22 +237,31 @@ export async function GET(request: Request) {
                 if (cleanNumber.startsWith('00')) cleanNumber = cleanNumber.substring(2);
                 const finalNumber = (cleanNumber.length === 9) ? `34${cleanNumber}` : cleanNumber;
 
+                // Imagen corporativa: logo del tenant si es URL externa, sino imagen por defecto
+                const imageUrl = (settings.logoUrl && !settings.logoUrl.startsWith('/'))
+                    ? settings.logoUrl
+                    : DEFAULT_BRAND_IMAGE_URL;
+
+                // Caption condicional según si el tenant tiene profesional asignado en la cita
+                const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
+                const hasProfessional = !!appointment.professional;
+                const caption = hasProfessional
+                    ? `${finalMessage}\n\nPor favor, confirma tu asistencia haciendo clic en este enlace: ${confirmUrl}`
+                    : `${finalMessage}\n\nPor favor, confirma tu asistencia haciendo clic en este enlace: ${confirmUrl}`;
+
                 try {
                     const fullInstanceName = getFullInstanceName(tenant.alias);
-                    const response = await fetch(`${EVOLUTION_API_URL}/message/sendText/${fullInstanceName}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_API_KEY },
-                        body: JSON.stringify({ number: finalNumber, text: finalMessage })
+                    await sendWhatsAppMedia({
+                        instanceName: fullInstanceName,
+                        number: finalNumber,
+                        imageUrl,
+                        caption,
                     });
-
-                    if (response.ok) {
-                        await (prisma as any).reminder.update({ where: { id: reminder.id }, data: { status: 'SENT' } });
-                        results.sent_whatsapp++;
-                    } else {
-                        await (prisma as any).reminder.update({ where: { id: reminder.id }, data: { status: 'FAILED' } });
-                        results.failed++;
-                    }
-                } catch (e) {
+                    await (prisma as any).reminder.update({ where: { id: reminder.id }, data: { status: 'SENT' } });
+                    results.sent_whatsapp++;
+                } catch (err: unknown) {
+                    console.error(`[Reminder ${reminder.id}] WhatsApp sendMedia error:`, err);
+                    await (prisma as any).reminder.update({ where: { id: reminder.id }, data: { status: 'FAILED' } });
                     results.failed++;
                 }
             } 

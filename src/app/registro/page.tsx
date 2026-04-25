@@ -4,34 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/auth-context';
-
-/* 1. Mapeo de Suscripciones (Fuente de Verdad) */
-const PLANS = [
-    {
-        id: 'Gratis',
-        name: 'Gratis',
-        price: '0€',
-        period: '/mes',
-        features: ['1 calendario', '1 mes de historial', 'Soporte básico'],
-        mostPopular: false
-    },
-    {
-        id: 'Plan Individual',
-        name: 'Plan Individual',
-        price: '10€',
-        period: '/mes',
-        features: ['1 calendario', '4 tipos de reservas', 'WhatsApp integrado'],
-        mostPopular: true
-    },
-    {
-        id: 'Plan Profesional',
-        name: 'Plan Profesional',
-        price: '15€',
-        period: '/mes',
-        features: ['2 calendarios', '5 tipos de reservas', 'Soporte prioritario'],
-        mostPopular: false
-    }
-];
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 // Reusable Input Component Defined OUTSIDE to prevent re-renders losing focus
 const ChunkInput = ({ label, icon, type = "text", ...props }: any) => (
@@ -79,7 +52,7 @@ export default function RegisterWizard() {
     const [codigoPostal, setCodigoPostal] = useState('');
     
     // Form Data - Paso 3 (Planes y Facturación)
-    const [nivelSuscripcion, setNivelSuscripcion] = useState('Plan Individual');
+    const [nivelSuscripcion, setNivelSuscripcion] = useState('individual');
     const [usarMismaDireccion, setUsarMismaDireccion] = useState(true);
     const [formaPago, setFormaPago] = useState('Tarjeta');
     
@@ -391,7 +364,7 @@ export default function RegisterWizard() {
                                 <section className="bg-transparent space-y-6">
                                     <h3 className="text-lg font-bold text-[#2c3437]">Selecciona tu Plan</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {PLANS.map((plan) => {
+                                        {SUBSCRIPTION_PLANS.map((plan) => {
                                             const isSelected = nivelSuscripcion === plan.id;
                                             return (
                                                 <div 
@@ -399,16 +372,18 @@ export default function RegisterWizard() {
                                                     onClick={() => setNivelSuscripcion(plan.id)}
                                                     className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${isSelected ? 'border-[#005bc4] bg-white shadow-xl shadow-[#005bc4]/10 scale-[1.02]' : 'border-transparent bg-white shadow-sm hover:shadow-md'}`}
                                                 >
-                                                    {plan.mostPopular && (
+                                                    {plan.badgeLabel && (
                                                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#005bc4] text-white text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full shadow-md">
-                                                            Popular
+                                                            {plan.badgeLabel}
                                                         </div>
                                                     )}
                                                     <div className="flex flex-col h-full">
                                                         <h4 className="font-bold text-[#2c3437] text-sm mb-2">{plan.name}</h4>
                                                         <div className="flex items-end gap-1 mb-6">
-                                                            <span className="text-3xl font-black text-[#005bc4]">{plan.price}</span>
-                                                            <span className="text-sm font-medium text-[#acb3b7] mb-1">{plan.period}</span>
+                                                            <span className="text-3xl font-black text-[#005bc4]">
+                                                                {plan.monthlyPrice === 0 ? 'Gratis' : `${plan.monthlyPrice.toFixed(2).replace('.', ',')} €`}
+                                                            </span>
+                                                            {plan.monthlyPrice > 0 && <span className="text-sm font-medium text-[#acb3b7] mb-1">/mes</span>}
                                                         </div>
                                                         <ul className="space-y-3 mt-auto">
                                                             {plan.features.map((feature, i) => (
