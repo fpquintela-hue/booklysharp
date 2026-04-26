@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     MessageSquare, Settings, Activity, Trash2, Send, 
-    RefreshCw, Terminal, Phone, CheckCircle2, XCircle, AlertCircle
+    RefreshCw, Terminal, Phone, CheckCircle2, XCircle, AlertCircle, CalendarDays,
+    Server,
+    Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -26,6 +28,9 @@ export function EvolutionMonitor() {
     const [instances, setInstances] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     
+    // Tabs state
+    const [activeTab, setActiveTab] = useState<'instances' | 'config'>('instances');
+
     // Global Settings
     const [apiUrl, setApiUrl] = useState('');
     const [apiKey, setApiKey] = useState('');
@@ -114,7 +119,7 @@ export function EvolutionMonitor() {
     const fetchLogs = async () => {
         setIsFetchingLogs(true);
         try {
-            const res = await fetch(`/api/superadmin/evolution/logs?type=${logType}&name=${logName}&lines=100`);
+            const res = await fetch(`/api/superadmin/evolution/logs?type=${logType}&name=${logName}&lines=200`);
             if (res.ok) {
                 const data = await res.json();
                 setLogs(data.logs || 'No logs available.');
@@ -129,6 +134,11 @@ export function EvolutionMonitor() {
     };
 
     const handleAction = async (action: string, instanceName: string, data?: any) => {
+        if (!instanceName || instanceName === 'Unknown') {
+            toast.error('El nombre de la instancia es inválido o no se pudo determinar.');
+            return;
+        }
+
         try {
             const res = await fetch('/api/superadmin/evolution', {
                 method: 'POST',
@@ -140,7 +150,7 @@ export function EvolutionMonitor() {
 
             if (res.ok) {
                 if (action === 'connectionState') {
-                    const state = result.instance?.state || result.state;
+                    const state = result.instance?.state || result.state || result.connectionStatus || 'Desconocido';
                     toast.info(`Estado: ${state}`);
                 } else {
                     toast.success('Acción ejecutada correctamente');
@@ -184,7 +194,7 @@ export function EvolutionMonitor() {
     };
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
             {/* Header */}
             <section className="flex justify-between items-end">
                 <div className="space-y-2">
@@ -204,84 +214,35 @@ export function EvolutionMonitor() {
                 </div>
             </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Global Settings & Logs */}
-                <div className="space-y-8 lg:col-span-1">
-                    {/* Settings Panel */}
-                    <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-blue-900/5">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 mb-6 flex items-center gap-2">
-                            <Settings className="w-4 h-4 text-blue-600" />
-                            Configuración Global API
-                        </h3>
-                        <form onSubmit={saveSettings} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">URL Base Evolution API</Label>
-                                <Input 
-                                    className="h-12 rounded-xl bg-slate-50 border-none font-medium" 
-                                    placeholder="http://192.168.1.6:8080"
-                                    value={apiUrl}
-                                    onChange={(e) => setApiUrl(e.target.value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Global API Key</Label>
-                                <Input 
-                                    type="password"
-                                    className="h-12 rounded-xl bg-slate-50 border-none font-medium" 
-                                    placeholder="••••••••••••••••"
-                                    value={apiKey}
-                                    onChange={(e) => setApiKey(e.target.value)}
-                                />
-                            </div>
-                            <Button type="submit" disabled={isSavingSettings} className="w-full h-12 rounded-xl bg-slate-900 hover:bg-black text-white font-bold transition-all mt-4">
-                                {isSavingSettings ? 'Guardando...' : 'Guardar Configuración'}
-                            </Button>
-                        </form>
-                    </div>
+            {/* Tabs Navigation */}
+            <div className="flex space-x-1 bg-slate-100/80 p-1 rounded-2xl w-max border border-slate-200/50">
+                <button
+                    onClick={() => setActiveTab('instances')}
+                    className={cn("px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2", 
+                        activeTab === 'instances' ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50")}
+                >
+                    <Activity className="w-4 h-4" />
+                    Instancias Activas
+                </button>
+                <button
+                    onClick={() => setActiveTab('config')}
+                    className={cn("px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2", 
+                        activeTab === 'config' ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50")}
+                >
+                    <Server className="w-4 h-4" />
+                    Configuración y Logs
+                </button>
+            </div>
 
-                    {/* Logs Panel */}
-                    <div className="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl text-slate-300">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
-                                <Terminal className="w-4 h-4 text-green-400" />
-                                Visor de Logs
-                            </h3>
-                            <Button onClick={fetchLogs} size="sm" variant="ghost" className="h-8 hover:bg-slate-800 text-slate-300">
-                                <RefreshCw className={cn("w-3 h-3 mr-2", isFetchingLogs && "animate-spin")} />
-                                Actualizar
-                            </Button>
-                        </div>
-                        <div className="flex gap-2 mb-4">
-                            <select 
-                                className="bg-slate-800 border-none rounded-lg text-xs p-2 text-white outline-none"
-                                value={logType}
-                                onChange={(e) => setLogType(e.target.value)}
-                            >
-                                <option value="pm2">PM2</option>
-                                <option value="docker">Docker</option>
-                            </select>
-                            <Input 
-                                className="h-8 rounded-lg bg-slate-800 border-none text-xs text-white" 
-                                placeholder="Nombre proceso/contenedor"
-                                value={logName}
-                                onChange={(e) => setLogName(e.target.value)}
-                            />
-                        </div>
-                        <div className="bg-black/50 rounded-xl p-4 h-64 overflow-y-auto font-mono text-[10px] leading-relaxed break-all border border-slate-800/50 relative">
-                            {logs ? (
-                                <pre className="text-green-400/90 whitespace-pre-wrap">{logs}</pre>
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-slate-600">
-                                    Haz clic en actualizar para cargar logs
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Instances Table */}
-                <div className="lg:col-span-2">
-                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+            <AnimatePresence mode="wait">
+                {activeTab === 'instances' ? (
+                    <motion.div 
+                        key="instances"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-blue-900/5 overflow-hidden"
+                    >
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-blue-600" />
@@ -294,21 +255,27 @@ export function EvolutionMonitor() {
                                     <tr className="bg-slate-50/50">
                                         <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">Instancia / Tenant</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">Estado</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">Alta</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">Teléfono</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest text-right">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {instances.length > 0 ? instances.map((instance: any) => {
-                                        // Handle both v1 and v2 Evolution API structures
-                                        const name = instance.instance?.instanceName || instance.instanceName || 'Unknown';
-                                        const state = instance.instance?.status || instance.status || instance.instance?.state || instance.state || 'Unknown';
-                                        const phone = instance.instance?.ownerJid || instance.ownerJid || '';
+                                    {instances.length > 0 ? instances.map((instance: any, idx) => {
+                                        // Robust parsing to fix the "Unknown" issue from Evolution API responses
+                                        const name = instance.name || instance.instanceName || instance.instance?.instanceName || instance.instance?.name || 'Unknown';
+                                        const state = instance.connectionStatus || instance.status || instance.state || instance.instance?.status || instance.instance?.state || instance.instance?.connectionStatus || 'Unknown';
+                                        const phone = instance.ownerJid || instance.phoneNumber || instance.instance?.ownerJid || instance.instance?.phoneNumber || '';
+                                        const createdAtRaw = instance.createdAt || instance.instance?.createdAt || '';
                                         
-                                        const isConnected = state === 'open' || state === 'connected';
+                                        const isConnected = state.toLowerCase() === 'open' || state.toLowerCase() === 'connected' || state.toLowerCase() === 'online';
+
+                                        const formattedDate = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString('es-ES', {
+                                            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                        }) : 'No disponible';
 
                                         return (
-                                            <tr key={name} className="hover:bg-slate-50/50 transition-colors">
+                                            <tr key={name + idx} className="hover:bg-slate-50/50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <span className="font-bold text-slate-800">{name}</span>
                                                 </td>
@@ -319,6 +286,12 @@ export function EvolutionMonitor() {
                                                     )}>
                                                         {isConnected ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                                                         {state}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                                                        <Clock className="w-4 h-4 text-slate-400" />
+                                                        {formattedDate}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -335,6 +308,7 @@ export function EvolutionMonitor() {
                                                             title="Ver Estado Real"
                                                             onClick={() => handleAction('connectionState', name)}
                                                             className="w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-none"
+                                                            disabled={name === 'Unknown'}
                                                         >
                                                             <Activity className="w-4 h-4" />
                                                         </Button>
@@ -347,6 +321,7 @@ export function EvolutionMonitor() {
                                                                     title="Enviar Mensaje Prueba"
                                                                     onClick={() => setSelectedInstanceForTest(name)}
                                                                     className="w-8 h-8 rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 border-none"
+                                                                    disabled={name === 'Unknown'}
                                                                 >
                                                                     <Send className="w-4 h-4" />
                                                                 </Button>
@@ -414,6 +389,7 @@ export function EvolutionMonitor() {
                                                                 }
                                                             }}
                                                             className="w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 border-none"
+                                                            disabled={name === 'Unknown'}
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
@@ -423,7 +399,7 @@ export function EvolutionMonitor() {
                                         );
                                     }) : (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-slate-400 font-medium">
+                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-medium">
                                                 No hay instancias conectadas.
                                             </td>
                                         </tr>
@@ -431,9 +407,89 @@ export function EvolutionMonitor() {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </motion.div>
+                ) : (
+                    <motion.div 
+                        key="config"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                    >
+                        {/* Settings Panel */}
+                        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-blue-900/5 lg:col-span-1 h-fit">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 mb-6 flex items-center gap-2">
+                                <Settings className="w-4 h-4 text-blue-600" />
+                                Configuración Global API
+                            </h3>
+                            <form onSubmit={saveSettings} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">URL Base Evolution API</Label>
+                                    <Input 
+                                        className="h-12 rounded-xl bg-slate-50 border-none font-medium" 
+                                        placeholder="http://192.168.1.6:8080"
+                                        value={apiUrl}
+                                        onChange={(e) => setApiUrl(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Global API Key</Label>
+                                    <Input 
+                                        type="password"
+                                        className="h-12 rounded-xl bg-slate-50 border-none font-medium" 
+                                        placeholder="••••••••••••••••"
+                                        value={apiKey}
+                                        onChange={(e) => setApiKey(e.target.value)}
+                                    />
+                                </div>
+                                <Button type="submit" disabled={isSavingSettings} className="w-full h-12 rounded-xl bg-slate-900 hover:bg-black text-white font-bold transition-all mt-4">
+                                    {isSavingSettings ? 'Guardando...' : 'Guardar Configuración'}
+                                </Button>
+                            </form>
+                        </div>
+
+                        {/* Logs Panel - Made larger by spanning 2 columns and increasing height */}
+                        <div className="bg-[#0f111a] p-8 rounded-[2rem] border border-slate-800 shadow-2xl text-slate-300 lg:col-span-2 flex flex-col min-h-[600px]">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
+                                    <Terminal className="w-4 h-4 text-green-400" />
+                                    Visor de Logs del Servidor
+                                </h3>
+                                <Button onClick={fetchLogs} size="sm" variant="ghost" className="h-10 px-4 hover:bg-slate-800 text-slate-300 rounded-xl font-bold">
+                                    <RefreshCw className={cn("w-4 h-4 mr-2", isFetchingLogs && "animate-spin")} />
+                                    Actualizar Logs
+                                </Button>
+                            </div>
+                            <div className="flex gap-3 mb-6 bg-slate-900/50 p-2 rounded-xl w-fit">
+                                <select 
+                                    className="bg-slate-800 border-none rounded-lg text-sm font-bold px-4 py-2 text-white outline-none cursor-pointer"
+                                    value={logType}
+                                    onChange={(e) => setLogType(e.target.value)}
+                                >
+                                    <option value="pm2">PM2</option>
+                                    <option value="docker">Docker</option>
+                                </select>
+                                <Input 
+                                    className="h-10 rounded-lg bg-slate-800 border-none text-sm font-bold text-white w-64 px-4" 
+                                    placeholder="Nombre proceso/contenedor"
+                                    value={logName}
+                                    onChange={(e) => setLogName(e.target.value)}
+                                />
+                            </div>
+                            <div className="bg-black rounded-2xl p-6 flex-1 overflow-y-auto font-mono text-xs leading-loose break-all border border-slate-800/50 relative shadow-inner">
+                                {logs ? (
+                                    <pre className="text-green-400/90 whitespace-pre-wrap">{logs}</pre>
+                                ) : (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600 gap-4">
+                                        <Terminal className="w-12 h-12 opacity-20" />
+                                        <p className="font-medium">Haz clic en actualizar para cargar logs</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }
