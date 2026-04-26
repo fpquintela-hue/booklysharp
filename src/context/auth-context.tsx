@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Protect Routes Middleware-ish
     useEffect(() => {
         if (isLoading) return;
-        const isPublicRoute = pathname === '/' || pathname === '/login' || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname === '/registro';
+        const isPublicRoute = pathname === '/' || pathname === '/login' || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname === '/registro' || pathname.includes('/confirm');
         
         if (!user && !isPublicRoute) {
             const pathParts = pathname.split('/').filter(Boolean);
