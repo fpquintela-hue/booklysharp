@@ -48,9 +48,8 @@ async function sendWhatsAppMedia({
 
     let response: Response;
     try {
-        // Use Evolution API v2 Interactive Message format for CTA Buttons
         response = await fetch(
-            `${EVOLUTION_API_URL}/message/sendInteractive/${instanceName}`,
+            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
             {
                 method: 'POST',
                 headers: {
@@ -59,26 +58,17 @@ async function sendWhatsAppMedia({
                 },
                 body: JSON.stringify({
                     number,
-                    interactiveMessage: {
-                        type: "button",
-                        header: {
-                            type: "image",
-                            image: imageUrl
-                        },
-                        body: {
-                            text: caption
-                        },
-                        footer: {
-                            text: "Por favor, no respondas este WhatsApp"
-                        },
-                        buttons: [
-                            {
-                                type: "url",
-                                title: "Confirmar Asistencia",
-                                payload: confirmUrl
-                            }
-                        ]
-                    }
+                    mediatype: 'image',
+                    mimetype: 'image/png',
+                    media: imageUrl,
+                    caption: `${caption}\n\n✅ Ver o anular cita: ${confirmUrl}`,
+                    buttons: [
+                        {
+                            type: "url",
+                            title: "Confirmar Asistencia",
+                            payload: confirmUrl
+                        }
+                    ]
                 }),
                 signal: controller.signal,
             }

@@ -85,31 +85,24 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // We use sendInteractive to send the image with a URL button (Call to Action)
-                url = `${config.url}/message/sendInteractive/${instanceName}`;
+                // We use sendMedia because sendInteractive is not supported in this version
+                url = `${config.url}/message/sendMedia/${instanceName}`;
                 
                 payload = {
                     number: data.number,
-                    interactiveMessage: {
-                        type: "button",
-                        header: {
-                            type: "image",
-                            image: finalMedia // Base64 or URL
-                        },
-                        body: {
-                            text: data.caption || 'Mensaje de prueba con imagen'
-                        },
-                        footer: {
-                            text: "Por favor, no respondas este WhatsApp"
-                        },
-                        buttons: [
-                            {
-                                type: "url",
-                                title: "Confirmar Asistencia",
-                                payload: `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`
-                            }
-                        ]
-                    }
+                    mediatype: 'image',
+                    mimetype: finalMime,
+                    media: finalMedia,
+                    fileName: 'reserva.png',
+                    caption: data.caption || 'Mensaje de prueba con imagen',
+                    // Evolution API v1.x sometimes supports buttons directly in sendMedia or ignores them
+                    buttons: [
+                        {
+                            type: "url",
+                            title: "Confirmar Asistencia",
+                            payload: `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`
+                        }
+                    ]
                 };
                 break;
             default:
