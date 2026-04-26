@@ -85,24 +85,26 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // We use sendMedia because sendInteractive is not supported in this version
-                url = `${config.url}/message/sendMedia/${instanceName}`;
+                // We will use sendButtons for Evolution API v1.x to support native CTA buttons
+                url = `${config.url}/message/sendButtons/${instanceName}`;
+                
+                const testConfirmUrl = `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`;
                 
                 payload = {
                     number: data.number,
-                    mediatype: 'image',
-                    mimetype: finalMime,
-                    media: finalMedia,
-                    fileName: 'reserva.png',
-                    caption: data.caption || 'Mensaje de prueba con imagen',
-                    // Evolution API v1.x sometimes supports buttons directly in sendMedia or ignores them
-                    buttons: [
-                        {
-                            type: "url",
-                            title: "Confirmar Asistencia",
-                            payload: `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`
-                        }
-                    ]
+                    buttonMessage: {
+                        text: data.caption || 'Mensaje de prueba con imagen',
+                        footerText: "Por favor, no respondas este WhatsApp",
+                        headerType: 4, // 4 means Image
+                        image: finalMedia,
+                        buttons: [
+                            {
+                                type: "url",
+                                title: "Ver o Anular Cita",
+                                payload: testConfirmUrl
+                            }
+                        ]
+                    }
                 };
                 break;
             default:

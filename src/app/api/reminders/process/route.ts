@@ -50,7 +50,7 @@ async function sendWhatsAppMedia({
     let response: Response;
     try {
         response = await fetch(
-            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            `${EVOLUTION_API_URL}/message/sendButtons/${instanceName}`,
             {
                 method: 'POST',
                 headers: {
@@ -59,17 +59,19 @@ async function sendWhatsAppMedia({
                 },
                 body: JSON.stringify({
                     number,
-                    mediatype: 'image',
-                    mimetype: 'image/png',
-                    media: imageUrl,
-                    caption: `${caption}\n\n✅ Ver o anular cita: ${confirmUrl}`,
-                    buttons: [
-                        {
-                            type: "url",
-                            title: "Ver o Anular Cita",
-                            payload: confirmUrl
-                        }
-                    ]
+                    buttonMessage: {
+                        text: caption,
+                        footerText: "Por favor, no respondas este WhatsApp",
+                        headerType: 4, // 4 means Image
+                        image: imageUrl,
+                        buttons: [
+                            {
+                                type: "url",
+                                title: "Ver o Anular Cita",
+                                payload: confirmUrl
+                            }
+                        ]
+                    }
                 }),
                 signal: controller.signal,
             }
