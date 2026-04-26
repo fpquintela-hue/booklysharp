@@ -16,7 +16,7 @@ export function NavigationWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { settings, isNotFound } = useSettings();
     const { user, isLoading: authLoading } = useAuth();
-    const isPublicPage = pathname === '/' || pathname === '/registro' || pathname === '/register' || pathname.endsWith('/login') || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname.endsWith('/verificar');
+    const isPublicPage = pathname === '/' || pathname === '/registro' || pathname === '/register' || pathname.endsWith('/login') || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname.endsWith('/verificar') || pathname.includes('/confirm');
 
     // The tenant main calendar page is a full self-contained shell — no external chrome needed
     const pathParts2 = pathname.split('/').filter(Boolean);
