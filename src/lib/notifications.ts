@@ -205,6 +205,7 @@ export async function sendImmediateNotification(appointment: any, tenant: any, t
                 ? settings.logoUrl
                 : DEFAULT_BRAND_IMAGE_URL;
 
+            const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
             const caption = finalMessage;
 
             try {
