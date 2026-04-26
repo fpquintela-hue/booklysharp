@@ -73,11 +73,14 @@ export async function POST(req: Request) {
                             const arrayBuffer = await imgRes.arrayBuffer();
                             const base64Str = Buffer.from(arrayBuffer).toString('base64');
                             finalMime = imgRes.headers.get('content-type') || 'image/png';
-                            finalMedia = `data:${finalMime};base64,${base64Str}`;
+                            // Many Evolution API versions expect the raw base64 string without the data:image/xxx;base64, prefix
+                            finalMedia = base64Str;
                         } else {
+                            console.error(`[Evolution Proxy] Error fetching media URL: ${imgRes.status}`);
                             return NextResponse.json({ error: `La URL de la imagen no es válida o devolvió un error: ${imgRes.status}` }, { status: 400 });
                         }
-                    } catch (e) {
+                    } catch (e: any) {
+                        console.error(`[Evolution Proxy] Exception fetching media: ${e.message}`);
                         return NextResponse.json({ error: 'No se pudo acceder a la URL de la imagen proporcionada.' }, { status: 400 });
                     }
                 }
@@ -111,7 +114,8 @@ export async function POST(req: Request) {
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-            return NextResponse.json({ error: result.message || result.error || 'Evolution API Error' }, { status: response.status });
+            console.error(`[Evolution API Error] ${action}:`, result);
+            return NextResponse.json({ error: result.message || result.error || JSON.stringify(result) || 'Evolution API Error' }, { status: response.status });
         }
 
         return NextResponse.json(result);
