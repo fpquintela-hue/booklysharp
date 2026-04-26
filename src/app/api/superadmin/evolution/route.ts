@@ -44,6 +44,10 @@ export async function POST(req: Request) {
                 url = `${config.url}/instance/logout/${instanceName}`;
                 method = 'DELETE';
                 break;
+            case 'delete':
+                url = `${config.url}/instance/delete/${instanceName}`;
+                method = 'DELETE';
+                break;
             case 'connectionState':
                 url = `${config.url}/instance/connectionState/${instanceName}`;
                 method = 'GET';
@@ -57,12 +61,32 @@ export async function POST(req: Request) {
                 break;
             case 'sendMedia':
                 url = `${config.url}/message/sendMedia/${instanceName}`;
-                // Using a more compatible payload structure for Evolution API
+                
+                let finalMedia = data.media || 'https://booklysharp.com/images/whatsapp-reminder-default.png';
+                let finalMime = 'image/png';
+
+                // Try to convert HTTP URL to Base64 to avoid Evolution API download issues (business not found)
+                if (finalMedia.startsWith('http')) {
+                    try {
+                        const imgRes = await fetch(finalMedia);
+                        if (imgRes.ok) {
+                            const arrayBuffer = await imgRes.arrayBuffer();
+                            const base64Str = Buffer.from(arrayBuffer).toString('base64');
+                            finalMime = imgRes.headers.get('content-type') || 'image/png';
+                            finalMedia = `data:${finalMime};base64,${base64Str}`;
+                        } else {
+                            return NextResponse.json({ error: `La URL de la imagen no es válida o devolvió un error: ${imgRes.status}` }, { status: 400 });
+                        }
+                    } catch (e) {
+                        return NextResponse.json({ error: 'No se pudo acceder a la URL de la imagen proporcionada.' }, { status: 400 });
+                    }
+                }
+
                 payload = {
                     number: data.number,
                     mediatype: 'image',
-                    mimetype: 'image/png',
-                    media: data.media || 'https://booklysharp.com/images/whatsapp-reminder-default.png',
+                    mimetype: finalMime,
+                    media: finalMedia,
                     fileName: 'reserva.png',
                     caption: data.caption || 'Mensaje de prueba con imagen'
                 };

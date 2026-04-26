@@ -154,7 +154,7 @@ export function EvolutionMonitor() {
                     toast.info(`Estado: ${state}`);
                 } else {
                     toast.success('Acción ejecutada correctamente');
-                    if (action === 'logout') fetchInstances();
+                    if (action === 'logout' || action === 'delete') fetchInstances();
                 }
             } else {
                 toast.error(result.error || 'Error al ejecutar la acción');
@@ -382,10 +382,10 @@ export function EvolutionMonitor() {
                                                         <Button 
                                                             variant="outline" 
                                                             size="icon"
-                                                            title="Desvincular (Logout)"
+                                                            title="Eliminar Instancia Definitivamente"
                                                             onClick={() => {
-                                                                if(confirm(`¿Desvincular la sesión de ${name}?`)) {
-                                                                    handleAction('logout', name);
+                                                                if(confirm(`¿Eliminar COMPLEMENTE la instancia ${name}? (Esto la borrará de Evolution API)`)) {
+                                                                    handleAction('delete', name);
                                                                 }
                                                             }}
                                                             className="w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 border-none"
