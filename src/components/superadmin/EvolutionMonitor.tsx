@@ -46,6 +46,7 @@ export function EvolutionMonitor() {
     const [testPhone, setTestPhone] = useState('');
     const [testMessage, setTestMessage] = useState('🔔 *Booklysharp*: Mensaje de prueba desde el monitor.');
     const [testImage, setTestImage] = useState('https://booklysharp.com/images/whatsapp-reminder-default.png');
+    const [testAppointmentId, setTestAppointmentId] = useState('');
     const [isSendingTest, setIsSendingTest] = useState(false);
     const [selectedInstanceForTest, setSelectedInstanceForTest] = useState<string | null>(null);
 
@@ -172,12 +173,16 @@ export function EvolutionMonitor() {
         try {
             const data = type === 'text' 
                 ? { number: testPhone, text: testMessage }
-                : { number: testPhone, caption: testMessage, media: testImage };
+                : { number: testPhone, caption: testMessage, media: testImage, appointmentId: testAppointmentId };
 
             const res = await fetch('/api/superadmin/evolution', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: type === 'text' ? 'sendText' : 'sendMedia', instanceName: selectedInstanceForTest, data })
+                body: JSON.stringify({ 
+                    action: type === 'text' ? 'sendText' : 'sendMedia', 
+                    instanceName: selectedInstanceForTest, 
+                    data: { ...data, appointmentId: testAppointmentId } 
+                })
             });
 
             if (res.ok) {
@@ -352,10 +357,11 @@ export function EvolutionMonitor() {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
-                                                                        <Label className="text-xs font-black uppercase text-slate-400">URL Imagen (Para Media)</Label>
+                                                                        <Label className="text-xs font-black uppercase text-slate-400">ID de Cita (Para Simulación)</Label>
                                                                         <Input 
-                                                                            value={testImage}
-                                                                            onChange={(e) => setTestImage(e.target.value)}
+                                                                            placeholder="ID de cita real o deja vacío para 'test-id'"
+                                                                            value={testAppointmentId}
+                                                                            onChange={(e) => setTestAppointmentId(e.target.value)}
                                                                             className="h-12 rounded-xl bg-slate-50"
                                                                         />
                                                                     </div>

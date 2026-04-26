@@ -106,7 +106,7 @@ export async function POST(req: Request) {
                             {
                                 type: "url",
                                 title: "Confirmar Asistencia",
-                                payload: `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/test-id`
+                                payload: `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`
                             }
                         ]
                     }
