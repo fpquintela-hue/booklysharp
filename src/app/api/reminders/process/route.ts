@@ -36,6 +36,7 @@ async function sendWhatsAppMedia({
     number,
     imageUrl,
     caption,
+    confirmUrl,
 }: {
     instanceName: string;
     number: string;
