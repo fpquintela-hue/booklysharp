@@ -57,11 +57,13 @@ export async function POST(req: Request) {
                 break;
             case 'sendMedia':
                 url = `${config.url}/message/sendMedia/${instanceName}`;
+                // Using a more compatible payload structure for Evolution API
                 payload = {
                     number: data.number,
                     mediatype: 'image',
                     mimetype: 'image/png',
                     media: data.media || 'https://booklysharp.com/images/whatsapp-reminder-default.png',
+                    fileName: 'reserva.png',
                     caption: data.caption || 'Mensaje de prueba con imagen'
                 };
                 break;
