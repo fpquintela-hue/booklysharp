@@ -29,27 +29,26 @@ function buildConfirmationUrl(tenantAlias: string, appointmentId: string): strin
  * - HTTP 4xx de Evolution (número inválido, sesión no conectada, etc.) → lanza error con el mensaje de la API
  * - HTTP 5xx → lanza error genérico
  */
-async function sendWhatsAppMedia({
+/**
+ * Sends a plain text WhatsApp message via Evolution API.
+ * Used for immediate booking confirmations.
+ */
+async function sendWhatsAppText({
     instanceName,
     number,
-    imageUrl,
-    caption,
-    confirmUrl,
+    message,
 }: {
     instanceName: string;
     number: string;
-    imageUrl: string;
-    caption: string;
-    confirmUrl: string;
+    message: string;
 }): Promise<void> {
     const controller = new AbortController();
-    // Timeout de 15 segundos para evitar bloqueos en el job de recordatorios
     const timeoutId = setTimeout(() => controller.abort(), 15_000);
 
     let response: Response;
     try {
         response = await fetch(
-            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            `${EVOLUTION_API_URL}/message/sendText/${instanceName}`,
             {
                 method: 'POST',
                 headers: {
@@ -58,17 +57,7 @@ async function sendWhatsAppMedia({
                 },
                 body: JSON.stringify({
                     number,
-                    mediatype: 'image',
-                    mimetype: 'image/png',
-                    media: imageUrl,
-                    caption: `${caption}\n\n✅ Ver o anular cita: ${confirmUrl}`,
-                    buttons: [
-                        {
-                            type: "url",
-                            title: "Confirmar Asistencia",
-                            payload: confirmUrl
-                        }
-                    ]
+                    text: message,
                 }),
                 signal: controller.signal,
             }
@@ -155,85 +144,132 @@ export async function getTransporter() {
     };
 }
 
-export async function sendImmediateNotification(appointment: any, tenant: any, type: 'WHATSAPP' | 'EMAIL') {
+/**
+ * Sends an immediate notification (WhatsApp text or email) right after a booking is created.
+ *
+ * @param appointment - Appointment object. `patient` may contain either encrypted or plain-text fields.
+ * @param tenant      - Tenant object including `settings[]` and `alias`.
+ * @param type        - Channel preference chosen by the customer.
+ * @param plainPatient - When true, `appointment.patient` contains plain-text data (already decrypted).
+ */
+export async function sendImmediateNotification(
+    appointment: any,
+    tenant: any,
+    type: 'WHATSAPP' | 'EMAIL',
+    plainPatient = false
+) {
     try {
-        const settings = tenant.settings.reduce((acc: any, s: any) => {
+        const settings = tenant.settings?.reduce((acc: any, s: any) => {
             acc[s.key] = s.value;
             return acc;
-        }, {});
+        }, {}) ?? {};
 
-        const patientPhone = decrypt((appointment.patient as any)?.phone);
-        const patientEmail = decrypt((appointment.patient as any)?.email);
-        const patientName = decrypt((appointment.patient as any)?.name);
-        
-        const dateStr = new Intl.DateTimeFormat('es-ES', { 
-            weekday: 'long', 
-            day: 'numeric', 
-            month: 'long', 
-            hour: '2-digit', 
+        // Patient data: if plainPatient=true it comes raw from the booking form;
+        // otherwise it is stored encrypted and we decrypt it here.
+        const rawPatient = appointment.patient as any;
+        const patientPhone = plainPatient ? rawPatient?.phone : decrypt(rawPatient?.phone);
+        const patientEmail = plainPatient ? rawPatient?.email : decrypt(rawPatient?.email);
+        const patientName  = plainPatient ? rawPatient?.name  : decrypt(rawPatient?.name);
+
+        const dateStr = new Intl.DateTimeFormat('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            hour: '2-digit',
             minute: '2-digit',
             timeZone: 'Europe/Madrid'
         }).format(new Date(appointment.start));
 
-        // Get template or use default
-        let template = settings.whatsapp_template_reserva_automatica || "Hola *{{nombre}}* has realizado la reserva para el dia *{{fecha}}*. Te esperamos.";
-        
-        const finalMessage = template
-            .replace(/{{nombre}}|{nombre}/g, patientName)
-            .replace(/{{fecha}}|{fecha}/g, dateStr)
+        const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
+
+        // Build the message from the tenant template or a sensible default
+        const template = settings.whatsapp_template_reserva_automatica ||
+            '¡Hola *{{nombre}}*! 📅 Tu reserva ha sido confirmada para el *{{fecha}}*. Servicio: *{{servicio}}*.';
+
+        const bodyText = template
+            .replace(/{{nombre}}|{nombre}/g, patientName || 'Cliente')
+            .replace(/{{fecha}}|{fecha}/g,   dateStr)
             .replace(/{{servicio}}|{servicio}/g, appointment.type || '');
 
+        // ────────────────────── WhatsApp ──────────────────────
         if (type === 'WHATSAPP' && patientPhone) {
             let cleanNumber = patientPhone.replace(/[^0-9]/g, '');
             if (cleanNumber.startsWith('00')) cleanNumber = cleanNumber.substring(2);
-            const finalNumber = (cleanNumber.length === 9) ? `34${cleanNumber}` : cleanNumber;
+            const finalNumber = cleanNumber.length === 9 ? `34${cleanNumber}` : cleanNumber;
 
             const fullInstanceName = getFullInstanceName(tenant.alias);
 
-            // Imagen corporativa: logo del tenant si existe, sino imagen por defecto
-            const imageUrl = (settings.logoUrl && !settings.logoUrl.startsWith('/'))
-                ? settings.logoUrl
-                : DEFAULT_BRAND_IMAGE_URL;
-
-            const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
-            const caption = finalMessage;
+            // Plain-text message: body + confirmation link
+            const finalMessage = `${bodyText}\n\n✅ Confirmar o anular tu cita:\n${confirmUrl}`;
 
             try {
-                await sendWhatsAppMedia({
+                await sendWhatsAppText({
                     instanceName: fullInstanceName,
                     number: finalNumber,
-                    imageUrl,
-                    caption,
-                    confirmUrl
+                    message: finalMessage,
                 });
                 return true;
             } catch (err: unknown) {
-                console.error('[WhatsApp] Error enviando media en notificación inmediata:', err);
+                console.error('[WhatsApp] Error enviando confirmación inmediata:', err);
                 return false;
             }
-        } 
-        else if (type === 'EMAIL' && patientEmail) {
+        }
+
+        // ────────────────────── Email ──────────────────────
+        if (type === 'EMAIL' && patientEmail) {
             const emailSystem = await getTransporter();
-            if (!emailSystem) return false;
+            if (!emailSystem) {
+                console.warn('[Email] No hay transporter configurado. Revisa SMTP.');
+                return false;
+            }
+
+            const businessName = settings.appTitle || tenant.nombre_comercial || 'BooklySharp';
+            const plainText = bodyText.replace(/\*/g, '');
 
             await emailSystem.transporter.sendMail({
                 from: emailSystem.from,
                 to: patientEmail,
-                subject: `Confirmación de reserva - ${settings.appTitle || 'Booklysharp'}`,
-                text: finalMessage.replace(/\*/g, ''),
-                html: `<div style="font-family: sans-serif; padding: 20px; color: #333;">
-                        <h2 style="color: #0058be;">Confirmación de Reserva</h2>
-                        <p>Hola <strong>${patientName}</strong>,</p>
-                        <p>Has realizado una reserva para el día <strong>${dateStr}</strong>.</p>
-                        <p>Servicio: ${appointment.type}</p>
-                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                        <p style="font-size: 12px; color: #999;">Esta es una notificación automática de ${settings.appTitle || 'Booklysharp'}.</p>
-                      </div>`
+                subject: `Confirmación de reserva — ${businessName}`,
+                text: `${plainText}\n\nConfirma o anula tu cita: ${confirmUrl}`,
+                html: `
+                    <div style="font-family: Inter, sans-serif; max-width: 520px; margin: 0 auto; color: #1e293b;">
+                        <div style="background: #2563eb; padding: 28px 32px; border-radius: 12px 12px 0 0;">
+                            <h1 style="color: #fff; font-size: 22px; margin: 0;">Reserva confirmada ✅</h1>
+                        </div>
+                        <div style="background: #f8fafc; padding: 32px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+                            <p style="font-size: 16px; margin: 0 0 8px;">Hola, <strong>${patientName || 'Cliente'}</strong></p>
+                            <p style="color: #475569; margin: 0 0 24px;">Tu cita ha quedado registrada con los siguientes datos:</p>
+
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; font-weight: 600; width: 30%;">Servicio</td>
+                                    <td style="padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0;">${appointment.type || 'Consulta'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 12px; background: #f1f5f9; border: 1px solid #e2e8f0; font-weight: 600;">Fecha y hora</td>
+                                    <td style="padding: 10px 12px; background: #f1f5f9; border: 1px solid #e2e8f0;">${dateStr}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; font-weight: 600;">Centro</td>
+                                    <td style="padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0;">${businessName}</td>
+                                </tr>
+                            </table>
+
+                            <a href="${confirmUrl}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px;">Ver o anular mi cita</a>
+
+                            <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                                Este correo fue enviado automáticamente por ${businessName} a través de BooklySharp.
+                                Si no has realizado esta reserva, puedes ignorar este mensaje o anularla desde el botón de arriba.
+                            </p>
+                        </div>
+                    </div>`,
             });
             return true;
         }
+
+        return false;
     } catch (error) {
-        console.error('Error sending immediate notification:', error);
+        console.error('[sendImmediateNotification] Error:', error);
         return false;
     }
 }

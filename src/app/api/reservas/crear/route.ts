@@ -269,7 +269,8 @@ export async function POST(req: Request) {
             const success = await sendImmediateNotification(
                 { ...appointment, patient: { name, phone, email } }, 
                 tenant, 
-                (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL'
+                (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL',
+                true  // patient data is already plain-text from the booking form
             );
 
             if (success) {
