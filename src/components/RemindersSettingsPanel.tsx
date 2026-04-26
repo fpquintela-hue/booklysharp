@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '@/context/settings-context';
+import { useAuth } from '@/context/auth-context';
+import { normalizePlanId, getPlanById } from '@/lib/subscription-plans';
 import { cn } from '@/lib/utils';
 
 type ReminderMethod = 'CLIENT_PREFERENCE' | 'WHATSAPP' | 'EMAIL';
@@ -35,8 +37,14 @@ interface ReminderEntry {
 
 export function RemindersSettingsPanel() {
     const { settings, updateSettings } = useSettings();
+    const { user } = useAuth();
     const [reminders, setReminders] = useState<ReminderEntry[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Compute plan limits
+    const plan = getPlanById(normalizePlanId(user?.tenantSubscriptionPlan || user?.nivel_de_suscripcion));
+    const maxReminders = plan.maxReminders;
+    const canUseReminders = plan.whatsappReminders;
 
     // Initial load from settings
     useEffect(() => {
@@ -56,8 +64,12 @@ export function RemindersSettingsPanel() {
     }, [settings.reminders_config]);
 
     const addReminder = () => {
-        if (reminders.length >= 4) {
-            toast.error('Máximo 4 recordatorios permitidos');
+        if (!canUseReminders) {
+            toast.error('Tu plan actual no incluye recordatorios automáticos. Actualiza tu suscripción.');
+            return;
+        }
+        if (reminders.length >= maxReminders) {
+            toast.error(`Tu plan permite un máximo de ${maxReminders} recordatorio${maxReminders !== 1 ? 's' : ''}`);
             return;
         }
         const newReminder: ReminderEntry = {
@@ -116,10 +128,21 @@ export function RemindersSettingsPanel() {
                 <div className="space-y-1">
                     <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight uppercase">Recordatorios Automáticos</h2>
                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Configura avisos automáticos para tus pacientes</p>
+                    {canUseReminders ? (
+                        <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold px-3 py-1 rounded-full bg-primary/10 text-primary">
+                            <Bell className="w-3 h-3" />
+                            {reminders.length}/{maxReminders} recordatorio{maxReminders !== 1 ? 's' : ''} usados
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700">
+                            <AlertCircle className="w-3 h-3" />
+                            No disponible en tu plan actual
+                        </span>
+                    )}
                 </div>
                 <Button 
                     onClick={addReminder} 
-                    disabled={reminders.length >= 4}
+                    disabled={reminders.length >= maxReminders || !canUseReminders}
                     className="rounded-2xl h-12 px-6 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-slate-200 dark:shadow-none transition-all active:scale-[0.98] shrink-0"
                 >
                     <Plus className="w-4 h-4 mr-2" /> Añadir Recordatorio

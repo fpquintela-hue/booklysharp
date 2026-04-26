@@ -86,6 +86,9 @@ export interface SubscriptionPlan {
 
   /** Periodo de prueba gratuita en días (0 = sin trial) */
   trialDays: number;
+
+  /** Número máximo de recordatorios configurables. 0 = no disponible */
+  maxReminders: number;
 }
 
 // ── 3. Definición de los planes ───────────────────────────────────────────────
@@ -117,6 +120,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
     highlighted: false,
     trialDays: 14,
+    maxReminders: 0,
   },
   {
     id: 'individual',
@@ -140,7 +144,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '1 profesional / calendario',
       'Tipos de cita ilimitados',
       'Historial ilimitado',
-      'Recordatorios por WhatsApp',
+      '1 recordatorio automático (WhatsApp/Email)',
       'Cobros anticipados (Stripe)',
       'Sync Google / Apple Calendar',
       'Exportación de datos',
@@ -149,6 +153,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     highlighted: true,
     badgeLabel: 'Más popular',
     trialDays: 14,
+    maxReminders: 1,
   },
   {
     id: 'profesional',
@@ -171,6 +176,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'Todo lo del Plan Individual',
       'Profesionales ilimitados',
+      'Hasta 3 recordatorios automáticos',
       'Roles y permisos de equipo',
       'Estadísticas avanzadas',
       'Asistente IA integrado',
@@ -178,6 +184,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
     highlighted: false,
     trialDays: 14,
+    maxReminders: 3,
   },
 ];
 

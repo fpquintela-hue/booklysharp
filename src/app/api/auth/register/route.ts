@@ -90,7 +90,15 @@ export async function POST(request: Request) {
             await tx.setting.createMany({
                 data: [
                     { key: 'brandColor', value: '#2563eb', tenantId: newTenant.id },
-                    { key: 'appTitle', value: nombre_comercial, tenantId: newTenant.id }
+                    { key: 'appTitle', value: nombre_comercial, tenantId: newTenant.id },
+                    // Default reminder: 24h before appointment via WhatsApp
+                    {
+                        key: 'reminders_config',
+                        value: JSON.stringify([
+                            { id: 'default_24h', time: '1_DAY', method: 'WHATSAPP' }
+                        ]),
+                        tenantId: newTenant.id
+                    }
                 ]
             });
 
