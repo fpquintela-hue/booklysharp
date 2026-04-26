@@ -85,26 +85,26 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // We will use sendButtons for Evolution API v1.x to support native CTA buttons
-                url = `${config.url}/message/sendButtons/${instanceName}`;
+                // Evolution API sendButtons throws 500 error, so we fallback to sendMedia with URL in caption
+                url = `${config.url}/message/sendMedia/${instanceName}`;
                 
                 const testConfirmUrl = `http://192.168.1.6:3000/${instanceName.replace('BooklySharp_', '')}/confirm/${data.appointmentId || 'test-id'}`;
                 
                 payload = {
                     number: data.number,
-                    buttonMessage: {
-                        text: data.caption || 'Mensaje de prueba con imagen',
-                        footerText: "Por favor, no respondas este WhatsApp",
-                        headerType: 4, // 4 means Image
-                        image: finalMedia,
-                        buttons: [
-                            {
-                                type: "url",
-                                title: "Ver o Anular Cita",
-                                payload: testConfirmUrl
-                            }
-                        ]
-                    }
+                    mediatype: 'image',
+                    mimetype: finalMime,
+                    media: finalMedia,
+                    fileName: 'reserva.png',
+                    caption: `${data.caption || 'Mensaje de prueba con imagen'}\n\n✅ Ver o anular cita: ${testConfirmUrl}`,
+                    // Some v1.x Evolution APIs accept buttons in sendMedia, others ignore it. We include it just in case.
+                    buttons: [
+                        {
+                            type: "url",
+                            title: "Confirmar Asistencia",
+                            payload: testConfirmUrl
+                        }
+                    ]
                 };
                 break;
             default:
