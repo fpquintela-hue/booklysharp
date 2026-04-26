@@ -20,9 +20,11 @@ export default async function ConfirmationPage({ params }: PageProps) {
         }
     });
 
-    if (!appointment || appointment.tenant.alias !== alias) {
+    // Guard: appointment must exist, have a tenant, and the alias must match
+    if (!appointment || !appointment.tenant || appointment.tenant.alias !== alias) {
         return notFound();
     }
+
 
     const patientName = decrypt(appointment.patient.name) || 'Paciente';
     const appointmentDate = format(new Date(appointment.start), "eeee d 'de' MMMM, yyyy", { locale: es });
