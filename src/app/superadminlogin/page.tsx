@@ -19,6 +19,7 @@ import {
 import { TenantUsersDialog } from '@/components/TenantUsersDialog';
 import { SuperadminSettingsDialog } from '@/components/SuperadminSettingsDialog';
 import { SuperadminPasswordDialog } from '@/components/SuperadminPasswordDialog';
+import { EvolutionMonitor } from '@/components/superadmin/EvolutionMonitor';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Material Symbols Component (safely)
@@ -39,6 +40,7 @@ export default function SuperAdminDashboard() {
 
     // State for create flow
     const [isCreating, setIsCreating] = useState(false);
+    const [isEvolutionMonitor, setIsEvolutionMonitor] = useState(false);
     const [step, setStep] = useState(1);
 
     // Login state
@@ -140,6 +142,7 @@ export default function SuperAdminDashboard() {
 
     const resetCreation = () => {
         setIsCreating(false);
+        setIsEvolutionMonitor(false);
         setStep(1);
         setAlias('');
         setName('');
@@ -320,8 +323,9 @@ export default function SuperAdminDashboard() {
                 </div>
 
                 <nav className="flex-1 px-4 space-y-1">
-                    <NavItem icon="dashboard" label="Dashboard" active={!isCreating} onClick={() => setIsCreating(false)} />
-                    <NavItem icon="domain" label="Tenants" active={true} fill />
+                    <NavItem icon="dashboard" label="Dashboard" active={!isCreating && !isEvolutionMonitor} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); }} />
+                    <NavItem icon="domain" label="Tenants" active={!isEvolutionMonitor && !isCreating} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); }} fill />
+                    <NavItem icon="chat" label="Monitor WhatsApp" active={isEvolutionMonitor} onClick={() => { setIsEvolutionMonitor(true); setIsCreating(false); }} />
                     <NavItem icon="insights" label="Analytics" />
                     <SuperadminSettingsDialog trigger={
                         <button className="w-full flex items-center gap-3 px-6 py-4 transition-all duration-300 rounded-2xl group text-slate-400 hover:text-blue-600 hover:bg-blue-50/50">
@@ -398,7 +402,9 @@ export default function SuperAdminDashboard() {
 
                     {/* Editorial Canvas */}
                     <div className="p-10 max-w-7xl mx-auto space-y-10">
-                        {isCreating ? (
+                        {isEvolutionMonitor ? (
+                            <EvolutionMonitor />
+                        ) : isCreating ? (
                             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
                                 <div className="flex items-center gap-4 mb-8">
                                     <button onClick={resetCreation} className="p-2 hover:bg-slate-100 rounded-full transition-all">
