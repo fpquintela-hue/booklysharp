@@ -42,7 +42,7 @@ export function RemindersSettingsPanel() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Compute plan limits
-    const plan = getPlanById(normalizePlanId(user?.tenantSubscriptionPlan || user?.nivel_de_suscripcion));
+    const plan = getPlanById(normalizePlanId(user?.tenantPlan));
     const maxReminders = plan.maxReminders;
     const canUseReminders = plan.whatsappReminders;
 

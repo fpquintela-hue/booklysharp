@@ -78,7 +78,7 @@ export async function POST(request: Request) {
                 tenantAlias: user.tenant.alias,
                 tenantExpiresAt: user.tenant.expires_at || user.tenant.fecha_fin_suscripcion,
                 tenantSubscriptionStatus: user.tenant.subscription_status,
-                tenantPlan: user.tenant.subscription_plan,
+                tenantPlan: user.tenant.subscription_plan || user.tenant.nivel_de_suscripcion,
                 tenantAutoRenew: user.tenant.auto_renew,
                 tenantCreatedAt: user.tenant.createdAt,
                 tenantBillingInfo: user.tenant.billing_info,
