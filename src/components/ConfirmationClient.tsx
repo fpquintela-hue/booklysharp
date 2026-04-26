@@ -33,6 +33,20 @@ export default function ConfirmationClient({
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const typeLabels: Record<string, string> = {
+        ORDINARY: 'Consulta General',
+        URGENT: 'Urgencia',
+        FOLLOW_UP: 'Revisión',
+        PROCEDURE: 'Procedimiento',
+        CONSULTATION: 'Consulta',
+    };
+    const typeLabel = typeLabels[appointmentType] ?? appointmentType;
+
+    // If name is still encoded/raw (not properly decrypted), show generic fallback
+    const displayName = (!patientName || patientName.length > 40 || /^[A-Za-z0-9+/=]{20,}$/.test(patientName))
+        ? 'Paciente'
+        : patientName;
+
     const handleUpdateStatus = async (newStatus: 'CONFIRMED' | 'CANCELLED') => {
         setIsLoading(true);
         try {
@@ -82,12 +96,12 @@ export default function ConfirmationClient({
 
                 <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 space-y-4">
                     <p className="text-lg text-gray-800 text-center font-medium">
-                        Hola, {patientName}
+                        Hola, {displayName}
                     </p>
                     <div className="space-y-3 text-sm text-gray-600">
                         <div className="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
                             <span className="text-gray-500">Servicio</span>
-                            <span className="font-semibold text-gray-900">{appointmentType}</span>
+                            <span className="font-semibold text-gray-900">{typeLabel}</span>
                         </div>
                         <div className="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
                             <span className="text-gray-500">Fecha</span>
