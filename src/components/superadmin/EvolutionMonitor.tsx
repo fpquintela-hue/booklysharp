@@ -357,6 +357,14 @@ export function EvolutionMonitor() {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-2">
+                                                                        <Label className="text-xs font-black uppercase text-slate-400">URL Imagen (Cabecera)</Label>
+                                                                        <Input 
+                                                                            value={testImage}
+                                                                            onChange={(e) => setTestImage(e.target.value)}
+                                                                            className="h-12 rounded-xl bg-slate-50"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="space-y-2">
                                                                         <Label className="text-xs font-black uppercase text-slate-400">ID de Cita (Para Simulación)</Label>
                                                                         <Input 
                                                                             placeholder="ID de cita real o deja vacío para 'test-id'"
