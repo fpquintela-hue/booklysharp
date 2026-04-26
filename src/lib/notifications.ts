@@ -39,6 +39,7 @@ async function sendWhatsAppMedia({
     number: string;
     imageUrl: string;
     caption: string;
+    confirmUrl: string;
 }): Promise<void> {
     const controller = new AbortController();
     // Timeout de 15 segundos para evitar bloqueos en el job de recordatorios
@@ -46,8 +47,9 @@ async function sendWhatsAppMedia({
 
     let response: Response;
     try {
+        // Use Evolution API v2 Interactive Message format for CTA Buttons
         response = await fetch(
-            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            `${EVOLUTION_API_URL}/message/sendInteractive/${instanceName}`,
             {
                 method: 'POST',
                 headers: {
@@ -56,10 +58,26 @@ async function sendWhatsAppMedia({
                 },
                 body: JSON.stringify({
                     number,
-                    mediatype: 'image',
-                    mimetype: 'image/png',
-                    media: imageUrl,      // URL pública accesible por Evolution API
-                    caption,
+                    interactiveMessage: {
+                        type: "button",
+                        header: {
+                            type: "image",
+                            image: imageUrl
+                        },
+                        body: {
+                            text: caption
+                        },
+                        footer: {
+                            text: "Por favor, no respondas este WhatsApp"
+                        },
+                        buttons: [
+                            {
+                                type: "url",
+                                title: "Confirmar Asistencia",
+                                payload: confirmUrl
+                            }
+                        ]
+                    }
                 }),
                 signal: controller.signal,
             }
@@ -186,9 +204,7 @@ export async function sendImmediateNotification(appointment: any, tenant: any, t
                 ? settings.logoUrl
                 : DEFAULT_BRAND_IMAGE_URL;
 
-            // Caption de confirmación de reserva (sin profesional en este flujo inmediato)
-            const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
-            const caption = `${finalMessage}\n\n✅ Confirma tu asistencia aquí: ${confirmUrl}`;
+            const caption = finalMessage;
 
             try {
                 await sendWhatsAppMedia({
@@ -196,6 +212,7 @@ export async function sendImmediateNotification(appointment: any, tenant: any, t
                     number: finalNumber,
                     imageUrl,
                     caption,
+                    confirmUrl
                 });
                 return true;
             } catch (err: unknown) {

@@ -41,14 +41,16 @@ async function sendWhatsAppMedia({
     number: string;
     imageUrl: string;
     caption: string;
+    confirmUrl: string;
 }): Promise<void> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15_000);
 
     let response: Response;
     try {
+        // Evolution API v2 Interactive Message format for CTA Buttons
         response = await fetch(
-            `${EVOLUTION_API_URL}/message/sendMedia/${instanceName}`,
+            `${EVOLUTION_API_URL}/message/sendInteractive/${instanceName}`,
             {
                 method: 'POST',
                 headers: {
@@ -57,10 +59,26 @@ async function sendWhatsAppMedia({
                 },
                 body: JSON.stringify({
                     number,
-                    mediatype: 'image',
-                    mimetype: 'image/png',
-                    media: imageUrl,   // URL pública accesible por el servidor de Evolution
-                    caption,
+                    interactiveMessage: {
+                        type: "button",
+                        header: {
+                            type: "image",
+                            image: imageUrl
+                        },
+                        body: {
+                            text: caption
+                        },
+                        footer: {
+                            text: "Por favor, no respondas este WhatsApp"
+                        },
+                        buttons: [
+                            {
+                                type: "url",
+                                title: "Ver o Anular Cita",
+                                payload: confirmUrl
+                            }
+                        ]
+                    }
                 }),
                 signal: controller.signal,
             }
@@ -245,9 +263,7 @@ export async function GET(request: Request) {
                 // Caption condicional según si el tenant tiene profesional asignado en la cita
                 const confirmUrl = buildConfirmationUrl(tenant.alias, appointment.id);
                 const hasProfessional = !!appointment.professional;
-                const caption = hasProfessional
-                    ? `${finalMessage}\n\nPor favor, confirma tu asistencia haciendo clic en este enlace: ${confirmUrl}`
-                    : `${finalMessage}\n\nPor favor, confirma tu asistencia haciendo clic en este enlace: ${confirmUrl}`;
+                const caption = finalMessage;
 
                 try {
                     const fullInstanceName = getFullInstanceName(tenant.alias);
@@ -256,6 +272,7 @@ export async function GET(request: Request) {
                         number: finalNumber,
                         imageUrl,
                         caption,
+                        confirmUrl
                     });
                     await (prisma as any).reminder.update({ where: { id: reminder.id }, data: { status: 'SENT' } });
                     results.sent_whatsapp++;
