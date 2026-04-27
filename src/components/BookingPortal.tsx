@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
     Clock,
     Calendar as CalendarIcon,
@@ -66,6 +67,8 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
     const [phoneRest, setPhoneRest] = useState('');
     const [clientInfo, setClientInfo] = useState({ name: '', email: '', notificationPreference: 'WHATSAPP' });
     const [loading, setLoading] = useState(false);
+    
+    const { t } = useTranslation();
 
     const autoSkipProfessional = professionals.length === 1 || settings?.enableProfessionalSelection === 'false';
 
@@ -207,8 +210,8 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {step === 'SERVICE' && (
                             <motion.div key="s1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <header className="ce-section-header">
-                                    <h2 className="ce-section-title">Select Service</h2>
-                                    <p className="ce-section-subtitle">Choose a specialized treatment tailored to your needs.</p>
+                                    <h2 className="ce-section-title">{t('booking.step1_title')}</h2>
+                                    <p className="ce-section-subtitle">{t('booking.step1_subtitle')}</p>
                                 </header>
                                 <div className="ce-list-grid">
                                     {initialServices.map(s => (
@@ -266,8 +269,8 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {step === 'DATE' && (
                             <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <header className="ce-section-header">
-                                    <h2 className="ce-section-title">Select Date</h2>
-                                    <p className="ce-section-subtitle">Clinical agenda available until next month.</p>
+                                    <h2 className="ce-section-title">{t('booking.step2_title')}</h2>
+                                    <p className="ce-section-subtitle">{t('booking.step2_subtitle')}</p>
                                 </header>
                                 <div className="ce-calendar-square-wrap">
                                     <div className="ce-calendar-grid">
@@ -278,6 +281,7 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                                             disabled={dayDisabled}
                                             onMonthChange={setVisibleMonth}
                                             locale={es}
+                                            className="!bg-transparent"
                                         />
                                     </div>
                                     {loadingAvailability && (
@@ -293,8 +297,8 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {step === 'TIME' && (
                             <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <header className="ce-section-header">
-                                    <h2 className="ce-section-title">Select Time</h2>
-                                    <p className="ce-section-subtitle">Showing slots for {selectedDate ? format(selectedDate, "d 'de' MMMM", { locale: es }) : 'today'}</p>
+                                    <h2 className="ce-section-title">{t('booking.step3_title')}</h2>
+                                    <p className="ce-section-subtitle">{t('booking.step3_subtitle').replace('{FECHA}', selectedDate ? format(selectedDate, "d 'de' MMMM", { locale: es }) : 'today')}</p>
                                 </header>
                                 {loadingSlots ? (
                                     <div style={{ textAlign: 'center', padding: '5rem' }}><Loader2 size={32} className="ce-spin" /></div>
@@ -318,12 +322,12 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {step === 'FORM' && (
                             <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 <header className="ce-section-header">
-                                    <h2 className="ce-section-title">Final Details</h2>
-                                    <p className="ce-section-subtitle">Clinical validation requires a valid phone number.</p>
+                                    <h2 className="ce-section-title">{t('booking.step4_title')}</h2>
+                                    <p className="ce-section-subtitle">{t('booking.step4_subtitle')}</p>
                                 </header>
                                 <div className="ce-form-layout" style={{ maxWidth: '600px' }}>
                                     <div className="ce-field-group">
-                                        <label className="ce-field-label">Nombre Completo</label>
+                                        <label className="ce-field-label">{t('booking.full_name')}</label>
                                         <input 
                                             className="ce-input" 
                                             value={clientInfo.name} 
@@ -384,7 +388,7 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                                         </div>
                                         {selectedProfessional && (
                                             <div className="ce-summary-row">
-                                                <span className="ce-summary-label">Especialista</span>
+                                                <span className="ce-summary-label">{t('booking.professional')}</span>
                                                 <span className="ce-summary-val">{selectedProfessional.name} {selectedProfessional.description ? `(${selectedProfessional.description})` : ''}</span>
                                             </div>
                                         )}
