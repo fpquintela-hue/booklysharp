@@ -102,6 +102,16 @@ export async function POST(request: Request) {
                 ]
             });
 
+            // Auto-create default AppointmentType (Fase 5)
+            await tx.appointmentType.create({
+                data: {
+                    name: 'Servicio',
+                    duration: 30,
+                    color: '#3b82f6',
+                    tenantId: newTenant.id
+                }
+            });
+
             return { newTenant, token };
         });
 

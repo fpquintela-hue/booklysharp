@@ -28,7 +28,7 @@ import { SecuritySettingsPanel } from '@/components/SecuritySettingsPanel';
 import { RemindersSettingsPanel } from '@/components/RemindersSettingsPanel';
 import { SubscriptionSettingsPanel } from '@/components/SubscriptionSettingsPanel';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -41,7 +41,11 @@ export default function SettingsPage() {
     const expiresAt = user?.tenantExpiresAt ? new Date(user.tenantExpiresAt) : null;
     const isExpired = status === 'expired' || (expiresAt && new Date() > expiresAt);
 
-    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'reminders' | 'subscription'>(isExpired ? 'subscription' : 'appearance');
+    const searchParams = useSearchParams();
+    const queryTab = searchParams?.get('tab');
+    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'reminders' | 'subscription'>(
+        isExpired ? 'subscription' : (queryTab as any) || 'appearance'
+    );
 
     const menuItems = [
         { id: 'appearance', label: t('settings.tab_appearance'), icon: Palette },

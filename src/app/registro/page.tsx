@@ -33,6 +33,7 @@ export default function RegisterWizard() {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [successEmail, setSuccessEmail] = useState('');
 
     // Form Data - Paso 1 (Admin)
     const [email, setEmail] = useState('');
@@ -150,7 +151,7 @@ export default function RegisterWizard() {
 
             if (res.ok) {
                 toast.success('Registro con éxito. Revisa tu email para activar la cuenta.');
-                router.push(`/login`);
+                setSuccessEmail(email);
             } else {
                 toast.error(data.error || 'Error al crear la cuenta');
             }
@@ -164,6 +165,41 @@ export default function RegisterWizard() {
     // Validaciones básicas de pasos
     const isStep1Valid = email && password.length >= 6 && name;
     const isStep2Valid = nombreComercial && alias && telefono && calle && ciudad && pais;
+
+    if (successEmail) {
+        return (
+            <div className="bg-[#f7f9fb] min-h-screen flex flex-col antialiased font-sans">
+                {/* TopNavBar */}
+                <header className="fixed top-0 w-full z-50 bg-white border-b border-slate-100 shadow-sm">
+                    <div className="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
+                        <div className="text-xl font-bold tracking-tight flex items-center gap-2 font-[Inter]">
+                            <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center text-white text-sm font-extrabold shadow-sm">
+                                B
+                            </div>
+                            <span><span className="text-black">Bookly</span><span className="text-[#2563EB]">Sharp</span></span>
+                        </div>
+                    </div>
+                </header>
+
+                <main className="flex-1 flex items-center justify-center p-6 pt-24">
+                    <div className="bg-white p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#eaeff2] max-w-md w-full text-center animate-in zoom-in-95 duration-500">
+                        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span className="material-symbols-outlined text-5xl text-[#005bc4]">mark_email_read</span>
+                        </div>
+                        <h2 className="text-2xl font-extrabold text-[#2c3437] mb-4">¡Registro Completado!</h2>
+                        <p className="text-[#596064] mb-8 leading-relaxed text-sm">
+                            Se le ha enviado un email a <strong className="text-[#005bc4] block mt-1 text-base">{successEmail}</strong>
+                            <br />
+                            Visite su gestor de correo y haga click en el enlace para activar su cuenta.
+                        </p>
+                        <button onClick={() => router.push('/login')} className="w-full px-6 py-3.5 rounded-xl bg-[#005bc4] text-white font-bold shadow-lg shadow-[#005bc4]/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                            Ir a la pantalla de Login <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                        </button>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-[#f7f9fb] min-h-screen flex flex-col antialiased font-sans">

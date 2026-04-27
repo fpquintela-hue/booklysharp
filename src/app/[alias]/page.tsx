@@ -13,6 +13,7 @@ import { LogoutDialog } from '@/components/LogoutDialog';
 import { AppointmentDetailsDialog } from '@/components/AppointmentDetailsDialog';
 import CalendarView from '@/components/CalendarView';
 import { Sidebar } from '@/components/Sidebar';
+import { OnboardingGuide } from '@/components/OnboardingGuide';
 
 // ── Lucide icons (same set as Sidebar.tsx) ──────────────────────────────────
 import {
@@ -506,16 +507,7 @@ export default function TenantCalendarPage() {
 
       {/* ── FASE 5: Onboarding Tips Placeholder ────────────────────────────── */}
       {showTips && (
-        <div className="fixed bottom-6 right-6 bg-blue-600 text-white p-5 rounded-2xl shadow-2xl z-50 flex flex-col gap-2 max-w-xs animate-in slide-in-from-bottom-5">
-           <div className="flex justify-between items-center mb-1">
-               <h4 className="font-bold text-sm">¡Bienvenido a BooklySharp!</h4>
-               <button onClick={handleCloseTips} className="text-blue-200 hover:text-white transition-colors">
-                 <LogOut className="w-4 h-4" />
-               </button>
-           </div>
-           <p className="text-xs text-blue-100 leading-relaxed">Pronto habilitaremos un tour interactivo para ayudarte a configurar tus primeros horarios y servicios.</p>
-           <button onClick={handleCloseTips} className="mt-2 bg-white text-blue-600 rounded-lg py-1.5 text-xs font-bold hover:bg-blue-50 transition-colors">Entendido</button>
-        </div>
+        <OnboardingGuide alias={alias} onClose={handleCloseTips} />
       )}
     </div>
   );
