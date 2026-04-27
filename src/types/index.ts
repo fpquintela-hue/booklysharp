@@ -52,6 +52,7 @@ export interface User {
     tenantExpiresAt?: string | null;
     tenantSubscriptionStatus?: string | null;
     tenantPlan?: string | null;
+    tenantSubscriptionPlan?: string | null;
     tenantAutoRenew?: boolean;
     tenantCreatedAt?: string | null;
     tenantBillingInfo?: string | null;
