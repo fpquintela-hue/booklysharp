@@ -182,9 +182,25 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
     };
 
     return (
-        <div className="ce-root">
-            {/* 1. Top Breadcrumb Stepper */}
-            <nav className="ce-stepper-wrap">
+        <div className="ce-root bg-slate-50 md:bg-transparent min-h-screen md:min-h-0 flex flex-col">
+            {/* --- MOBILE TOP NAVIGATION (Stitch Design) --- */}
+            <nav className="md:hidden flex items-center justify-between p-4 sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+                <button onClick={prevStep} disabled={step === 'SERVICE'} className="p-2 -ml-2 text-slate-600 disabled:opacity-30">
+                    <ChevronLeft size={24} />
+                </button>
+                <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        {step === 'SUCCESS' ? 'Completado' : `Paso ${currentStepIdx + 1} de ${activeSteps.length}`}
+                    </span>
+                    <span className="text-sm font-bold text-[#133156]">
+                        {step === 'SUCCESS' ? 'Confirmación' : activeSteps[currentStepIdx]?.label}
+                    </span>
+                </div>
+                <div className="w-8"></div> {/* Spacer for centering */}
+            </nav>
+
+            {/* 1. Top Breadcrumb Stepper (Desktop Only) */}
+            <nav className="ce-stepper-wrap hidden md:flex">
                 <div className="ce-stepper">
                     {activeSteps.map((s, idx) => {
                         const currentStepIdx = activeSteps.findIndex(x => x.key === step);
@@ -202,33 +218,34 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
             </nav>
 
             {/* 2. Main Portal Card */}
-            <main className="ce-page">
-                <div className="ce-portal">
+            <main className="ce-page flex-1 md:flex-none">
+                <div className="ce-portal md:shadow-xl md:rounded-2xl md:bg-white md:border border-slate-100 p-4 md:p-8">
                     <AnimatePresence mode="wait">
                         
                         {/* STEP 1: SERVICE */}
                         {step === 'SERVICE' && (
                             <motion.div key="s1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                <header className="ce-section-header">
-                                    <h2 className="ce-section-title">{t('booking.step1_title')}</h2>
-                                    <p className="ce-section-subtitle">{t('booking.step1_subtitle')}</p>
+                                <header className="ce-section-header mb-6 md:mb-8 text-center md:text-left">
+                                    <h2 className="ce-section-title text-2xl md:text-3xl font-bold text-[#133156] font-manrope">{t('booking.step1_title')}</h2>
+                                    <p className="ce-section-subtitle text-slate-500 mt-2">{t('booking.step1_subtitle')}</p>
                                 </header>
-                                <div className="ce-list-grid">
+                                <div className="ce-list-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {initialServices.map(s => (
                                         <button 
                                             key={s.id} 
-                                            className={`ce-card-editorial ${selectedService?.id === s.id ? 'ce-active' : ''}`}
+                                            className={`ce-card-editorial bg-white p-4 rounded-[1.5rem] flex items-center gap-4 text-left border transition-all ${selectedService?.id === s.id ? 'border-[#133156] shadow-md ring-1 ring-[#133156]' : 'border-slate-100 shadow-sm hover:border-slate-300'}`}
                                             onClick={() => { setSelectedService(s); nextStep(); }}
                                         >
-                                            <div className="ce-icon-box" style={{ color: s.color || 'var(--ce-primary)' }}>
-                                                {s.image ? <img src={s.image} alt="S" /> : <Sparkles size={28} />}
+                                            <div className="ce-icon-box w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center shrink-0" style={{ color: s.color || '#133156' }}>
+                                                {s.image ? <img src={s.image} alt="S" className="w-6 h-6 object-contain" /> : <Sparkles size={24} />}
                                             </div>
-                                            <div>
-                                                <h3 className="ce-card-name">{s.name}</h3>
-                                                <p className="ce-section-subtitle" style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                                                    {s.duration || '45'} min · Professional Care
+                                            <div className="flex-1">
+                                                <h3 className="ce-card-name text-base font-bold text-slate-800 font-manrope">{s.name}</h3>
+                                                <p className="ce-section-subtitle text-sm text-slate-500 mt-1 font-inter">
+                                                    {s.duration || '45'} min · Tratamiento Especializado
                                                 </p>
                                             </div>
+                                            <div className="text-[#133156] opacity-50"><ChevronRight size={20} /></div>
                                         </button>
                                     ))}
                                 </div>
@@ -268,11 +285,11 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {/* STEP 3: DATE (Square Aspect) */}
                         {step === 'DATE' && (
                             <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <header className="ce-section-header">
-                                    <h2 className="ce-section-title">{t('booking.step2_title')}</h2>
-                                    <p className="ce-section-subtitle">{t('booking.step2_subtitle')}</p>
+                                <header className="ce-section-header mb-6 md:mb-8 text-center md:text-left">
+                                    <h2 className="ce-section-title text-2xl md:text-3xl font-bold text-[#133156] font-manrope">{t('booking.step2_title')}</h2>
+                                    <p className="ce-section-subtitle text-slate-500 mt-2">{t('booking.step2_subtitle')}</p>
                                 </header>
-                                <div className="ce-calendar-square-wrap">
+                                <div className="ce-calendar-square-wrap bg-white rounded-[1.5rem] shadow-sm border border-slate-100 p-4">
                                     <div className="ce-calendar-grid">
                                         <Calendar
                                             mode="single"
@@ -296,23 +313,23 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         {/* STEP 4: TIME */}
                         {step === 'TIME' && (
                             <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <header className="ce-section-header">
-                                    <h2 className="ce-section-title">{t('booking.step3_title')}</h2>
-                                    <p className="ce-section-subtitle">{t('booking.step3_subtitle').replace('{FECHA}', selectedDate ? format(selectedDate, "d 'de' MMMM", { locale: es }) : 'today')}</p>
+                                <header className="ce-section-header mb-6 md:mb-8 text-center md:text-left">
+                                    <h2 className="ce-section-title text-2xl md:text-3xl font-bold text-[#133156] font-manrope">{t('booking.step3_title')}</h2>
+                                    <p className="ce-section-subtitle text-slate-500 mt-2">{t('booking.step3_subtitle').replace('{FECHA}', selectedDate ? format(selectedDate, "d 'de' MMMM", { locale: es }) : 'today')}</p>
                                 </header>
                                 {loadingSlots ? (
                                     <div style={{ textAlign: 'center', padding: '5rem' }}><Loader2 size={32} className="ce-spin" /></div>
                                 ) : (
-                                    <div className="ce-slots-grid">
+                                    <div className="ce-slots-grid grid grid-cols-3 md:grid-cols-4 gap-3">
                                         {timeSlots.length > 0 ? timeSlots.map(t => (
                                             <button 
                                                 key={t} 
-                                                className={`ce-slot-btn ${selectedTime === t ? 'active' : ''}`}
+                                                className={`ce-slot-btn py-3 rounded-xl font-medium text-sm transition-all border ${selectedTime === t ? 'bg-[#133156] text-white border-[#133156] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#133156]'}`}
                                                 onClick={() => { setSelectedTime(t); nextStep(); }}
                                             >
                                                 {t}
                                             </button>
-                                        )) : <p className="ce-section-subtitle">No slots available for this date.</p>}
+                                        )) : <p className="ce-section-subtitle col-span-full text-center py-4">No slots available for this date.</p>}
                                     </div>
                                 )}
                             </motion.div>
@@ -320,46 +337,54 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
 
                         {/* STEP 5: FORM */}
                         {step === 'FORM' && (
-                            <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <header className="ce-section-header">
-                                    <h2 className="ce-section-title">{t('booking.step4_title')}</h2>
-                                    <p className="ce-section-subtitle">{t('booking.step4_subtitle')}</p>
+                            <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="pb-24 md:pb-0">
+                                <header className="ce-section-header mb-6 md:mb-8 text-center md:text-left">
+                                    <h2 className="ce-section-title text-2xl md:text-3xl font-bold text-[#133156] font-manrope">{t('booking.step4_title')}</h2>
+                                    <p className="ce-section-subtitle text-slate-500 mt-2">{t('booking.step4_subtitle')}</p>
                                 </header>
-                                <div className="ce-form-layout" style={{ maxWidth: '600px' }}>
-                                    <div className="ce-field-group">
-                                        <label className="ce-field-label">{t('booking.full_name')}</label>
+                                <div className="ce-form-layout flex flex-col gap-5" style={{ maxWidth: '600px' }}>
+                                    <div className="ce-field-group flex flex-col gap-1.5">
+                                        <label className="ce-field-label text-sm font-semibold text-slate-700">{t('booking.full_name')}</label>
                                         <input 
-                                            className="ce-input" 
+                                            className="ce-input w-full p-4 rounded-[1rem] bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#133156] focus:ring-1 focus:ring-[#133156] outline-none transition-all" 
                                             value={clientInfo.name} 
                                             onChange={e => setClientInfo({ ...clientInfo, name: e.target.value })} 
                                             placeholder="Ej. Juan Pérez"
                                         />
                                     </div>
-                                    <div className="ce-field-group">
-                                        <label className="ce-field-label">Teléfono</label>
-                                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                            <select className="ce-input" style={{ width: '100px' }} value={countryCode} onChange={e => setCountryCode(e.target.value)}>
+                                    <div className="ce-field-group flex flex-col gap-1.5">
+                                        <label className="ce-field-label text-sm font-semibold text-slate-700">Teléfono</label>
+                                        <div className="flex gap-2">
+                                            <select className="ce-input p-4 rounded-[1rem] bg-slate-50 border border-slate-200 outline-none w-28" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
                                                 <option value="+34">+34 ES</option>
                                                 <option value="+351">+351 PT</option>
                                                 <option value="+1">+1 US</option>
                                             </select>
                                             <input 
-                                                className="ce-input" 
-                                                style={{ flex: 1 }} 
+                                                className="ce-input flex-1 p-4 rounded-[1rem] bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#133156] focus:ring-1 focus:ring-[#133156] outline-none transition-all" 
                                                 value={phoneRest} 
                                                 onChange={e => setPhoneRest(e.target.value)} 
                                                 placeholder="600000000"
                                             />
                                         </div>
                                     </div>
-                                    <div className="ce-field-group">
-                                        <label className="ce-field-label">Email de contacto</label>
+                                    <div className="ce-field-group flex flex-col gap-1.5">
+                                        <label className="ce-field-label text-sm font-semibold text-slate-700">Email de contacto</label>
                                         <input 
-                                            className="ce-input" 
+                                            className="ce-input w-full p-4 rounded-[1rem] bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#133156] focus:ring-1 focus:ring-[#133156] outline-none transition-all" 
                                             value={clientInfo.email} 
                                             onChange={e => setClientInfo({ ...clientInfo, email: e.target.value })} 
                                             placeholder="correo@ejemplo.com"
                                         />
+                                    </div>
+                                    
+                                    {/* Mobile Summary Review Box */}
+                                    <div className="md:hidden mt-6 p-4 bg-blue-50/50 rounded-[1.5rem] border border-blue-100">
+                                        <h4 className="text-sm font-bold text-[#133156] mb-3">Resumen de Cita</h4>
+                                        <div className="flex flex-col gap-2 text-sm text-slate-600">
+                                            <div className="flex justify-between"><span className="opacity-70">Servicio:</span><span className="font-semibold text-slate-800">{selectedService?.name}</span></div>
+                                            <div className="flex justify-between"><span className="opacity-70">Fecha:</span><span className="font-semibold text-slate-800">{selectedDate ? format(selectedDate, "d MMM", { locale: es }) : ''} - {selectedTime}</span></div>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -407,12 +432,12 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
 
             {/* 3. Global Bottom Navigation Bar (Glassmorphic) */}
             {step !== 'SUCCESS' && (
-                <div className="ce-bottom-nav">
-                    <button className="ce-btn-ghost" onClick={prevStep} disabled={step === 'SERVICE'}>
+                <div className="fixed md:static bottom-0 left-0 w-full p-4 md:p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 md:border-none flex items-center justify-between gap-4 z-50">
+                    <button className="hidden md:flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-30" onClick={prevStep} disabled={step === 'SERVICE'}>
                         <ChevronLeft size={18} /> Atras
                     </button>
                     
-                    <div className="flex items-center gap-6">
+                    <div className="flex w-full md:w-auto items-center justify-between md:gap-6">
                         <div className="hidden md:flex flex-col items-end">
                             <span className="text-[10px] font-bold uppercase tracking-widest text-[#455f87] opacity-60">Paso actual</span>
                             <span className="text-sm font-bold text-[#133156]">{activeSteps.find(s => s.key === step)?.label}</span>
@@ -420,21 +445,21 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
                         
                         {step === 'FORM' ? (
                             <button 
-                                className="ce-btn-primary" 
+                                className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#001c3b] to-[#133156] text-white px-8 py-4 md:py-3 rounded-full font-bold shadow-lg shadow-blue-900/20 disabled:opacity-50 transition-all" 
                                 onClick={handleConfirm} 
                                 disabled={loading || isNextDisabled()}
                             >
-                                {loading ? <RefreshCw className="ce-spin" size={18} /> : 'Finalizar Reserva'}
-                                <ShieldCheck size={18} />
+                                {loading ? <RefreshCw className="animate-spin" size={20} /> : 'Finalizar Reserva'}
+                                <ShieldCheck size={20} />
                             </button>
                         ) : (
                             <button 
-                                className="ce-btn-primary" 
+                                className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#001c3b] to-[#133156] text-white px-8 py-4 md:py-3 rounded-full font-bold shadow-lg shadow-blue-900/20 disabled:opacity-50 transition-all" 
                                 onClick={nextStep} 
                                 disabled={isNextDisabled()}
                             >
                                 Siguiente
-                                <ArrowRight size={18} />
+                                <ArrowRight size={20} />
                             </button>
                         )}
                     </div>
