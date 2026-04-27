@@ -603,16 +603,6 @@ export default function SuperAdminDashboard() {
                             onEnter={handleEnterTenant} 
                         />
                     )}
-                    
-                    {openUserDialogTenant && (
-                        <TenantUsersDialog 
-                            key="tenant-users"
-                            tenant={openUserDialogTenant} 
-                            open={!!openUserDialogTenant} 
-                            onOpenChange={(open) => !open && setOpenUserDialogTenant(null)} 
-                            hideTrigger 
-                        />
-                    )}
                     {tenantToDelete && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
                             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[2.5rem] shadow-2xl p-10 max-w-xl w-full border border-red-100">
@@ -660,6 +650,16 @@ export default function SuperAdminDashboard() {
                         </div>
                     )}
                 </AnimatePresence>
+
+                {openUserDialogTenant && (
+                    <TenantUsersDialog 
+                        key="tenant-users"
+                        tenant={openUserDialogTenant} 
+                        open={!!openUserDialogTenant} 
+                        onOpenChange={(open) => !open && setOpenUserDialogTenant(null)} 
+                        hideTrigger 
+                    />
+                )}
             </div>
     );
 }
@@ -1047,18 +1047,65 @@ function StepForm({ step, setStep, formData, colors, resetCreation }: { step: nu
 }
 
 function TenantDetailModal({ tenant, onClose, onUpdate, onEnter }: { tenant: any; onClose: () => void; onUpdate: (id: string, field: string, value: any) => void; onEnter: (alias: string) => void }) {
+    const [formData, setFormData] = useState({
+        nombre_comercial: tenant.nombre_comercial || '',
+        telefono: tenant.telefono || '',
+        contactName: tenant.contactName || '',
+        contactEmail: tenant.contactEmail || '',
+        subscriptionType: tenant.subscriptionType || 'FREE',
+        maxAppointmentTypes: tenant.maxAppointmentTypes || 0,
+        maxProfessionals: tenant.maxProfessionals || 0,
+        pais: tenant.pais || '',
+        ciudad: tenant.ciudad || '',
+        calle: tenant.calle || '',
+        forma_de_pago: tenant.forma_de_pago || '',
+        datos_de_pago: tenant.datos_de_pago || ''
+    });
+
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        // We simulate saving all fields through the existing onUpdate prop
+        // Normally onUpdate updates one field, but we can do a batch update directly to the API
+        try {
+            const res = await fetch('/api/superadmin/tenants', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: tenant.id,
+                    ...formData,
+                    maxAppointmentTypes: Number(formData.maxAppointmentTypes),
+                    maxProfessionals: Number(formData.maxProfessionals)
+                })
+            });
+            if (res.ok) {
+                toast.success('Datos del tenant guardados con éxito');
+                onClose();
+                // We'd ideally refresh the list here
+                window.location.reload(); 
+            } else {
+                toast.error('Error al guardar datos');
+            }
+        } catch(e) {
+             toast.error('Error al guardar datos');
+        }
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xl animate-in fade-in duration-300">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20">
-                <div className="p-8 bg-[#191b23] text-white flex justify-between items-center relative overflow-hidden">
-                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[3rem] shadow-2xl w-full max-w-4xl my-auto overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+                <div className="p-8 bg-blue-900 text-white flex justify-between items-center relative overflow-hidden shrink-0">
+                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-600/50 rounded-full blur-3xl"></div>
                     <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-14 h-14 rounded-2xl bg-[#004ac6] flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center shadow-lg">
                             <Building2 className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black font-headline tracking-tighter">{tenant.nombre_comercial}</h3>
-                            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">ID: {tenant.id.substring(0, 16)}</p>
+                            <h3 className="text-2xl font-black font-headline tracking-tighter">Detalles de {tenant.nombre_comercial}</h3>
+                            <p className="text-blue-200 text-xs font-black uppercase tracking-widest">ID: {tenant.id.substring(0, 16)}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors relative z-10">
@@ -1066,73 +1113,106 @@ function TenantDetailModal({ tenant, onClose, onUpdate, onEnter }: { tenant: any
                     </button>
                 </div>
 
-                <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-8">
-                        <section>
-                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">
-                                <UserIcon className="w-3.5 h-3.5" /> Ownership Node
-                            </h4>
-                            <div className="space-y-4 p-6 rounded-[2rem] bg-[#f3f3fe] border border-slate-100 flex flex-col gap-1 shadow-inner">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                                        <UserIcon className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <p className="font-bold text-slate-800 text-lg">{tenant.contactName || 'Unspecified'}</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                                        <Mail className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <p className="text-sm text-slate-600 font-bold">{tenant.contactEmail || 'N/A'}</p>
-                                </div>
+                <div className="p-10 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Basic Info */}
+                    <div className="space-y-4">
+                        <h4 className="font-black text-slate-800 uppercase tracking-widest text-xs border-b pb-2">Información Básica</h4>
+                        <div className="space-y-3">
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Nombre Comercial</Label>
+                                <Input name="nombre_comercial" value={formData.nombre_comercial} onChange={handleChange} className="h-10 rounded-xl" />
                             </div>
-                        </section>
-
-                        <section>
-                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">
-                                <Activity className="w-3.5 h-3.5" /> Resource Limits
-                            </h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Max Services</p>
-                                    <p className="text-2xl font-black text-blue-600">{tenant.maxAppointmentTypes || 0}</p>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Max Staff</p>
-                                    <p className="text-2xl font-black text-blue-600">{tenant.maxProfessionals || 0}</p>
-                                </div>
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Representante / Nombre</Label>
+                                <Input name="contactName" value={formData.contactName} onChange={handleChange} className="h-10 rounded-xl" />
                             </div>
-                        </section>
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Email Contacto</Label>
+                                <Input name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="h-10 rounded-xl" />
+                            </div>
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Teléfono</Label>
+                                <Input name="telefono" value={formData.telefono} onChange={handleChange} className="h-10 rounded-xl" />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="space-y-8">
-                        <section className="space-y-4">
-                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                <Zap className="w-3.5 h-3.5" /> System Status
-                            </h4>
-                            <div className="p-6 rounded-[2rem] bg-blue-50/50 border border-blue-100 flex flex-col gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Plan Tier</span>
-                                    <p className="font-black text-blue-900 text-lg uppercase tracking-tighter">{tenant.subscriptionType || 'FREE'}</p>
+                    {/* Subscription Limits */}
+                    <div className="space-y-4">
+                        <h4 className="font-black text-slate-800 uppercase tracking-widest text-xs border-b pb-2">Suscripción y Límites</h4>
+                        <div className="space-y-3">
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Tipo de Plan</Label>
+                                <select name="subscriptionType" value={formData.subscriptionType} onChange={handleChange} className="w-full h-10 rounded-xl border border-slate-200 px-3 text-sm">
+                                    <option value="FREE">FREE</option>
+                                    <option value="PRO">PRO</option>
+                                    <option value="ENTERPRISE">ENTERPRISE</option>
+                                    <option value="EXPIRED">EXPIRED</option>
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label className="text-[10px] uppercase font-bold text-slate-400">Max Servicios</Label>
+                                    <Input type="number" name="maxAppointmentTypes" value={formData.maxAppointmentTypes} onChange={handleChange} className="h-10 rounded-xl" />
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Access Point</span>
-                                    <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-blue-200">
-                                        <p className="font-mono text-[10px] font-black text-blue-600">sharp.metric/{tenant.alias}</p>
-                                        <ExternalLink className="w-3 h-3 text-blue-400" />
-                                    </div>
+                                <div>
+                                    <Label className="text-[10px] uppercase font-bold text-slate-400">Max Staff</Label>
+                                    <Input type="number" name="maxProfessionals" value={formData.maxProfessionals} onChange={handleChange} className="h-10 rounded-xl" />
                                 </div>
                             </div>
-                        </section>
-
-                        <div className="pt-6">
-                            <button 
-                                onClick={() => onEnter(tenant.alias)}
-                                className="w-full py-5 rounded-[2rem] bg-[#004ac6] hover:bg-[#003ea8] text-white font-black uppercase tracking-[0.1em] text-xs flex items-center justify-center gap-3 shadow-2xl shadow-blue-500/30 transition-all active:scale-95"
-                            >
-                                Enter Workspace <ArrowRight className="w-5 h-5" />
-                            </button>
+                            <div className="pt-2">
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Expira en</Label>
+                                <div className="h-10 flex items-center px-3 rounded-xl bg-slate-50 font-mono text-sm text-slate-600">
+                                    {new Date(tenant.subscriptionExpiresAt).toLocaleDateString()}
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Address / Billing */}
+                    <div className="space-y-4">
+                        <h4 className="font-black text-slate-800 uppercase tracking-widest text-xs border-b pb-2">Ubicación y Fiscal</h4>
+                        <div className="space-y-3">
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">País</Label>
+                                <Input name="pais" value={formData.pais} onChange={handleChange} className="h-10 rounded-xl" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label className="text-[10px] uppercase font-bold text-slate-400">Ciudad</Label>
+                                    <Input name="ciudad" value={formData.ciudad} onChange={handleChange} className="h-10 rounded-xl" />
+                                </div>
+                                <div>
+                                    <Label className="text-[10px] uppercase font-bold text-slate-400">Calle / Dirección</Label>
+                                    <Input name="calle" value={formData.calle} onChange={handleChange} className="h-10 rounded-xl" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Data */}
+                    <div className="space-y-4">
+                        <h4 className="font-black text-slate-800 uppercase tracking-widest text-xs border-b pb-2">Datos Bancarios / Pago</h4>
+                        <div className="space-y-3">
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Forma de Pago (Stripe/Bank)</Label>
+                                <Input name="forma_de_pago" value={formData.forma_de_pago} onChange={handleChange} className="h-10 rounded-xl" />
+                            </div>
+                            <div>
+                                <Label className="text-[10px] uppercase font-bold text-slate-400">Datos de Pago (Token / IBAN)</Label>
+                                <Input name="datos_de_pago" value={formData.datos_de_pago} onChange={handleChange} className="h-10 rounded-xl" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-between shrink-0">
+                    <button onClick={() => onEnter(tenant.alias)} className="px-6 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 transition-all flex items-center gap-2">
+                        <ArrowRight className="w-4 h-4" /> Entrar al Panel
+                    </button>
+                    <div className="flex gap-3">
+                        <Button variant="outline" onClick={onClose} className="rounded-xl h-12 px-6">Cancelar</Button>
+                        <Button onClick={handleSave} className="rounded-xl h-12 px-8 bg-blue-600 hover:bg-blue-700 font-bold">Guardar Cambios</Button>
                     </div>
                 </div>
             </motion.div>

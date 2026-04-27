@@ -142,13 +142,28 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
     try {
         const body = await request.json();
-        const { id, maxAppointmentTypes, maxProfessionals, subscriptionType, subscriptionExpiresAt, billingAddress, paymentMethod } = body;
+        const { id, maxAppointmentTypes, maxProfessionals, subscriptionType, subscriptionExpiresAt, billingAddress, paymentMethod, ...rest } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'Tenant ID is required' }, { status: 400 });
         }
 
         const dataToUpdate: any = {};
+        
+        // Allowed generic fields
+        const allowedFields = [
+            'nombre_comercial', 'telefono', 'nivel_de_suscripcion', 'subscription_plan', 'subscription_status',
+            'auto_renew', 'billing_info', 'payment_methods', 'pais', 'provincia', 'ciudad', 'calle', 'numero', 'codigo_postal',
+            'facturacion_pais', 'facturacion_provincia', 'facturacion_ciudad', 'facturacion_calle', 'facturacion_numero', 'facturacion_codigo_postal',
+            'forma_de_pago', 'datos_de_pago'
+        ];
+        
+        for (const field of allowedFields) {
+            if (rest[field] !== undefined) {
+                dataToUpdate[field] = rest[field];
+            }
+        }
+
         if (typeof maxAppointmentTypes === 'number' && !Number.isNaN(maxAppointmentTypes)) {
             dataToUpdate.maxAppointmentTypes = maxAppointmentTypes;
         }
@@ -157,6 +172,7 @@ export async function PATCH(request: Request) {
         }
         if (subscriptionType) dataToUpdate.subscriptionType = subscriptionType;
         if (subscriptionExpiresAt) dataToUpdate.subscriptionExpiresAt = new Date(subscriptionExpiresAt);
+        if (rest.fecha_fin_suscripcion) dataToUpdate.fecha_fin_suscripcion = new Date(rest.fecha_fin_suscripcion);
         if (billingAddress !== undefined) dataToUpdate.billingAddress = billingAddress;
         if (paymentMethod !== undefined) dataToUpdate.paymentMethod = paymentMethod;
 

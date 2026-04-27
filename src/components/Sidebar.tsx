@@ -12,7 +12,8 @@ import {
     LogOut,
     HelpCircle,
     Moon,
-    Sun
+    Sun,
+    Rocket
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ import { useSettings } from '@/context/settings-context';
 import { LogoutDialog } from './LogoutDialog';
 import { useState } from 'react';
 import { DifyChatbot } from './DifyChatbot';
+import { OnboardingGuide } from './OnboardingGuide';
 
 function initials(name: string) {
   if (!name) return '??';
@@ -36,14 +38,16 @@ export function Sidebar() {
     const { theme, setTheme } = useTheme();
     const [isLogoutOpen, setIsLogoutOpen] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPERADMIN';
+    const isIndividualPlan = user?.tenantSubscriptionPlan === 'individual';
     const base = `/${alias}`;
 
     const navLinks = [
         { href: base,               icon: CalendarDays,    title: 'Calendario',   always: true  },
         { href: `${base}/patients`, icon: Users,           title: 'Clientes',    always: true  },
-        { href: `${base}/userapp`,  icon: LayoutDashboard, title: 'Staff',        admin: true   },
+        { href: `${base}/userapp`,  icon: LayoutDashboard, title: 'Staff',        admin: true, hideOnIndividual: true   },
         { href: `${base}/stats`,    icon: BarChart3,       title: 'Estadísticas', admin: true   },
         { href: `${base}/portal`,   icon: Globe,           title: 'Portal web',   admin: true   },
     ];
@@ -67,7 +71,7 @@ export function Sidebar() {
             {/* Nav links */}
             <nav className="flex flex-col gap-4">
                 {navLinks
-                    .filter(l => l.always || (l.admin && isAdmin))
+                    .filter(l => (l.always || (l.admin && isAdmin)) && !(l.hideOnIndividual && isIndividualPlan))
                     .map(l => {
                         const Icon = l.icon;
                         const isActive = l.href === base
@@ -91,6 +95,18 @@ export function Sidebar() {
 
             {/* Bottom Actions */}
             <div className="mt-auto flex flex-col gap-3 items-center">
+                <button
+                    onClick={() => setIsGuideOpen(true)}
+                    title="Primeros Pasos"
+                    className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
+                    style={{ color: isGuideOpen ? '#005bc4' : '#94a3b8', background: isGuideOpen ? 'rgba(0,91,196,.1)' : 'transparent' }}
+                >
+                    <Rocket className="h-5 w-5" />
+                    <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        Primeros Pasos
+                    </span>
+                </button>
+
                 <button
                     onClick={() => setIsChatOpen(!isChatOpen)}
                     title="Ayuda"
@@ -136,6 +152,7 @@ export function Sidebar() {
                 onConfirm={logout}
             />
 
+            {isGuideOpen && <OnboardingGuide alias={alias} onClose={() => setIsGuideOpen(false)} />}
             {isChatOpen && <DifyChatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />}
         </aside>
     );
