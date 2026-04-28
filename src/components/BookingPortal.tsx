@@ -182,21 +182,12 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
     };
 
     return (
-        <div className="ce-root bg-[#F8FAFC] md:bg-transparent min-h-screen md:min-h-0 flex flex-col font-inter">
+        <div className="ce-root bg-white md:bg-[#F8FAFC] min-h-screen md:min-h-0 flex flex-col font-inter">
             {/* --- MOBILE TOP NAVIGATION (Stitch Design) --- */}
-            <nav className="md:hidden flex items-center justify-between p-6 sticky top-0 z-50 bg-[#F8FAFC]">
-                <button onClick={prevStep} disabled={step === 'SERVICE'} className="text-slate-500 disabled:opacity-0">
-                    <ChevronLeft size={24} strokeWidth={2.5} />
-                </button>
-                <div className="flex flex-col items-center">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-0.5 font-manrope">
-                        {step === 'SUCCESS' ? 'COMPLETADO' : `PASO ${currentStepIdx + 1} DE ${activeSteps.length}`}
-                    </span>
-                    <span className="text-base font-bold text-[#001c3b] font-manrope">
-                        {step === 'SUCCESS' ? 'Confirmación' : activeSteps[currentStepIdx]?.label}
-                    </span>
-                </div>
-                <div className="w-6"></div> {/* Spacer for centering */}
+            <nav className="md:hidden flex items-center justify-center p-2 sticky top-0 z-50 bg-slate-100 border-b border-slate-200">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 font-manrope">
+                    {step === 'SUCCESS' ? 'COMPLETADO' : `PASO ${currentStepIdx + 1} DE ${activeSteps.length}`}
+                </span>
             </nav>
 
             {/* 1. Top Breadcrumb Stepper (Desktop Only) */}
@@ -219,33 +210,33 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
 
             {/* 2. Main Portal Card */}
             <main className="ce-page flex-1 md:flex-none">
-                <div className="ce-portal md:shadow-xl md:rounded-2xl md:bg-white md:border border-slate-100 p-4 md:p-8">
+                <div className="ce-portal md:shadow-xl md:rounded-2xl md:bg-white md:border border-slate-100 p-0 md:p-8">
                     <AnimatePresence mode="wait">
                         
                         {/* STEP 1: SERVICE */}
                         {step === 'SERVICE' && (
-                            <motion.div key="s1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 md:px-0">
-                                <header className="ce-section-header mb-8 md:mb-8 text-center md:text-left">
+                            <motion.div key="s1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-0">
+                                <header className="ce-section-header mb-8 md:mb-8 text-center md:text-left hidden md:block">
                                     <h2 className="ce-section-title text-[40px] md:text-3xl leading-tight font-bold text-[#001c3b] font-manrope">{t('booking.step1_title')}</h2>
                                     <p className="ce-section-subtitle text-lg md:text-sm text-slate-600 mt-4 md:mt-2 max-w-[280px] md:max-w-none mx-auto">{t('booking.step1_subtitle')}</p>
                                 </header>
-                                <div className="ce-list-grid grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-4 pb-24 md:pb-0">
+                                <div className="ce-list-grid grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-4 pb-24 md:pb-0">
                                     {initialServices.map(s => (
                                         <button 
                                             key={s.id} 
-                                            className={`ce-card-editorial bg-[#F8FAFC] md:bg-white p-8 md:p-4 rounded-[2rem] md:rounded-[1.5rem] flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-4 text-left border transition-all ${selectedService?.id === s.id ? 'border-[#001c3b] shadow-md ring-1 ring-[#001c3b]' : 'border-[#001c3b] md:border-slate-100 shadow-sm hover:border-[#001c3b]'}`}
+                                            className={`ce-card-editorial bg-white p-6 md:p-4 flex flex-row items-center gap-4 text-left border-b border-slate-100 md:border md:rounded-[1.5rem] transition-all ${selectedService?.id === s.id ? 'bg-slate-50 md:border-[#001c3b] md:shadow-md md:ring-1 md:ring-[#001c3b]' : 'hover:bg-slate-50 md:shadow-sm hover:border-slate-300 md:hover:border-[#001c3b]'}`}
                                             onClick={() => { setSelectedService(s); nextStep(); }}
                                         >
-                                            <div className="ce-icon-box w-20 h-20 md:w-12 md:h-12 rounded-[1.25rem] md:rounded-full bg-white md:bg-slate-50 flex items-center justify-center shrink-0 self-center md:self-auto shadow-sm" style={{ color: s.color || '#2563eb' }}>
-                                                {s.image ? <img src={s.image} alt="S" className="w-10 h-10 md:w-6 md:h-6 object-contain" /> : <Sparkles size={32} strokeWidth={1.5} />}
+                                            <div className="ce-icon-box w-12 h-12 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center shrink-0 shadow-sm" style={{ color: s.color || '#2563eb' }}>
+                                                {s.image ? <img src={s.image} alt="S" className="w-6 h-6 object-contain" /> : <Sparkles size={24} strokeWidth={1.5} />}
                                             </div>
-                                            <div className="flex-1 w-full text-center md:text-left">
-                                                <h3 className="ce-card-name text-2xl md:text-base font-bold text-[#001c3b] font-manrope">{s.name}</h3>
-                                                <p className="ce-section-subtitle text-base md:text-sm text-slate-600 mt-2 md:mt-1 font-inter">
+                                            <div className="flex-1 w-full text-left">
+                                                <h3 className="ce-card-name text-lg md:text-base font-bold text-[#001c3b] font-manrope">{s.name}</h3>
+                                                <p className="ce-section-subtitle text-sm text-slate-500 mt-1 font-inter">
                                                     {s.duration || '30'} min · Tratamiento Especializado
                                                 </p>
                                             </div>
-                                            <div className="text-slate-400 self-center md:self-auto mt-2 md:mt-0"><ChevronRight size={24} /></div>
+                                            <div className="text-slate-300"><ChevronRight size={20} /></div>
                                         </button>
                                     ))}
                                 </div>
@@ -284,7 +275,7 @@ export function BookingPortal({ alias, tenantName, services: initialServices, pr
 
                         {/* STEP 3: DATE (Square Aspect) */}
                         {step === 'DATE' && (
-                            <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-4 md:px-0">
+                            <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-0 md:px-0">
                                 <header className="ce-section-header mb-8 md:mb-8 text-center md:text-left hidden md:block">
                                     <h2 className="ce-section-title text-3xl font-bold text-[#001c3b] font-manrope">{t('booking.step2_title')}</h2>
                                     <p className="ce-section-subtitle text-slate-500 mt-2">{t('booking.step2_subtitle')}</p>
