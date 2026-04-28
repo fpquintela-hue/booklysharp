@@ -27,107 +27,46 @@ export default function ReservePage() {
 
     if (loading) {
         return (
-            <div className="ce-root ce-loading">
-                <div className="ce-spinner" />
-                <p className="ce-loading-text">Cargando Portal...</p>
+            <div className="ce-app-container">
+                <div className="ce-mobile-frame" style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <Loader2 className="animate-spin text-[#0a1f44]" size={48} />
+                    <p style={{ marginTop: '1rem', color: '#64748b', fontWeight: 600 }}>Cargando Portal...</p>
+                </div>
             </div>
         );
     }
 
     if (error || !data) {
         return (
-            <div className="ce-root ce-error-state">
-                <div className="ce-error-icon">
-                    <CalendarX size={32} />
+            <div className="ce-app-container">
+                <div className="ce-mobile-frame" style={{ justifyContent: 'center', alignItems: 'center', padding: '2rem', textAlign: 'center' }}>
+                    <CalendarX size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
+                    <h1 style={{ fontSize: '1.5rem', color: '#0f172a', fontWeight: 800 }}>Portal no disponible</h1>
+                    <p style={{ color: '#64748b', marginTop: '0.5rem' }}>No hemos podido encontrar el portal de reservas para "{alias}".</p>
                 </div>
-                <h1 className="ce-error-title">Portal no disponible</h1>
-                <p className="ce-error-desc">
-                    No hemos podido encontrar el portal de reservas para &ldquo;{alias}&rdquo;.
-                </p>
             </div>
         );
     }
 
     if (data.settings?.portalEnabled === 'false') {
         return (
-            <div className="ce-root ce-disabled-state">
-                <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'rgba(186,26,26,.1)',
-                        filter: 'blur(2rem)',
-                        borderRadius: '50%',
-                        transform: 'scale(1.5)'
-                    }} />
-                    <div className="ce-error-icon" style={{ position: 'relative', background: '#fff0f0' }}>
-                        <CalendarX size={32} />
-                    </div>
+            <div className="ce-app-container">
+                <div className="ce-mobile-frame" style={{ justifyContent: 'center', alignItems: 'center', padding: '2rem', textAlign: 'center' }}>
+                    <CalendarX size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
+                    <h1 style={{ fontSize: '1.5rem', color: '#0f172a', fontWeight: 800 }}>Servicio Pausado</h1>
+                    <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
+                        Nuestro portal de reservas online se encuentra en mantenimiento. Por favor, contacta directamente con el centro.
+                    </p>
                 </div>
-                <h1 className="ce-error-title" style={{ fontSize: '1.75rem', marginBottom: '.75rem' }}>
-                    Servicio Temporalmente Interrumpido
-                </h1>
-                <p className="ce-error-desc">
-                    Nuestro portal de reservas online se encuentra en mantenimiento programado o pausado temporalmente.
-                    <br />
-                    <strong style={{ color: '#191c1e', marginTop: '.5rem', display: 'block' }}>
-                        Por favor, contacta directamente con el centro para gestionar tu cita.
-                    </strong>
-                </p>
-                <div className="ce-disabled-divider" />
-                <span className="ce-disabled-tenant">{data.tenant.nombre_comercial}</span>
             </div>
         );
     }
 
-    const { subscription_status, expires_at, createdAt } = data.tenant;
-    let resolvedExpiresAt = expires_at ? new Date(expires_at) : null;
-    if (!resolvedExpiresAt && createdAt) {
-        resolvedExpiresAt = new Date(new Date(createdAt).getTime() + 14 * 24 * 60 * 60 * 1000);
-    }
-    const isExpired = subscription_status === 'expired' || (resolvedExpiresAt && new Date() > resolvedExpiresAt);
-
-    if (isExpired) {
-        return (
-            <div className="ce-root ce-disabled-state">
-                <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'rgba(186,26,26,.1)',
-                        filter: 'blur(2rem)',
-                        borderRadius: '50%',
-                        transform: 'scale(1.5)'
-                    }} />
-                    <div className="ce-error-icon" style={{ position: 'relative', background: '#fff0f0' }}>
-                        <CalendarX size={32} />
-                    </div>
-                </div>
-                <h1 className="ce-error-title" style={{ fontSize: '1.75rem', marginBottom: '.75rem' }}>
-                    Servicio no disponible
-                </h1>
-                <p className="ce-error-desc">
-                    El servicio de reservas online no está disponible momentáneamente.
-                    <br />
-                    <strong style={{ color: '#191c1e', marginTop: '.5rem', display: 'block' }}>
-                        Por favor, contacta directamente con el centro para gestionar tu cita.
-                    </strong>
-                </p>
-                <div className="ce-disabled-divider" />
-                <span className="ce-disabled-tenant">{data.tenant.name}</span>
-            </div>
-        );
-    }
-
-    return (
-        <div className="ce-root ce-page">
-            <main className="ce-main">
-                <BookingPortal
-                    alias={data.tenant.alias}
-                    tenantName={data.tenant.nombre_comercial}
-                    services={data.services}
-                    professionals={(data as any).professionals || []}
-                    settings={data.settings}
-                />
-            </main>
-        </div>
-    );
+    return <BookingPortal
+        alias={data.tenant.alias}
+        tenantName={data.tenant.nombre_comercial}
+        services={data.services}
+        professionals={(data as any).professionals || []}
+        settings={data.settings}
+    />;
 }
