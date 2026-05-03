@@ -9,6 +9,11 @@ import {
     CheckCircle2, 
     Loader2
 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
 
 type Step = 'ENTRANCE' | 'SERVICE' | 'PROFESSIONAL' | 'DATETIME' | 'FORM' | 'SUCCESS';
 
@@ -23,15 +28,128 @@ interface BookingPortalLuminaProps {
 export function BookingPortalLumina({ alias, tenantName, services, professionals, settings }: BookingPortalLuminaProps) {
     const [step, setStep] = useState<Step>('ENTRANCE');
     const [selectedService, setSelectedService] = useState<any>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [selectedProf, setSelectedProf] = useState<any>(null);
+
+    const [availableDays, setAvailableDays] = useState<string[]>([]);
+    const [timeSlots, setTimeSlots] = useState<string[]>([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [loadingAvailability, setLoadingAvailability] = useState(false);
+    const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
+    
+    const [clientInfo, setClientInfo] = useState({ name: '', email: '', phone: '' });
+    const [loading, setLoading] = useState(false);
 
     const displayTitle = settings?.appTitle || tenantName || "Lumina Booking";
     const welcomeMessage = settings?.welcomeMessage || "Experimenta el siguiente nivel en cuidado personal. Precisión, estilo y un ambiente diseñado para ti.";
+    const enableProfSelection = settings?.enableProfessionalSelection === 'true';
+    const autoSkipProfessional = professionals.length <= 1 || !enableProfSelection;
+
+    useEffect(() => {
+        if (visibleMonth && step === 'DATETIME') fetchMonthAvailability(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1);
+    }, [visibleMonth, alias, selectedProf, step]);
+
+    useEffect(() => {
+        if (selectedDate && step === 'DATETIME') fetchSlots(selectedDate);
+    }, [selectedDate, selectedProf, step]);
+
+    const fetchMonthAvailability = async (year: number, month: number) => {
+        setLoadingAvailability(true);
+        try {
+            const profQuery = selectedProf ? `&professionalId=${selectedProf.id}` : '';
+            const response = await fetch(`/api/public/month-availability?alias=${alias}&year=${year}&month=${month}${profQuery}`);
+            const data = await response.json();
+            if (data.availableDates) setAvailableDays(data.availableDates);
+        } catch (error) {
+            console.error('Error availability:', error);
+        } finally {
+            setLoadingAvailability(false);
+        }
+    };
+
+    const fetchSlots = async (date: Date) => {
+        setLoadingSlots(true);
+        setSelectedTime(null);
+        try {
+            const profQuery = selectedProf ? `&professionalId=${selectedProf.id}` : '';
+            const res = await fetch(`/api/public/availability?alias=${alias}&date=${format(date, 'yyyy-MM-dd')}${profQuery}`);
+            if (res.ok) {
+                const data = await res.json();
+                setTimeSlots(data.availableSlots || []);
+            }
+        } catch (e) { setTimeSlots([]); }
+        finally { setLoadingSlots(false); }
+    };
 
     const nextStep = () => {
         if (step === 'ENTRANCE') setStep('SERVICE');
-        else if (step === 'SERVICE') setStep('DATETIME');
+        else if (step === 'SERVICE') {
+            if (autoSkipProfessional) {
+                if (professionals.length === 1) setSelectedProf(professionals[0]);
+                setStep('DATETIME');
+            } else setStep('PROFESSIONAL');
+        }
+        else if (step === 'PROFESSIONAL') setStep('DATETIME');
         else if (step === 'DATETIME') setStep('FORM');
-        else if (step === 'FORM') setStep('SUCCESS');
+    };
+
+    const prevStep = () => {
+        if (step === 'SERVICE') setStep('ENTRANCE');
+        else if (step === 'PROFESSIONAL') setStep('SERVICE');
+        else if (step === 'DATETIME') setStep(autoSkipProfessional ? 'SERVICE' : 'PROFESSIONAL');
+        else if (step === 'FORM') setStep('DATETIME');
+    };
+
+    const handleConfirm = async () => {
+        if (!clientInfo.name || !clientInfo.email || !clientInfo.phone) { 
+            toast.error('Por favor, completa todos los campos.'); 
+            return; 
+        }
+        setLoading(true);
+        try {
+            Cookies.set(`bookly_client_${alias}`, JSON.stringify(clientInfo), { expires: 365 });
+            const localDateString = `${format(selectedDate!, 'yyyy-MM-dd')}T${selectedTime}:00`;
+            const absoluteIsoString = new Date(localDateString).toISOString();
+
+            const res = await fetch('/api/reservas/crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    alias, 
+                    serviceId: selectedService.id,
+                    date: format(selectedDate!, 'yyyy-MM-dd'), 
+                    time: selectedTime,
+                    datetime: absoluteIsoString,
+                    client: clientInfo,
+                    professionalId: selectedProf?.id || null
+                })
+            });
+            if (res.ok) {
+                const { appointmentId } = await res.json();
+                window.location.href = `/${alias}/confirm/${appointmentId}`;
+            } else {
+                const err = await res.json();
+                toast.error(err.error || 'Error al confirmar');
+            }
+        } catch (error) {
+            toast.error('Error de red al confirmar');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const dayDisabled = (date: Date) => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        return !availableDays.includes(dateStr);
+    };
+
+    const getProgressPercentage = () => {
+        if (step === 'SERVICE') return '25%';
+        if (step === 'PROFESSIONAL') return '50%';
+        if (step === 'DATETIME') return '75%';
+        if (step === 'FORM') return '100%';
+        return '0%';
     };
 
     if (step === 'ENTRANCE') {
@@ -85,18 +203,23 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
     return (
         <div className="bg-[#131313] text-[#e5e2e1] font-inter min-h-screen flex flex-col md:flex-row overflow-x-hidden">
             <header className="md:hidden bg-[#121212]/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-white/10 flex justify-between items-center px-6 h-16">
+                <button onClick={prevStep} className="text-white/60 hover:text-white">{'<'}</button>
                 <div className="text-[#8B5CF6] text-xl font-black tracking-tighter uppercase">{displayTitle}</div>
+                <div className="w-6"></div>
             </header>
 
             <nav className="hidden md:flex flex-col h-screen w-64 border-r border-white/5 shadow-2xl py-8 bg-[#1E1E1E] fixed left-0 top-0 z-40">
                 <div className="px-6 mb-8">
+                    <button onClick={prevStep} className="text-[#cbc3d7] hover:text-white mb-6 text-sm flex items-center gap-2">
+                        {'<'} Volver
+                    </button>
                     <h2 className="text-[#8B5CF6] text-2xl font-bold tracking-tighter uppercase">{displayTitle}</h2>
                     <p className="text-[#d0bcff] font-semibold text-xs mt-2">Booking</p>
                 </div>
                 <div className="px-6 mb-6">
-                    <p className="text-[#cbc3d7] font-semibold text-xs mb-1">Paso {step === 'SERVICE' ? '1' : '2'} de 4</p>
+                    <p className="text-[#cbc3d7] font-semibold text-xs mb-1">Paso actual</p>
                     <div className="w-full bg-[#202020] h-1 rounded-full overflow-hidden">
-                        <div className="bg-[#8B5CF6] h-full shadow-[0_0_12px_rgba(139,92,246,0.4)]" style={{ width: step === 'SERVICE' ? '25%' : '50%' }}></div>
+                        <div className="bg-[#8B5CF6] h-full shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all duration-300" style={{ width: getProgressPercentage() }}></div>
                     </div>
                 </div>
                 <ul className="flex flex-col gap-2 px-2 text-sm font-medium">
@@ -105,6 +228,13 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             <Sparkles size={18} /> Servicios
                         </div>
                     </li>
+                    {!autoSkipProfessional && (
+                        <li>
+                            <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'PROFESSIONAL' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
+                                <User size={18} /> Profesional
+                            </div>
+                        </li>
+                    )}
                     <li>
                         <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'DATETIME' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
                             <CalendarDays size={18} /> Horario
@@ -128,7 +258,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             </div>
                             <div className="flex flex-col gap-4">
                                 {services.map(s => (
-                                    <div key={s.id} onClick={() => { setSelectedService(s); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-6 relative overflow-hidden transition-all group cursor-pointer ${selectedService?.id === s.id ? 'border-[#8B5CF6]/40' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
+                                    <div key={s.id} onClick={() => { setSelectedService(s); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-6 relative overflow-hidden transition-all group cursor-pointer ${selectedService?.id === s.id ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.1)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
                                         {selectedService?.id === s.id && <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-transparent pointer-events-none"></div>}
                                         <div className="flex-1 z-10">
                                             <h3 className="text-xl font-bold text-[#e5e2e1] mb-1">{s.name}</h3>
@@ -138,18 +268,41 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                                 <span className="flex items-center gap-1">💰 {s.price ? `$${s.price}` : 'Consultar'}</span>
                                             </div>
                                         </div>
-                                        <div className="z-10 flex flex-col items-end">
-                                            {selectedService?.id === s.id ? (
-                                                <button className="bg-[#8B5CF6] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)]">Seleccionado</button>
-                                            ) : (
-                                                <button className="border border-white/20 text-[#e5e2e1] px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition-colors">Seleccionar</button>
-                                            )}
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {step === 'PROFESSIONAL' && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                            <div className="mb-12">
+                                <h1 className="text-3xl font-bold text-[#e5e2e1] mb-2">Profesional</h1>
+                                <p className="text-lg text-[#cbc3d7]">Seleccione al profesional que prefiera.</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div onClick={() => { setSelectedProf(null); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf === null ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.2)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
+                                    <div className="w-12 h-12 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] flex items-center justify-center"><User size={24} /></div>
+                                    <div>
+                                        <h3 className="font-bold text-[#e5e2e1]">Cualquiera</h3>
+                                        <p className="text-xs text-[#cbc3d7]">Mayor disponibilidad</p>
+                                    </div>
+                                </div>
+                                {professionals.map(p => (
+                                    <div key={p.id} onClick={() => { setSelectedProf(p); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf?.id === p.id ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.2)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
+                                        <div className="w-12 h-12 rounded-full bg-[#202020] text-slate-400 flex items-center justify-center overflow-hidden border border-white/5">
+                                            {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <User size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-[#e5e2e1]">{p.name}</h3>
+                                            <p className="text-xs text-[#cbc3d7]">{p.description || 'Profesional'}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </motion.div>
                     )}
+
                     {step === 'DATETIME' && (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                             <div className="mb-12">
@@ -159,56 +312,100 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <div className="bg-[#1E1E1E] border border-white/10 rounded-xl p-6 flex flex-col gap-6">
-                                    <div className="flex justify-between items-center">
-                                        <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:border-white/30 transition-colors">
-                                            {'<'}
-                                        </button>
-                                        <h3 className="text-xs font-bold text-[#e5e2e1] uppercase tracking-wider">Octubre 2023</h3>
-                                        <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:border-white/30 transition-colors">
-                                            {'>'}
-                                        </button>
-                                    </div>
-                                    <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#cbc3d7] mb-2">
-                                        <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
-                                    </div>
-                                    <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                                        <div className="p-2 text-[#cbc3d7]/30"></div>
-                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">1</div>
-                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">2</div>
-                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">3</div>
-                                        <div className="p-2 bg-[#8B5CF6] text-white font-bold rounded-lg cursor-pointer shadow-[0_0_12px_rgba(139,92,246,0.4)]">4</div>
-                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">5</div>
-                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">6</div>
-                                    </div>
+                                    <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(d) => d && setSelectedDate(d)}
+                                        onMonthChange={setVisibleMonth}
+                                        disabled={dayDisabled}
+                                        locale={es}
+                                        className="w-full bg-transparent p-0 text-[#e5e2e1]"
+                                        classNames={{
+                                            months: "w-full",
+                                            month: "w-full",
+                                            nav: "flex items-center gap-2 absolute top-0 right-0 w-auto justify-end",
+                                            button_previous: "w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:bg-white/5 transition-colors",
+                                            button_next: "w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:bg-white/5 transition-colors",
+                                            month_caption: "flex justify-start h-10 mb-4 px-0",
+                                            caption_label: "text-xs font-bold text-[#e5e2e1] uppercase tracking-wider capitalize",
+                                            table: "w-full border-collapse space-y-1",
+                                            weekdays: "flex w-full mb-2",
+                                            weekday: "text-[#cbc3d7] font-bold text-[11px] uppercase tracking-wider w-full text-center",
+                                            week: "flex w-full mt-1",
+                                            day: "h-10 w-full text-center text-sm p-0 relative flex items-center justify-center",
+                                        }}
+                                        components={{
+                                            DayButton: (props: any) => {
+                                                const isSelected = props.modifiers?.selected;
+                                                const isOutside = props.modifiers?.outside;
+                                                const isDisabled = props.modifiers?.disabled;
+                                                return (
+                                                    <button 
+                                                        {...props} 
+                                                        className={`h-8 w-8 mx-auto rounded-lg font-inter font-medium text-sm transition-all flex items-center justify-center ${
+                                                            isSelected 
+                                                                ? 'bg-[#8B5CF6] text-white shadow-[0_0_12px_rgba(139,92,246,0.4)]' 
+                                                                : isDisabled || isOutside 
+                                                                    ? 'text-[#cbc3d7]/30 cursor-not-allowed' 
+                                                                    : 'text-[#e5e2e1] hover:bg-[#202020]'
+                                                        }`}
+                                                    />
+                                                );
+                                            }
+                                        }}
+                                    />
                                 </div>
 
                                 <div className="flex flex-col gap-6">
                                     <h3 className="text-xl font-bold text-[#e5e2e1]">Horas Disponibles</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button className="border border-white/10 rounded-lg py-3 px-4 text-sm text-[#cbc3d7] hover:border-[#8B5CF6]/50 hover:text-white transition-all text-center bg-[#2a2a2a]">
-                                            09:00
-                                        </button>
-                                        <button className="border border-[#8B5CF6] rounded-lg py-3 px-4 text-sm transition-all text-center shadow-[0_0_8px_rgba(139,92,246,0.3)] bg-[#2a2a2a] text-[#d0bcff]">
-                                            09:30
-                                        </button>
-                                        <button className="border border-white/10 rounded-lg py-3 px-4 text-sm text-[#cbc3d7] opacity-50 cursor-not-allowed bg-[#2a2a2a]">
-                                            10:00 (Ocupado)
-                                        </button>
-                                    </div>
+                                    {loadingSlots ? (
+                                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-[#8B5CF6]" size={24} /></div>
+                                    ) : timeSlots.length > 0 ? (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {timeSlots.map(t => (
+                                                <button 
+                                                    key={t}
+                                                    onClick={() => setSelectedTime(t)}
+                                                    className={`border rounded-lg py-3 px-4 text-sm transition-all text-center ${selectedTime === t ? 'border-[#8B5CF6] shadow-[0_0_8px_rgba(139,92,246,0.3)] bg-[#2a2a2a] text-[#d0bcff]' : 'border-white/10 text-[#cbc3d7] hover:border-[#8B5CF6]/50 hover:text-white bg-[#2a2a2a]'}`}
+                                                >
+                                                    {t}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="bg-[#1E1E1E] p-6 rounded-xl text-center border border-white/5">
+                                            <p className="text-[#cbc3d7] text-sm">No hay disponibilidad.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>
                     )}
 
-                    {step !== 'SERVICE' && step !== 'DATETIME' && (
-                        <div className="py-20 text-center">
-                            <h2 className="text-2xl font-bold mb-4">Esta vista se integraría con el workflow V2</h2>
-                            <button onClick={() => setStep('DATETIME')} className="text-[#8B5CF6]">Volver a horarios</button>
-                        </div>
+                    {step === 'FORM' && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                            <div className="mb-12">
+                                <h1 className="text-3xl font-bold text-[#e5e2e1] mb-2">Tus Datos</h1>
+                                <p className="text-lg text-[#cbc3d7]">Completa esta información para finalizar.</p>
+                            </div>
+                            <div className="space-y-4 bg-[#1E1E1E] p-8 rounded-xl border border-white/10">
+                                <div>
+                                    <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Nombre completo</label>
+                                    <input type="text" value={clientInfo.name} onChange={e => setClientInfo({...clientInfo, name: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="Ej. María Pérez" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Correo electrónico</label>
+                                    <input type="email" value={clientInfo.email} onChange={e => setClientInfo({...clientInfo, email: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="maria@ejemplo.com" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Teléfono</label>
+                                    <input type="tel" value={clientInfo.phone} onChange={e => setClientInfo({...clientInfo, phone: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="+34 600 000 000" />
+                                </div>
+                            </div>
+                        </motion.div>
                     )}
                 </div>
 
-                {/* Right Sidebar Summary */}
                 {selectedService && (
                     <aside className="w-full xl:w-[400px] xl:border-l border-white/5 xl:pl-8 flex flex-col shrink-0">
                         <div className="sticky top-24 bg-[#1E1E1E] border border-white/10 rounded-xl p-6 shadow-2xl">
@@ -228,15 +425,27 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                     </div>
                                 </div>
 
-                                {(step === 'DATETIME' || step === 'FORM' || step === 'SUCCESS') && (
+                                {selectedProf && (
+                                    <div className="flex items-start gap-4 pb-4 border-b border-white/10">
+                                        <div className="w-12 h-12 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center shrink-0 text-[#8B5CF6]">
+                                            <User size={20} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Profesional</p>
+                                            <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedProf.name}</h4>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(step === 'DATETIME' || step === 'FORM' || step === 'SUCCESS') && selectedTime && (
                                     <div className="flex items-start gap-4 pb-4 border-b border-white/10">
                                         <div className="w-12 h-12 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
                                             <CalendarDays className="text-[#8B5CF6]" size={20} />
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Fecha y Hora</p>
-                                            <h4 className="text-sm font-medium text-[#e5e2e1]">Jueves, 12 Octubre</h4>
-                                            <p className="text-sm text-[#cbc3d7]">09:30 AM</p>
+                                            <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedDate ? format(selectedDate, 'EEEE, d MMMM', { locale: es }) : ''}</h4>
+                                            <p className="text-sm text-[#cbc3d7]">{selectedTime}</p>
                                         </div>
                                     </div>
                                 )}
@@ -247,9 +456,15 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                 <p className="text-2xl font-bold text-[#e5e2e1]">${selectedService.price || '0.00'}</p>
                             </div>
 
-                            <button onClick={nextStep} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2">
-                                Continuar <span className="text-lg">→</span>
-                            </button>
+                            {step === 'FORM' ? (
+                                <button onClick={handleConfirm} disabled={loading} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
+                                    {loading ? <Loader2 className="animate-spin" size={16} /> : 'Confirmar Cita'}
+                                </button>
+                            ) : (
+                                <button onClick={nextStep} disabled={step === 'DATETIME' && !selectedTime} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
+                                    Continuar <span className="text-lg">→</span>
+                                </button>
+                            )}
                         </div>
                     </aside>
                 )}
