@@ -176,7 +176,9 @@ export function BookingPortalV2({ alias, tenantName, services, professionals, se
                 <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 text-center max-w-2xl mx-auto w-full">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-8 w-full bg-white p-12 rounded-[2.5rem] shadow-xl border border-slate-100">
                         {logo ? (
-                            <img src={logo} alt="Logo" className="w-32 h-32 object-contain rounded-2xl" />
+                            <div className="p-2 rounded-[2.5rem] bg-white/50 backdrop-blur-sm border-2 border-white/60 shadow-xl shadow-slate-200/50">
+                                <img src={logo} alt="Logo" className="w-48 h-48 md:w-56 md:h-56 object-contain rounded-[2rem]" />
+                            </div>
                         ) : (
                             <div className="w-24 h-24 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
                                 <Sparkles size={40} />
@@ -204,9 +206,13 @@ export function BookingPortalV2({ alias, tenantName, services, professionals, se
     // --- Desktop Sidebar ---
     const DesktopSidebar = () => (
         <nav className="hidden md:flex h-screen w-80 fixed left-0 border-r border-slate-100/50 flex-col gap-2 p-8 z-40 bg-white">
-            <div className="mb-12 flex flex-col gap-4">
-                {logo ? <img src={logo} alt="Logo" className="h-12 w-auto object-contain self-start" /> : <h1 className="text-xl font-black font-manrope truncate" style={{ color: colors.text }}>{displayTitle}</h1>}
-                <div>
+            <div className="mb-12 flex flex-col items-center text-center gap-6">
+                {logo ? (
+                    <div className="p-2 rounded-[1.5rem] bg-slate-50/50 border border-slate-100 shadow-md">
+                        <img src={logo} alt="Logo" className="w-24 h-24 object-contain rounded-xl" />
+                    </div>
+                ) : <h1 className="text-xl font-black font-manrope truncate" style={{ color: colors.text }}>{displayTitle}</h1>}
+                <div className="w-full">
                     <h2 className="text-2xl font-bold mb-1 font-manrope" style={{ color: colors.text }}>Reserva de Cita</h2>
                     <p className="text-slate-500 text-sm font-inter">Paso {currentStepIdx + 1} de {STEPS_DATA.length}</p>
                 </div>
@@ -261,6 +267,9 @@ export function BookingPortalV2({ alias, tenantName, services, professionals, se
             <DesktopSidebar />
             
             <main className="w-full md:ml-80 flex flex-col min-h-screen relative">
+                {/* Textura sutil de fondo */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23000'/%3E%3C/svg%3E")` }}></div>
+                
                 <MobileTopNav />
 
                 <div className="flex-1 p-6 md:p-12 lg:p-16 max-w-6xl mx-auto w-full">
