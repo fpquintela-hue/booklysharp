@@ -265,7 +265,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                             <p className="text-sm text-[#cbc3d7] mb-2">{s.description || 'Servicio profesional'}</p>
                                             <div className="flex items-center gap-4 text-xs font-semibold text-[#cbc3d7]">
                                                 <span className="flex items-center gap-1">⌚ {s.duration} min</span>
-                                                <span className="flex items-center gap-1">💰 {s.price ? `$${s.price}` : 'Consultar'}</span>
+                                                <span className="flex items-center gap-1">💰 {s.price ? `${s.price}€` : 'Consultar'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -323,10 +323,10 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                         classNames={{
                                             months: "w-full",
                                             month: "w-full",
-                                            nav: "flex items-center gap-2 absolute top-0 right-0 w-auto justify-end",
+                                            nav: "flex items-center gap-2",
                                             button_previous: "w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:bg-white/5 transition-colors",
                                             button_next: "w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:bg-white/5 transition-colors",
-                                            month_caption: "flex justify-start h-10 mb-4 px-0",
+                                            month_caption: "flex justify-between items-center h-10 mb-4 px-0",
                                             caption_label: "text-xs font-bold text-[#e5e2e1] uppercase tracking-wider capitalize",
                                             table: "w-full border-collapse space-y-1",
                                             weekdays: "flex w-full mb-2",
@@ -421,7 +421,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                         <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedService.name}</h4>
                                     </div>
                                     <div className="text-sm font-semibold text-[#e5e2e1]">
-                                        ${selectedService.price || '0.00'}
+                                        {selectedService.price || '0.00'}€
                                     </div>
                                 </div>
 
@@ -453,7 +453,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
 
                             <div className="pt-2 flex justify-between items-end mb-6">
                                 <p className="text-sm text-[#cbc3d7]">Total a Pagar</p>
-                                <p className="text-2xl font-bold text-[#e5e2e1]">${selectedService.price || '0.00'}</p>
+                                <p className="text-2xl font-bold text-[#e5e2e1]">{selectedService.price || '0.00'}€</p>
                             </div>
 
                             {step === 'FORM' ? (
