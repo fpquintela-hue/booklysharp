@@ -209,7 +209,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                 </div>
 
                 {/* Right Sidebar Summary */}
-                {selectedService && step !== 'ENTRANCE' && (
+                {selectedService && (
                     <aside className="w-full xl:w-[400px] xl:border-l border-white/5 xl:pl-8 flex flex-col shrink-0">
                         <div className="sticky top-24 bg-[#1E1E1E] border border-white/10 rounded-xl p-6 shadow-2xl">
                             <h2 className="text-xl font-bold text-[#e5e2e1] mb-6 pb-4 border-b border-white/10">Resumen de Reserva</h2>
