@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Seleccionar Servicio - Clínica Precision</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#4a2800",
+                        "surface-tint": "#455f87",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#2d3133",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary-fixed": "#2d1600",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "tertiary-fixed-dim": "#f4bb86",
+                        "surface-container-low": "#f2f4f6",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#adc8f5",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#d5e3ff",
+                        "on-surface-variant": "#43474e",
+                        "secondary": "#555f70",
+                        "secondary-container": "#d6e0f4",
+                        "primary-container": "#133156",
+                        "on-secondary-fixed-variant": "#3e4757",
+                        "on-primary-container": "#7f9ac5",
+                        "on-tertiary-container": "#c18e5c",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcbf",
+                        "outline-variant": "#c4c6cf",
+                        "on-primary-fixed-variant": "#2c486e",
+                        "surface-variant": "#e0e3e5",
+                        "outline": "#74777f",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#121c2a",
+                        "surface-container": "#eceef0",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed": "#001c3b",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary": "#2d1600",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#d9e3f7",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed-dim": "#adc8f5",
+                        "on-tertiary-fixed-variant": "#653e13",
+                        "on-secondary-container": "#596374",
+                        "secondary-fixed-dim": "#bdc7db",
+                        "primary": "#001c3b",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope", "sans-serif"],
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        h1, h2, h3, h4, h5, h6, .font-headline, .font-display { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex w-full">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-slate-50 dark:bg-slate-950 h-screen w-80 fixed left-0 border-r-0 flex flex-col gap-2 p-8 h-full z-40">
+<!-- Brand / Header -->
+<div class="mb-12">
+<h1 class="text-lg font-black text-[#133156] mb-8">Clínica Precision</h1>
+<div>
+<h2 class="font-headline text-2xl font-bold text-on-surface mb-1">Reserva de Cita</h2>
+<p class="font-label text-on-surface-variant text-sm">Paso 1 de 5</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Active Tab: Servicio -->
+<a class="flex items-center gap-4 bg-white dark:bg-slate-800 text-[#133156] font-semibold rounded-full px-6 py-4 shadow-sm font-['Inter'] text-sm tracking-normal scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<span>Servicio</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-4 text-slate-400 hover:text-slate-600 px-6 py-4 font-['Inter'] text-sm tracking-normal hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span>Especialista</span>
+</a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-slate-600 px-6 py-4 font-['Inter'] text-sm tracking-normal hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Fecha y Hora</span>
+</a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-slate-600 px-6 py-4 font-['Inter'] text-sm tracking-normal hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span>Datos del Paciente</span>
+</a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-slate-600 px-6 py-4 font-['Inter'] text-sm tracking-normal hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Confirmación</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="mt-auto pt-8">
+<button class="w-full text-center rounded-full py-4 text-primary font-label font-medium bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-variant transition-colors">
+                Cancelar Reserva
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-80 flex-1 min-h-screen bg-surface p-12">
+<!-- Header -->
+<header class="mb-16">
+<h1 class="font-display text-[3.5rem] font-bold text-primary tracking-tight leading-tight mb-4">Seleccione el servicio</h1>
+<p class="font-body text-lg text-on-surface-variant max-w-2xl leading-relaxed">
+                Elija la especialidad o servicio que requiere para su consulta. Nuestros especialistas están capacitados para brindar la mejor atención.
+            </p>
+</header>
+<!-- Services Grid (Bento/Asymmetric Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1: Consulta General (Featured) -->
+<div class="col-span-1 md:col-span-2 lg:col-span-2 bg-surface-container-lowest rounded-lg p-8 flex flex-col md:flex-row gap-8 items-start relative overflow-hidden group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer">
+<div class="w-20 h-20 rounded-full bg-primary-fixed flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">stethoscope</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-3">Consulta General</h3>
+<p class="font-body text-on-surface-variant mb-6 leading-relaxed">
+                        Evaluación médica integral para diagnóstico, tratamiento de afecciones comunes y derivación a especialistas si es necesario. Ideal para primer contacto.
+                    </p>
+<div class="flex flex-wrap gap-3">
+<span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-4 py-2 text-sm font-medium text-on-secondary-container">
+<span class="material-symbols-outlined text-sm">schedule</span> 30 min
+                        </span>
+<span class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface">
+<span class="material-symbols-outlined text-sm">payments</span> $50.00
+                        </span>
+</div>
+</div>
+</div>
+<!-- Card 2: Cardiología -->
+<div class="bg-surface-container-lowest rounded-lg p-8 flex flex-col gap-6 relative group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">ecg_heart</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Cardiología</h3>
+<p class="font-body text-on-surface-variant text-sm mb-6">
+                        Evaluación del sistema cardiovascular. Incluye electrocardiograma básico.
+                    </p>
+<div class="flex flex-col gap-2">
+<span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-3 py-1.5 text-sm font-medium text-on-secondary-container w-fit">
+<span class="material-symbols-outlined text-sm">schedule</span> 45 min
+                        </span>
+<span class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-1.5 text-sm font-medium text-on-surface w-fit">
+<span class="material-symbols-outlined text-sm">payments</span> $85.00
+                        </span>
+</div>
+</div>
+</div>
+<!-- Card 3: Pediatría -->
+<div class="bg-surface-container-lowest rounded-lg p-8 flex flex-col gap-6 relative group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">child_care</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Pediatría</h3>
+<p class="font-body text-on-surface-variant text-sm mb-6">
+                        Atención médica especializada para infantes, niños y adolescentes.
+                    </p>
+<div class="flex flex-col gap-2">
+<span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-3 py-1.5 text-sm font-medium text-on-secondary-container w-fit">
+<span class="material-symbols-outlined text-sm">schedule</span> 40 min
+                        </span>
+<span class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-1.5 text-sm font-medium text-on-surface w-fit">
+<span class="material-symbols-outlined text-sm">payments</span> $60.00
+                        </span>
+</div>
+</div>
+</div>
+<!-- Card 4: Dermatología -->
+<div class="bg-surface-container-lowest rounded-lg p-8 flex flex-col gap-6 relative group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">dermatology</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Dermatología</h3>
+<p class="font-body text-on-surface-variant text-sm mb-6">
+                        Diagnóstico y tratamiento de enfermedades de la piel, cabello y uñas.
+                    </p>
+<div class="flex flex-col gap-2">
+<span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-3 py-1.5 text-sm font-medium text-on-secondary-container w-fit">
+<span class="material-symbols-outlined text-sm">schedule</span> 30 min
+                        </span>
+<span class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-1.5 text-sm font-medium text-on-surface w-fit">
+<span class="material-symbols-outlined text-sm">payments</span> $70.00
+                        </span>
+</div>
+</div>
+</div>
+<!-- Card 5: Oftalmología -->
+<div class="bg-surface-container-lowest rounded-lg p-8 flex flex-col gap-6 relative group hover:bg-surface-container-low transition-colors duration-300 cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">visibility</span>
+</div>
+<div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-2">Oftalmología</h3>
+<p class="font-body text-on-surface-variant text-sm mb-6">
+                        Examen visual completo y tratamiento de patologías oculares.
+                    </p>
+<div class="flex flex-col gap-2">
+<span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-3 py-1.5 text-sm font-medium text-on-secondary-container w-fit">
+<span class="material-symbols-outlined text-sm">schedule</span> 45 min
+                        </span>
+<span class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-1.5 text-sm font-medium text-on-surface w-fit">
+<span class="material-symbols-outlined text-sm">payments</span> $75.00
+                        </span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

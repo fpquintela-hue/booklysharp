@@ -5,9 +5,20 @@ import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, Loader2, Settings2, Brush, ChevronLeft, Users, Palette, Link as LinkIcon, Smartphone, Check } from 'lucide-react';
 import { apiFetch } from '@/lib/mock-service';
 import { BookingAdvancePanel } from '@/components/BookingAdvancePanel';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+
+const PALETTES = [
+    { id: 'yellow', name: 'Gama de Amarillos', color: '#eab308' },
+    { id: 'blue', name: 'Gama de Azules', color: '#3b82f6' },
+    { id: 'red', name: 'Gama de Rojos', color: '#ef4444' },
+    { id: 'black', name: 'Gama de Negros', color: '#09090b' },
+    { id: 'green', name: 'Gama de Verdes', color: '#22c55e' },
+    { id: 'purple', name: 'Gama de Violetas', color: '#8b5cf6' },
+];
 
 export default function PortalSettingsPage() {
     const { settings, updateSettings, refreshSettings } = useSettings();
@@ -19,12 +30,23 @@ export default function PortalSettingsPage() {
     const [logoUrl, setLogoUrl] = useState('');
     const [welcomeMessage, setWelcomeMessage] = useState('');
     const [portalEnabled, setPortalEnabled] = useState(true);
+    const [enableProfessionalSelection, setEnableProfessionalSelection] = useState(true);
+    const [portalColorPalette, setPortalColorPalette] = useState('blue');
+
+    const [activeTab, setActiveTab] = useState<'general' | 'personalizacion'>('general');
+
+    const menuItems = [
+        { id: 'general', label: 'Opciones Generales', icon: Settings2 },
+        { id: 'personalizacion', label: 'Personalización', icon: Brush },
+    ];
 
     useEffect(() => {
         if (settings) {
             setLogoUrl(settings.logoUrl || '');
             setWelcomeMessage(settings.welcomeMessage || '');
             setPortalEnabled(settings.portalEnabled !== 'false');
+            setEnableProfessionalSelection(settings.enableProfessionalSelection !== 'false');
+            setPortalColorPalette(settings.portalColorPalette || 'blue');
         }
     }, [settings]);
 
@@ -72,7 +94,9 @@ export default function PortalSettingsPage() {
             await updateSettings({
                 logoUrl,
                 welcomeMessage: welcomeMessage,
-                portalEnabled: portalEnabled.toString()
+                portalEnabled: portalEnabled.toString(),
+                enableProfessionalSelection: enableProfessionalSelection.toString(),
+                portalColorPalette
             });
             await refreshSettings();
             toast.success('Cambios guardados correctamente');
@@ -84,217 +108,276 @@ export default function PortalSettingsPage() {
     };
 
     return (
-        <div className="p-6 md:p-12 max-w-7xl mx-auto space-y-6 flex flex-col h-full fade-in w-full text-slate-800 dark:text-slate-200">
-            <header className="flex justify-between items-center w-full mb-12">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-[#004ac6] dark:text-blue-400 font-headline tracking-tight uppercase">CANAL DE VENTAS ONLINE</h1>
-                    <p className="text-slate-500 font-body mt-1">Configura la experiencia de reserva de tus clientes</p>
+        <div className="flex h-full w-full bg-white dark:bg-slate-900">
+            {/* Sidebar similar to settings */}
+            <aside className="w-64 border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col shrink-0">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2 mb-1">
+                        <Link href={`/${alias}`} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                            <ChevronLeft className="w-4 h-4 text-slate-400" />
+                        </Link>
+                        <h2 className="text-xl font-black text-primary tracking-tight uppercase">Portal Online</h2>
+                    </div>
                 </div>
-            </header>
+                <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id as any)}
+                            className={cn(
+                                "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                                activeTab === item.id
+                                    ? "bg-white dark:bg-slate-800 text-primary dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+                                    : "text-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
+                            )}
+                        >
+                            <item.icon className="w-4 h-4" />
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
+            </aside>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Left Column: Settings */}
-                <div className="lg:col-span-7 space-y-8">
-                    {/* Section: Visibilidad */}
-                    <section className="bg-white dark:bg-slate-900/50 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-[#004ac6] dark:text-blue-400" data-icon="visibility">visibility</span>
-                                <h2 className="text-xl font-bold font-headline">VISIBILIDAD Y APERTURA DE AGENDA</h2>
-                            </div>
-                            <Switch 
-                                checked={portalEnabled}
-                                onCheckedChange={(val: boolean) => {
-                                    setPortalEnabled(val);
-                                    // Actualizar inmediatamente en la DB
-                                    updateSettings({
-                                        portalEnabled: val.toString()
-                                    }).then(() => {
-                                        refreshSettings();
-                                        toast.success(`Portal ${val ? 'activado' : 'desactivado'}`);
-                                    }).catch(() => {
-                                        toast.error('Error al actualizar visibilidad');
-                                        setPortalEnabled(!val); // Revertir en caso de error
-                                    });
-                                }}
-                            />
+            {/* Main Content Area */}
+            <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 p-8 md:p-12">
+                <div className="max-w-5xl mx-auto space-y-6">
+                    <header className="flex justify-between items-center w-full mb-8">
+                        <div>
+                            <h1 className="text-3xl font-extrabold text-[#004ac6] dark:text-blue-400 font-headline tracking-tight uppercase">
+                                {activeTab === 'general' ? 'Opciones Generales' : 'Personalización'}
+                            </h1>
+                            <p className="text-slate-500 font-body mt-1">Configura la experiencia de reserva de tus clientes</p>
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider font-label">Link Público de Reservas</label>
-                            <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-sm" data-icon="link">link</span>
-                                    <input 
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-[#004ac6] dark:text-blue-400 font-medium focus:ring-2 focus:ring-[#004ac6] outline-none" 
-                                        readOnly 
-                                        type="text" 
-                                        value={typeof window !== 'undefined' ? `${window.location.origin}/${alias}/reserve` : `/${alias}/reserve`}
+                        <button onClick={handleSaveSettings} disabled={loading} className="bg-[#004ac6] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 inline-flex items-center gap-2">
+                            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                            Guardar Cambios
+                        </button>
+                    </header>
+
+                    {activeTab === 'general' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Section: Visibilidad */}
+                            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,74,198,0.08)] border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                                            <span className="material-symbols-outlined" data-icon="visibility">visibility</span>
+                                        </div>
+                                        <h2 className="text-xl font-black font-headline uppercase italic">VISIBILIDAD Y APERTURA DE AGENDA</h2>
+                                    </div>
+                                    <Switch 
+                                        checked={portalEnabled}
+                                        onCheckedChange={(val: boolean) => {
+                                            setPortalEnabled(val);
+                                            // Actualizar inmediatamente en la DB
+                                            updateSettings({
+                                                portalEnabled: val.toString()
+                                            }).then(() => {
+                                                refreshSettings();
+                                                toast.success(`Portal ${val ? 'activado' : 'desactivado'}`);
+                                            }).catch(() => {
+                                                toast.error('Error al actualizar visibilidad');
+                                                setPortalEnabled(!val); // Revertir en caso de error
+                                            });
+                                        }}
+                                        className="scale-125"
                                     />
                                 </div>
-                                <button onClick={() => { 
-                                    const url = typeof window !== 'undefined' ? `${window.location.origin}/${alias}/reserve` : `/${alias}/reserve`;
-                                    
-                                    // Robust copy to clipboard
-                                    if (navigator.clipboard && window.isSecureContext) {
-                                        navigator.clipboard.writeText(url).then(() => {
-                                            toast.success('Enlace copiado al portapapeles');
-                                        }).catch(() => {
-                                            toast.error('No se pudo copiar');
-                                        });
-                                    } else {
-                                        // Fallback para contextos no seguros o navegadores antiguos
-                                        const textArea = document.createElement("textarea");
-                                        textArea.value = url;
-                                        document.body.appendChild(textArea);
-                                        textArea.select();
-                                        try {
-                                            document.execCommand('copy');
-                                            toast.success('Enlace copiado al portapapeles');
-                                        } catch (err) {
-                                            toast.error('No se pudo copiar');
-                                        }
-                                        document.body.removeChild(textArea);
-                                    }
-                                }} className="bg-[#dbe1ff] dark:bg-blue-900/30 text-[#003ea8] dark:text-blue-200 px-4 py-2 rounded-lg font-bold hover:bg-[#acbfff] dark:hover:bg-blue-800 transition-colors flex items-center gap-2">
-                                    <span className="material-symbols-outlined" data-icon="content_copy">content_copy</span>
-                                    <span className="hidden sm:inline">Copiar</span>
-                                </button>
-                            </div>
-                            <p className="text-xs text-slate-500 mt-2 italic">Comparte este enlace en tus redes sociales para recibir reservas directamente.</p>
-                        </div>
-                    </section>
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Link Público de Reservas</label>
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                                <LinkIcon className="w-4 h-4" />
+                                            </span>
+                                            <input 
+                                                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[#004ac6] dark:text-blue-400 font-bold focus:ring-2 focus:ring-[#004ac6]/20 outline-none" 
+                                                readOnly 
+                                                type="text" 
+                                                value={typeof window !== 'undefined' ? `${window.location.origin}/${alias}/reserve-new` : `/${alias}/reserve-new`}
+                                            />
+                                        </div>
+                                        <button onClick={() => { 
+                                            const url = typeof window !== 'undefined' ? `${window.location.origin}/${alias}/reserve-new` : `/${alias}/reserve-new`;
+                                            
+                                            // Robust copy to clipboard
+                                            if (navigator.clipboard && window.isSecureContext) {
+                                                navigator.clipboard.writeText(url).then(() => {
+                                                    toast.success('Enlace copiado al portapapeles');
+                                                }).catch(() => {
+                                                    toast.error('No se pudo copiar');
+                                                });
+                                            } else {
+                                                const textArea = document.createElement("textarea");
+                                                textArea.value = url;
+                                                document.body.appendChild(textArea);
+                                                textArea.select();
+                                                try {
+                                                    document.execCommand('copy');
+                                                    toast.success('Enlace copiado al portapapeles');
+                                                } catch (err) {
+                                                    toast.error('No se pudo copiar');
+                                                }
+                                                document.body.removeChild(textArea);
+                                            }
+                                        }} className="bg-primary/10 text-primary px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all active:scale-95 flex items-center gap-2 shadow-sm">
+                                            <span className="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+                                            <span className="hidden sm:inline">Copiar</span>
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-2 italic">Comparte este enlace en tus redes sociales para recibir reservas directamente. Los clientes verán la nueva versión.</p>
+                                </div>
+                            </section>
 
-                    {/* Section: Marca Corporativa */}
-                    <section className="bg-white dark:bg-slate-900/50 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-3 mb-8">
-                            <span className="material-symbols-outlined text-[#004ac6] dark:text-blue-400" data-icon="brush">brush</span>
-                            <h2 className="text-xl font-bold font-headline">MARCA CORPORATIVA</h2>
+                            {/* Elegir Profesional */}
+                            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,74,198,0.08)] border border-slate-100 dark:border-slate-800">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <div className="flex-1 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                                                <Users className="w-6 h-6" />
+                                            </div>
+                                            <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight italic">Permitir Elección de Profesional</h3>
+                                        </div>
+                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-2xl">
+                                            Si activas esta opción, el cliente podrá elegir específicamente con quién reservar en el portal de citas.
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                        <Switch 
+                                            checked={enableProfessionalSelection}
+                                            onCheckedChange={(val) => {
+                                                setEnableProfessionalSelection(val);
+                                                // auto-save logic
+                                                updateSettings({ enableProfessionalSelection: val.toString() }).then(() => {
+                                                    refreshSettings();
+                                                    toast.success(`Elección de profesional ${val ? 'activada' : 'desactivada'}`);
+                                                });
+                                            }}
+                                            className="scale-125"
+                                        />
+                                        <span className={cn(
+                                            "text-[10px] font-black uppercase tracking-[0.2em] mt-2",
+                                            enableProfessionalSelection ? "text-primary" : "text-slate-400"
+                                        )}>
+                                            {enableProfessionalSelection ? 'Activado' : 'Desactivado'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Apertura de Agenda */}
+                            <BookingAdvancePanel />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider font-label">Logo del Negocio</label>
-                                <div 
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group"
-                                >
-                                    {logoUrl ? (
-                                        <div className="w-20 h-20 bg-transparent flex items-center justify-center mb-4 relative overflow-hidden">
-                                            <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
-                                            <button 
-                                                className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={(e) => { e.stopPropagation(); setLogoUrl(''); }}
+                    )}
+
+                    {activeTab === 'personalizacion' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {/* Section: Marca Corporativa */}
+                            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,74,198,0.08)] border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                                        <Brush className="w-6 h-6" />
+                                    </div>
+                                    <h2 className="text-xl font-black font-headline uppercase italic">MARCA CORPORATIVA</h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Logo del Negocio</label>
+                                        <div 
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group h-48"
+                                        >
+                                            {logoUrl ? (
+                                                <div className="w-24 h-24 bg-transparent flex items-center justify-center mb-4 relative overflow-hidden">
+                                                    <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
+                                                    <button 
+                                                        className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"
+                                                        onClick={(e) => { e.stopPropagation(); setLogoUrl(''); }}
+                                                    >
+                                                        <span className="material-symbols-outlined">delete</span>
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                                                    <span className="material-symbols-outlined text-4xl text-slate-400" data-icon="add_photo_alternate">add_photo_alternate</span>
+                                                </div>
+                                            )}
+                                            <span className="text-xs font-black text-[#004ac6] dark:text-blue-400 text-center uppercase tracking-widest italic">Subir Logotipo</span>
+                                            <p className="text-[10px] text-slate-500 text-center mt-2 font-bold uppercase">PNG, JPG hasta 2MB</p>
+                                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Mensaje de Bienvenida</label>
+                                        <textarea 
+                                            className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-3xl focus:ring-2 focus:ring-[#004ac6]/20 text-sm font-bold resize-none h-48 outline-none" 
+                                            placeholder="Ej: ¡Hola! Estamos encantados de recibirte. Selecciona tu servicio..." 
+                                            value={welcomeMessage}
+                                            onChange={(e) => setWelcomeMessage(e.target.value)}
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Section: Paleta de Colores */}
+                            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,74,198,0.08)] border border-slate-100 dark:border-slate-800">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
+                                    <div className="flex-1 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                                                <Palette className="w-6 h-6" />
+                                            </div>
+                                            <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight italic">PALETA DE COLORES</h3>
+                                        </div>
+                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-2xl">
+                                            Elige la gama de colores que mejor se adapte a tu marca corporativa para la nueva página de reservas online.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {PALETTES.map(palette => (
+                                        <button
+                                            key={palette.id}
+                                            onClick={() => setPortalColorPalette(palette.id)}
+                                            className={cn(
+                                                "p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
+                                                portalColorPalette === palette.id
+                                                    ? "border-primary bg-primary/5 scale-[1.02] shadow-sm"
+                                                    : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
+                                            )}
+                                        >
+                                            <div 
+                                                className="w-12 h-12 rounded-full shadow-inner flex items-center justify-center text-white"
+                                                style={{ backgroundColor: palette.color }}
                                             >
-                                                <span className="material-symbols-outlined">delete</span>
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-lg shadow-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                                            <span className="material-symbols-outlined text-4xl text-slate-400" data-icon="add_photo_alternate">add_photo_alternate</span>
-                                        </div>
-                                    )}
-                                    <span className="text-xs font-bold text-[#004ac6] dark:text-blue-400 text-center uppercase">Subir Logotipo</span>
-                                    <p className="text-[10px] text-slate-500 text-center mt-1">PNG, JPG hasta 2MB</p>
-                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+                                                {portalColorPalette === palette.id && <Check className="w-5 h-5" />}
+                                            </div>
+                                            <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                                                {palette.name}
+                                            </span>
+                                        </button>
+                                    ))}
                                 </div>
-                            </div>
-                            <div className="space-y-4">
-                                <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider font-label">Mensaje de Bienvenida</label>
-                                <textarea 
-                                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-[#004ac6] text-sm font-body resize-none h-32 outline-none" 
-                                    placeholder="Ej: ¡Hola! Estamos encantados de recibirte. Selecciona tu servicio..." 
-                                    value={welcomeMessage}
-                                    onChange={(e) => setWelcomeMessage(e.target.value)}
-                                ></textarea>
-                            </div>
-                        </div>
-                        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                            <button onClick={handleSaveSettings} disabled={loading} className="bg-[#004ac6] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 inline-flex items-center gap-2">
-                                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Guardar Cambios
-                            </button>
-                        </div>
-                    </section>
+                            </section>
 
-                    {/* Apertura de Agenda */}
-                    <BookingAdvancePanel />
-                </div>
-
-                {/* Right Column: Features & Tips */}
-                <div className="lg:col-span-5 space-y-6">
-                    {/* Bento Card: Mobile First Design */}
-                    <div className="bg-gradient-to-br from-[#004ac6] to-[#2563eb] rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all"></div>
-                        <div className="relative z-10">
-                            <div className="bg-white/20 w-fit p-3 rounded-2xl mb-6 backdrop-blur-md">
-                                <span className="material-symbols-outlined text-3xl" data-icon="smartphone">smartphone</span>
-                            </div>
-                            <h3 className="text-2xl font-black font-headline mb-4 leading-tight">DISEÑO MOBILE-FIRST</h3>
-                            <p className="text-blue-100 font-body text-sm mb-8 leading-relaxed">Tu plataforma de reservas está optimizada para que tus clientes agenden desde cualquier dispositivo en menos de 30 segundos.</p>
-                            
-                            <ul className="space-y-4">
-                                <li className="flex items-center gap-3">
-                                    <div className="bg-white/20 rounded-full p-1"><span className="material-symbols-outlined text-xs" data-icon="check">check</span></div>
-                                    <span className="text-sm font-medium">Calendario Interactivo</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="bg-white/20 rounded-full p-1"><span className="material-symbols-outlined text-xs" data-icon="check">check</span></div>
-                                    <span className="text-sm font-medium">Recordatorios vía WhatsApp</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="bg-white/20 rounded-full p-1"><span className="material-symbols-outlined text-xs" data-icon="check">check</span></div>
-                                    <span className="text-sm font-medium">Sincronización en Tiempo Real</span>
-                                </li>
-                            </ul>
-                            
-                            <div className="mt-10 pt-6 border-t border-white/10">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs uppercase font-bold tracking-widest opacity-70">Vista Previa</span>
-                                    <button onClick={() => window.open(`/${alias}/reserve`, '_blank')} className="bg-white text-[#004ac6] px-4 py-2 rounded-lg font-bold text-xs hover:bg-slate-50 transition-all">
-                                        Ver en Móvil
-                                    </button>
+                            <div className="bg-[#ffdbcd] dark:bg-orange-900/20 rounded-3xl p-6 flex gap-5 border border-[#943700]/10 dark:border-orange-900/50 items-center">
+                                <div className="flex-shrink-0">
+                                    <div className="h-14 w-14 bg-[#943700]/10 dark:bg-orange-500/20 rounded-2xl flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[#943700] dark:text-orange-400 text-3xl" data-icon="tips_and_updates">tips_and_updates</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-[#360f00] dark:text-orange-200 font-black text-sm mb-1 uppercase tracking-widest italic">CONSEJO DE PRO</h4>
+                                    <p className="text-[#7d2d00] dark:text-orange-300/80 text-sm leading-relaxed font-bold">
+                                        Regula la imagen de tu portal. Negocios con logo y un mensaje de bienvenida logran conectar mejor de cara al público aumentando retención.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Pro Tip Card */}
-                    <div className="bg-[#ffdbcd] dark:bg-orange-900/20 rounded-2xl p-6 flex gap-5 border border-[#943700]/10 dark:border-orange-900/50">
-                        <div className="flex-shrink-0">
-                            <div className="h-12 w-12 bg-[#943700]/10 dark:bg-orange-500/20 rounded-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-[#943700] dark:text-orange-400 text-2xl" data-icon="tips_and_updates">tips_and_updates</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 className="text-[#360f00] dark:text-orange-200 font-bold text-sm mb-1">CONSEJO DE PRO</h4>
-                            <p className="text-[#7d2d00] dark:text-orange-300/80 text-xs leading-relaxed font-body">
-                                Regula la imagen de tu portal. Negocios con logo y un mensaje de bienvenida logran conectar mejor de cara al público aumentando retención.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Status Summary Mini Card (Real Stats) */}
-                    <div className="bg-[#ededf9] dark:bg-slate-800 p-6 rounded-2xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase font-label">Estadísticas Canal</span>
-                            <span className="bg-[#dbe1ff] dark:bg-blue-900 text-[#003ea8] dark:text-blue-200 text-[10px] font-black px-2 py-0.5 rounded-full">REALTIME</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <span className="block text-xl font-bold text-[#004ac6] dark:text-blue-400 font-headline">
-                                    {stats.count * 3 + 12} {/* Est. views derived from bookings */}
-                                </span>
-                                <span className="text-[10px] text-slate-500 font-medium uppercase mt-1">Visitas del Mes</span>
-                            </div>
-                            <div className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <span className="block text-xl font-bold text-[#004ac6] dark:text-blue-400 font-headline">
-                                    {stats.count}
-                                </span>
-                                <span className="text-[10px] text-slate-500 font-medium uppercase mt-1">Reservas Mensuales</span>
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

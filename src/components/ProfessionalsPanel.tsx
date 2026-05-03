@@ -86,22 +86,6 @@ export function ProfessionalsPanel() {
     }, []);
 
     const { settings, refreshSettings } = useSettings();
-    const [enableProfessionalSelection, setEnableProfessionalSelection] = useState(settings.enableProfessionalSelection === 'true');
-
-    const handleToggleProfessionalSelection = async (val: boolean) => {
-        setEnableProfessionalSelection(val);
-        try {
-            await apiFetch('settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ enableProfessionalSelection: String(val) }),
-            });
-            await refreshSettings();
-            toast.success(t('settings.save_success'));
-        } catch (error) {
-            toast.error(t('settings.error_saving'));
-        }
-    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -237,36 +221,6 @@ export function ProfessionalsPanel() {
                      </Button>
                 )}
             </div>
-
-            {/* Activation Card */}
-            <section className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,74,198,0.08)] border border-slate-100 dark:border-slate-800">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex-1 space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                                <Users className="w-6 h-6" />
-                            </div>
-                            <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight italic">Permitir Elección de Profesional</h3>
-                        </div>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-2xl">
-                            Si activas esta opción, el cliente podrá elegir específicamente con quién reservar en el portal de citas. Esto permite una experiencia más personalizada para usuarios que ya tienen preferencia por un especialista.
-                        </p>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-                        <Switch 
-                            checked={enableProfessionalSelection}
-                            onCheckedChange={handleToggleProfessionalSelection}
-                            className="scale-125"
-                        />
-                        <span className={cn(
-                            "text-[10px] font-black uppercase tracking-[0.2em] mt-2",
-                            enableProfessionalSelection ? "text-primary" : "text-slate-400"
-                        )}>
-                            {enableProfessionalSelection ? 'Activado' : 'Desactivado'}
-                        </span>
-                    </div>
-                </div>
-            </section>
 
             {/* Professionals List Section */}
             <section className="space-y-6">
