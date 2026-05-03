@@ -200,18 +200,18 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#4cd7f6]/5 rounded-full blur-[80px]"></div>
                     </div>
                     <div className="max-w-md mx-auto w-full relative z-30">
-                        <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#d0bcff]/10 border border-[#d0bcff]/20 text-[#d0bcff] font-semibold text-xs tracking-wide mb-6">
+                        <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[rgba(var(--lumina-rgb),0.1)] border border-[rgba(var(--lumina-rgb),0.2)] text-[var(--lumina-primary)] font-semibold text-xs tracking-wide mb-6">
                             <span>★</span>
                             PREMIUM SERVICE
                         </div>
                         <h1 className="font-extrabold text-4xl md:text-5xl text-[#e5e2e1] mb-4 tracking-tight leading-tight">
                             Bienvenido a <br />
-                            <span className="text-[#d0bcff] bg-clip-text text-transparent bg-gradient-to-r from-[#d0bcff] to-[#4cd7f6]">{displayTitle}</span>
+                            <span className="text-[var(--lumina-primary)] bg-clip-text text-transparent bg-gradient-to-r from-[var(--lumina-primary)] to-[var(--lumina-hover)]">{displayTitle}</span>
                         </h1>
                         <p className="text-lg text-[#cbc3d7] mb-10 leading-relaxed">
                             {welcomeMessage}
                         </p>
-                        <button onClick={nextStep} className="w-full sm:w-auto bg-[#d0bcff] text-[#3c0091] hover:bg-[#a078ff] hover:text-[#340080] transition-all duration-300 rounded-lg px-12 py-3 font-semibold text-sm flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(208,188,255,0.3)] hover:shadow-[0_0_25px_rgba(208,188,255,0.5)] active:scale-[0.98]">
+                        <button onClick={nextStep} className="w-full sm:w-auto bg-[var(--lumina-primary)] text-white hover:bg-[var(--lumina-hover)] transition-all duration-300 rounded-lg px-12 py-3 font-semibold text-sm flex items-center justify-center gap-3 shadow-[0_0_15px_var(--lumina-glow)] hover:shadow-[0_0_25px_var(--lumina-glow)] active:scale-[0.98]">
                             <span>Reservar Cita</span>
                             <span>→</span>
                         </button>
@@ -235,7 +235,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                         {'<'} Volver
                     </button>
                     <h2 className="text-[var(--lumina-primary)] text-2xl font-bold tracking-tighter uppercase">{displayTitle}</h2>
-                    <p className="text-[#d0bcff] font-semibold text-xs mt-2">Booking</p>
+                    <p className="text-[var(--lumina-primary)] font-semibold text-xs mt-2">Booking</p>
                 </div>
                 <div className="px-6 mb-6">
                     <p className="text-[#cbc3d7] font-semibold text-xs mb-1">Paso actual</p>
