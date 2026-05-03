@@ -2,8 +2,6 @@ import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { decrypt } from '@/lib/encryption';
 import ConfirmationClient from '@/components/ConfirmationClient';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 interface PageProps {
     params: Promise<{ alias: string; appointmentId: string }>;
@@ -27,8 +25,24 @@ export default async function ConfirmationPage({ params }: PageProps) {
 
 
     const patientName = decrypt(appointment.patient.name) || 'Paciente';
-    const appointmentDate = format(new Date(appointment.start), "eeee d 'de' MMMM, yyyy", { locale: es });
-    const appointmentTime = format(new Date(appointment.start), 'HH:mm');
+    const dateObj = new Date(appointment.start);
+    
+    const appointmentDateFormatter = new Intl.DateTimeFormat('es-ES', {
+        timeZone: 'Europe/Madrid',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    const appointmentTimeFormatter = new Intl.DateTimeFormat('es-ES', {
+        timeZone: 'Europe/Madrid',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    const appointmentDate = appointmentDateFormatter.format(dateObj);
+    const appointmentTime = appointmentTimeFormatter.format(dateObj);
     
     // Capitalize first letter of date
     const dateCapitalized = appointmentDate.charAt(0).toUpperCase() + appointmentDate.slice(1);
