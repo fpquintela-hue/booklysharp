@@ -25,6 +25,16 @@ interface BookingPortalLuminaProps {
     settings?: any;
 }
 
+
+const LUMINA_PALETTES: Record<string, { primary: string, hover: string, glow: string, rgb: string }> = {
+    'yellow': { primary: '#facc15', hover: '#eab308', glow: 'rgba(250, 204, 21, 0.4)', rgb: '250, 204, 21' },
+    'blue': { primary: '#3b82f6', hover: '#2563eb', glow: 'rgba(59, 130, 246, 0.4)', rgb: '59, 130, 246' },
+    'red': { primary: '#f87171', hover: '#ef4444', glow: 'rgba(248, 113, 113, 0.4)', rgb: '248, 113, 113' },
+    'black': { primary: '#f8fafc', hover: '#e2e8f0', glow: 'rgba(248, 250, 252, 0.4)', rgb: '248, 250, 252' },
+    'green': { primary: '#4ade80', hover: '#22c55e', glow: 'rgba(74, 222, 128, 0.4)', rgb: '74, 222, 128' },
+    'purple': { primary: '#8b5cf6', hover: '#7c3aed', glow: 'rgba(139, 92, 246, 0.4)', rgb: '139, 92, 246' },
+};
+
 export function BookingPortalLumina({ alias, tenantName, services, professionals, settings }: BookingPortalLuminaProps) {
     const [step, setStep] = useState<Step>('ENTRANCE');
     const [selectedService, setSelectedService] = useState<any>(null);
@@ -45,6 +55,17 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
     const welcomeMessage = settings?.welcomeMessage || "Experimenta el siguiente nivel en cuidado personal. Precisión, estilo y un ambiente diseñado para ti.";
     const enableProfSelection = settings?.enableProfessionalSelection === 'true';
     const autoSkipProfessional = professionals.length <= 1 || !enableProfSelection;
+
+    const paletteName = settings?.portalColorPalette || 'purple';
+    const theme = LUMINA_PALETTES[paletteName] || LUMINA_PALETTES['purple'];
+    
+    const cssVars = {
+        '--lumina-primary': theme.primary,
+        '--lumina-hover': theme.hover,
+        '--lumina-glow': theme.glow,
+        '--lumina-rgb': theme.rgb,
+    } as React.CSSProperties;
+
 
     useEffect(() => {
         if (visibleMonth && step === 'DATETIME') fetchMonthAvailability(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1);
@@ -154,14 +175,14 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
 
     if (step === 'ENTRANCE') {
         return (
-            <div className="bg-[#131313] text-[#e5e2e1] min-h-screen flex flex-col md:flex-row font-inter overflow-hidden">
+            <div style={cssVars} className="bg-[#131313] text-[#e5e2e1] min-h-screen flex flex-col md:flex-row font-inter overflow-hidden">
                 <div className="relative w-full md:w-1/2 h-64 md:h-screen hidden md:flex items-center justify-center p-12 bg-[#1e1e1e]">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#131313] z-10"></div>
                     {settings?.logoUrl ? (
                         <img alt="Logo" className="w-full h-full max-w-sm max-h-[50vh] object-contain relative z-10" src={settings.logoUrl} />
                     ) : (
                         <div className="w-40 h-40 rounded-full bg-[#131313] border border-white/10 flex items-center justify-center relative z-10 shadow-2xl">
-                            <Sparkles size={64} className="text-[#8B5CF6]" />
+                            <Sparkles size={64} className="text-[var(--lumina-primary)]" />
                         </div>
                     )}
                 </div>
@@ -170,7 +191,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                     {settings?.logoUrl ? (
                         <img alt="Logo" className="w-48 h-48 object-contain relative z-10" src={settings.logoUrl} />
                     ) : (
-                        <Sparkles size={48} className="text-[#8B5CF6] relative z-10" />
+                        <Sparkles size={48} className="text-[var(--lumina-primary)] relative z-10" />
                     )}
                 </div>
                 <div className="w-full md:w-1/2 min-h-[calc(100vh-16rem)] md:h-screen flex flex-col justify-center px-6 md:px-20 py-12 md:py-0 relative z-20">
@@ -201,10 +222,10 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
     }
 
     return (
-        <div className="bg-[#131313] text-[#e5e2e1] font-inter min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+        <div style={cssVars} className="bg-[#131313] text-[#e5e2e1] font-inter min-h-screen flex flex-col md:flex-row overflow-x-hidden">
             <header className="md:hidden bg-[#121212]/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-white/10 flex justify-between items-center px-6 h-16">
                 <button onClick={prevStep} className="text-white/60 hover:text-white">{'<'}</button>
-                <div className="text-[#8B5CF6] text-xl font-black tracking-tighter uppercase">{displayTitle}</div>
+                <div className="text-[var(--lumina-primary)] text-xl font-black tracking-tighter uppercase">{displayTitle}</div>
                 <div className="w-6"></div>
             </header>
 
@@ -213,35 +234,35 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                     <button onClick={prevStep} className="text-[#cbc3d7] hover:text-white mb-6 text-sm flex items-center gap-2">
                         {'<'} Volver
                     </button>
-                    <h2 className="text-[#8B5CF6] text-2xl font-bold tracking-tighter uppercase">{displayTitle}</h2>
+                    <h2 className="text-[var(--lumina-primary)] text-2xl font-bold tracking-tighter uppercase">{displayTitle}</h2>
                     <p className="text-[#d0bcff] font-semibold text-xs mt-2">Booking</p>
                 </div>
                 <div className="px-6 mb-6">
                     <p className="text-[#cbc3d7] font-semibold text-xs mb-1">Paso actual</p>
                     <div className="w-full bg-[#202020] h-1 rounded-full overflow-hidden">
-                        <div className="bg-[#8B5CF6] h-full shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all duration-300" style={{ width: getProgressPercentage() }}></div>
+                        <div className="bg-[var(--lumina-primary)] h-full shadow-[0_0_12px_var(--lumina-glow)] transition-all duration-300" style={{ width: getProgressPercentage() }}></div>
                     </div>
                 </div>
                 <ul className="flex flex-col gap-2 px-2 text-sm font-medium">
                     <li>
-                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'SERVICE' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
+                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'SERVICE' ? 'bg-[var(--lumina-primary)]/10 text-[var(--lumina-primary)] border-r-2 border-[var(--lumina-primary)]' : 'text-gray-500'}`}>
                             <Sparkles size={18} /> Servicios
                         </div>
                     </li>
                     {!autoSkipProfessional && (
                         <li>
-                            <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'PROFESSIONAL' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
+                            <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'PROFESSIONAL' ? 'bg-[var(--lumina-primary)]/10 text-[var(--lumina-primary)] border-r-2 border-[var(--lumina-primary)]' : 'text-gray-500'}`}>
                                 <User size={18} /> Profesional
                             </div>
                         </li>
                     )}
                     <li>
-                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'DATETIME' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
+                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'DATETIME' ? 'bg-[var(--lumina-primary)]/10 text-[var(--lumina-primary)] border-r-2 border-[var(--lumina-primary)]' : 'text-gray-500'}`}>
                             <CalendarDays size={18} /> Horario
                         </div>
                     </li>
                     <li>
-                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'FORM' ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-r-2 border-[#8B5CF6]' : 'text-gray-500'}`}>
+                        <div className={`py-3 px-4 flex items-center gap-3 rounded-lg ${step === 'FORM' ? 'bg-[var(--lumina-primary)]/10 text-[var(--lumina-primary)] border-r-2 border-[var(--lumina-primary)]' : 'text-gray-500'}`}>
                             <User size={18} /> Datos
                         </div>
                     </li>
@@ -258,8 +279,8 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             </div>
                             <div className="flex flex-col gap-4">
                                 {services.map(s => (
-                                    <div key={s.id} onClick={() => { setSelectedService(s); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-6 relative overflow-hidden transition-all group cursor-pointer ${selectedService?.id === s.id ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.1)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
-                                        {selectedService?.id === s.id && <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-transparent pointer-events-none"></div>}
+                                    <div key={s.id} onClick={() => { setSelectedService(s); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-6 relative overflow-hidden transition-all group cursor-pointer ${selectedService?.id === s.id ? 'border-[var(--lumina-primary)]/40 shadow-[0_0_12px_var(--lumina-glow)]' : 'border-white/10 hover:border-[var(--lumina-primary)]/40'}`}>
+                                        {selectedService?.id === s.id && <div className="absolute inset-0 bg-gradient-to-r from-[rgba(var(--lumina-rgb),0.1)] to-transparent pointer-events-none"></div>}
                                         <div className="flex-1 z-10">
                                             <h3 className="text-xl font-bold text-[#e5e2e1] mb-1">{s.name}</h3>
                                             <p className="text-sm text-[#cbc3d7] mb-2">{s.description || 'Servicio profesional'}</p>
@@ -281,15 +302,15 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                 <p className="text-lg text-[#cbc3d7]">Seleccione al profesional que prefiera.</p>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div onClick={() => { setSelectedProf(null); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf === null ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.2)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
-                                    <div className="w-12 h-12 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] flex items-center justify-center"><User size={24} /></div>
+                                <div onClick={() => { setSelectedProf(null); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf === null ? 'border-[var(--lumina-primary)]/40 shadow-[0_0_12px_var(--lumina-glow)]' : 'border-white/10 hover:border-[var(--lumina-primary)]/40'}`}>
+                                    <div className="w-12 h-12 rounded-full bg-[var(--lumina-primary)]/10 text-[var(--lumina-primary)] flex items-center justify-center"><User size={24} /></div>
                                     <div>
                                         <h3 className="font-bold text-[#e5e2e1]">Cualquiera</h3>
                                         <p className="text-xs text-[#cbc3d7]">Mayor disponibilidad</p>
                                     </div>
                                 </div>
                                 {professionals.map(p => (
-                                    <div key={p.id} onClick={() => { setSelectedProf(p); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf?.id === p.id ? 'border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.2)]' : 'border-white/10 hover:border-[#8B5CF6]/40'}`}>
+                                    <div key={p.id} onClick={() => { setSelectedProf(p); nextStep(); }} className={`bg-[#1E1E1E] border rounded-xl p-6 flex items-center gap-4 cursor-pointer transition-all ${selectedProf?.id === p.id ? 'border-[var(--lumina-primary)]/40 shadow-[0_0_12px_var(--lumina-glow)]' : 'border-white/10 hover:border-[var(--lumina-primary)]/40'}`}>
                                         <div className="w-12 h-12 rounded-full bg-[#202020] text-slate-400 flex items-center justify-center overflow-hidden border border-white/5">
                                             {p.image ? <img src={p.image} className="w-full h-full object-cover" /> : <User size={24} />}
                                         </div>
@@ -344,7 +365,7 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                                         {...props} 
                                                         className={`h-8 w-8 mx-auto rounded-lg font-inter font-medium text-sm transition-all flex items-center justify-center ${
                                                             isSelected 
-                                                                ? 'bg-[#8B5CF6] text-white shadow-[0_0_12px_rgba(139,92,246,0.4)]' 
+                                                                ? 'bg-[var(--lumina-primary)] text-white shadow-[0_0_12px_var(--lumina-glow)]' 
                                                                 : isDisabled || isOutside 
                                                                     ? 'text-[#cbc3d7]/30 cursor-not-allowed' 
                                                                     : 'text-[#e5e2e1] hover:bg-[#202020]'
@@ -359,14 +380,14 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                                 <div className="flex flex-col gap-6">
                                     <h3 className="text-xl font-bold text-[#e5e2e1]">Horas Disponibles</h3>
                                     {loadingSlots ? (
-                                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-[#8B5CF6]" size={24} /></div>
+                                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-[var(--lumina-primary)]" size={24} /></div>
                                     ) : timeSlots.length > 0 ? (
                                         <div className="grid grid-cols-2 gap-3">
                                             {timeSlots.map(t => (
                                                 <button 
                                                     key={t}
                                                     onClick={() => setSelectedTime(t)}
-                                                    className={`border rounded-lg py-3 px-4 text-sm transition-all text-center ${selectedTime === t ? 'border-[#8B5CF6] shadow-[0_0_8px_rgba(139,92,246,0.3)] bg-[#2a2a2a] text-[#d0bcff]' : 'border-white/10 text-[#cbc3d7] hover:border-[#8B5CF6]/50 hover:text-white bg-[#2a2a2a]'}`}
+                                                    className={`border rounded-lg py-3 px-4 text-sm transition-all text-center ${selectedTime === t ? 'border-[var(--lumina-primary)] shadow-[0_0_8px_var(--lumina-glow)] bg-[#2a2a2a] text-[#d0bcff]' : 'border-white/10 text-[#cbc3d7] hover:border-[var(--lumina-primary)]/50 hover:text-white bg-[#2a2a2a]'}`}
                                                 >
                                                     {t}
                                                 </button>
@@ -391,15 +412,15 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             <div className="space-y-4 bg-[#1E1E1E] p-8 rounded-xl border border-white/10">
                                 <div>
                                     <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Nombre completo</label>
-                                    <input type="text" value={clientInfo.name} onChange={e => setClientInfo({...clientInfo, name: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="Ej. María Pérez" />
+                                    <input type="text" value={clientInfo.name} onChange={e => setClientInfo({...clientInfo, name: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[var(--lumina-primary)] focus:ring-1 focus:ring-[var(--lumina-primary)] outline-none transition-all" placeholder="Ej. María Pérez" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Correo electrónico</label>
-                                    <input type="email" value={clientInfo.email} onChange={e => setClientInfo({...clientInfo, email: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="maria@ejemplo.com" />
+                                    <input type="email" value={clientInfo.email} onChange={e => setClientInfo({...clientInfo, email: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[var(--lumina-primary)] focus:ring-1 focus:ring-[var(--lumina-primary)] outline-none transition-all" placeholder="maria@ejemplo.com" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-[#cbc3d7] mb-2">Teléfono</label>
-                                    <input type="tel" value={clientInfo.phone} onChange={e => setClientInfo({...clientInfo, phone: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] outline-none transition-all" placeholder="+34 600 000 000" />
+                                    <input type="tel" value={clientInfo.phone} onChange={e => setClientInfo({...clientInfo, phone: e.target.value})} className="w-full p-4 rounded-lg bg-[#131313] border border-white/10 text-[#e5e2e1] focus:border-[var(--lumina-primary)] focus:ring-1 focus:ring-[var(--lumina-primary)] outline-none transition-all" placeholder="+34 600 000 000" />
                                 </div>
                             </div>
                         </motion.div>
@@ -414,10 +435,10 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             <div className="flex flex-col gap-4 mb-8">
                                 <div className="flex items-start gap-4 pb-4 border-b border-white/10">
                                     <div className="w-12 h-12 rounded-lg bg-[#202020] flex items-center justify-center shrink-0 border border-white/5">
-                                        <Sparkles className="text-[#8B5CF6]" size={20} />
+                                        <Sparkles className="text-[var(--lumina-primary)]" size={20} />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Servicio</p>
+                                        <p className="text-xs font-bold text-[var(--lumina-primary)] uppercase mb-1">Servicio</p>
                                         <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedService.name}</h4>
                                     </div>
                                     <div className="text-sm font-semibold text-[#e5e2e1]">
@@ -427,11 +448,11 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
 
                                 {selectedProf && (
                                     <div className="flex items-start gap-4 pb-4 border-b border-white/10">
-                                        <div className="w-12 h-12 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center shrink-0 text-[#8B5CF6]">
+                                        <div className="w-12 h-12 rounded-lg bg-[var(--lumina-primary)]/10 flex items-center justify-center shrink-0 text-[var(--lumina-primary)]">
                                             <User size={20} />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Profesional</p>
+                                            <p className="text-xs font-bold text-[var(--lumina-primary)] uppercase mb-1">Profesional</p>
                                             <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedProf.name}</h4>
                                         </div>
                                     </div>
@@ -439,11 +460,11 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
 
                                 {(step === 'DATETIME' || step === 'FORM' || step === 'SUCCESS') && selectedTime && (
                                     <div className="flex items-start gap-4 pb-4 border-b border-white/10">
-                                        <div className="w-12 h-12 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
-                                            <CalendarDays className="text-[#8B5CF6]" size={20} />
+                                        <div className="w-12 h-12 rounded-lg bg-[var(--lumina-primary)]/10 flex items-center justify-center shrink-0">
+                                            <CalendarDays className="text-[var(--lumina-primary)]" size={20} />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Fecha y Hora</p>
+                                            <p className="text-xs font-bold text-[var(--lumina-primary)] uppercase mb-1">Fecha y Hora</p>
                                             <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedDate ? format(selectedDate, 'EEEE, d MMMM', { locale: es }) : ''}</h4>
                                             <p className="text-sm text-[#cbc3d7]">{selectedTime}</p>
                                         </div>
@@ -457,11 +478,11 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             </div>
 
                             {step === 'FORM' ? (
-                                <button onClick={handleConfirm} disabled={loading} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
+                                <button onClick={handleConfirm} disabled={loading} className="w-full bg-[var(--lumina-primary)] hover:bg-[var(--lumina-hover)] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_var(--lumina-glow)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : 'Confirmar Cita'}
                                 </button>
                             ) : (
-                                <button onClick={nextStep} disabled={step === 'DATETIME' && !selectedTime} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
+                                <button onClick={nextStep} disabled={step === 'DATETIME' && !selectedTime} className="w-full bg-[var(--lumina-primary)] hover:bg-[var(--lumina-hover)] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_var(--lumina-glow)] transition-all flex justify-center items-center gap-2 disabled:opacity-50">
                                     Continuar <span className="text-lg">→</span>
                                 </button>
                             )}
