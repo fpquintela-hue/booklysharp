@@ -422,7 +422,7 @@ export function BookingPortalV2({ alias, tenantName, services, professionals, se
                                                         key={t}
                                                         onClick={() => setSelectedTime(t)}
                                                         className={`py-4 rounded-[1rem] font-medium transition-all bg-white border-2`}
-                                                        style={selectedTime === t ? { backgroundColor: colors.primary, color: 'white', borderColor: colors.primary, shadow: 'md' } : { color: colors.text, borderColor: 'transparent' }}
+                                                        style={selectedTime === t ? { backgroundColor: colors.primary, color: 'white', borderColor: colors.primary } : { color: colors.text, borderColor: 'transparent' }}
                                                     >
                                                         {t}
                                                     </button>
