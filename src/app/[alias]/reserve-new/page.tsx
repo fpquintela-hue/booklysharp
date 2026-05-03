@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { BookingPortalV2 } from '@/components/BookingPortalV2';
+import { BookingPortalLumina } from '@/components/lumina/BookingPortalLumina';
 import { CalendarX, Loader2 } from 'lucide-react';
 
 export default function ReserveNewPage() {
@@ -63,6 +64,16 @@ export default function ReserveNewPage() {
                 </div>
             </div>
         );
+    }
+
+    if (data.settings?.portalTheme === 'lumina') {
+        return <BookingPortalLumina
+            alias={data.tenant.alias}
+            tenantName={data.tenant.name || data.tenant.nombre_comercial}
+            services={data.services}
+            professionals={data.professionals || []}
+            settings={data.settings}
+        />;
     }
 
     return <BookingPortalV2

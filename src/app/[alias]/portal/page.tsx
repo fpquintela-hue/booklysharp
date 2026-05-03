@@ -33,12 +33,14 @@ export default function PortalSettingsPage() {
     const [portalEnabled, setPortalEnabled] = useState(true);
     const [enableProfessionalSelection, setEnableProfessionalSelection] = useState(true);
     const [portalColorPalette, setPortalColorPalette] = useState('blue');
+    const [portalTheme, setPortalTheme] = useState('classic');
 
-    const [activeTab, setActiveTab] = useState<'general' | 'personalizacion'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'personalizacion' | 'aspecto'>('general');
 
     const menuItems = [
         { id: 'general', label: 'Opciones Generales', icon: Settings2 },
         { id: 'personalizacion', label: 'Personalización', icon: Brush },
+        { id: 'aspecto', label: 'Aspecto', icon: Palette },
     ];
 
     useEffect(() => {
@@ -49,6 +51,7 @@ export default function PortalSettingsPage() {
             setPortalEnabled(settings.portalEnabled !== 'false');
             setEnableProfessionalSelection(settings.enableProfessionalSelection !== 'false');
             setPortalColorPalette(settings.portalColorPalette || 'blue');
+            setPortalTheme(settings.portalTheme || 'classic');
         }
     }, [settings]);
 
@@ -99,7 +102,8 @@ export default function PortalSettingsPage() {
                 welcomeMessage: welcomeMessage,
                 portalEnabled: portalEnabled.toString(),
                 enableProfessionalSelection: enableProfessionalSelection.toString(),
-                portalColorPalette
+                portalColorPalette,
+                portalTheme
             });
             await refreshSettings();
             toast.success('Cambios guardados correctamente');
@@ -147,7 +151,7 @@ export default function PortalSettingsPage() {
                     <header className="flex justify-between items-center w-full mb-8">
                         <div>
                             <h1 className="text-3xl font-extrabold text-[#004ac6] dark:text-blue-400 font-headline tracking-tight uppercase">
-                                {activeTab === 'general' ? 'Opciones Generales' : 'Personalización'}
+                                {activeTab === 'general' ? 'Opciones Generales' : activeTab === 'personalizacion' ? 'Personalización' : 'Aspecto'}
                             </h1>
                             <p className="text-slate-500 font-body mt-1">Configura la experiencia de reserva de tus clientes</p>
                         </div>
@@ -389,6 +393,63 @@ export default function PortalSettingsPage() {
                                 </div>
                             </div>
                         </div>
+                    )}
+                    {activeTab === 'aspecto' && (
+                        <section className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Selección de Tema</h3>
+                                <p className="text-slate-500 mb-6">Elige el diseño principal para tu portal de reservas online.</p>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div 
+                                        onClick={() => setPortalTheme('classic')}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 overflow-hidden transition-all",
+                                            portalTheme === 'classic' ? "border-[#004ac6] shadow-md scale-[1.02]" : "border-slate-200 dark:border-slate-700 hover:border-slate-300 opacity-70 hover:opacity-100"
+                                        )}
+                                    >
+                                        <div className="h-40 bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-4">
+                                            <div className="w-full h-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-2">
+                                                <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><Brush size={24}/></div>
+                                                <div className="w-32 h-2 bg-slate-200 rounded-full"></div>
+                                                <div className="w-24 h-2 bg-slate-200 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                        <div className="p-4 bg-white dark:bg-slate-900 flex justify-between items-center">
+                                            <div>
+                                                <h4 className="font-bold text-slate-900 dark:text-white">Tema Clásico</h4>
+                                                <p className="text-xs text-slate-500">Diseño claro y centrado</p>
+                                            </div>
+                                            {portalTheme === 'classic' && <CheckCircle2 className="text-[#004ac6]" />}
+                                        </div>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => setPortalTheme('lumina')}
+                                        className={cn(
+                                            "cursor-pointer rounded-2xl border-2 overflow-hidden transition-all",
+                                            portalTheme === 'lumina' ? "border-[#004ac6] shadow-md scale-[1.02]" : "border-slate-200 dark:border-slate-700 hover:border-slate-300 opacity-70 hover:opacity-100"
+                                        )}
+                                    >
+                                        <div className="h-40 bg-[#131313] flex items-center justify-center p-4 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-3xl rounded-full"></div>
+                                            <div className="w-full h-full border border-white/10 rounded-xl flex flex-col justify-center p-4 gap-3 bg-[#1e1e1e]/80 backdrop-blur-sm z-10">
+                                                <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center text-purple-400"><Palette size={16}/></div>
+                                                <div className="w-24 h-2 bg-white/20 rounded-full"></div>
+                                                <div className="w-16 h-2 bg-white/10 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                        <div className="p-4 bg-white dark:bg-slate-900 flex justify-between items-center">
+                                            <div>
+                                                <h4 className="font-bold text-slate-900 dark:text-white">Oscuro y Moderno</h4>
+                                                <p className="text-xs text-slate-500">Aesthetic Premium Neon</p>
+                                            </div>
+                                            {portalTheme === 'lumina' && <CheckCircle2 className="text-[#004ac6]" />}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     )}
                 </div>
             </main>
