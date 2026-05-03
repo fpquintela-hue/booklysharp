@@ -253,7 +253,6 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                         </div>
                     </aside>
                 )}
-                </div>
             </main>
         </div>
     );
