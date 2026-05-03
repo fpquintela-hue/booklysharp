@@ -37,13 +37,23 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
     if (step === 'ENTRANCE') {
         return (
             <div className="bg-[#131313] text-[#e5e2e1] min-h-screen flex flex-col md:flex-row font-inter overflow-hidden">
-                <div className="relative w-full md:w-1/2 h-64 md:h-screen hidden md:block">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#131313]/90 z-10"></div>
-                    <img alt="High-end salon interior" className="absolute w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/ADBb0uhfaA_c7KK7OpDH6N6cl9mM8OJZeZyXMmXk05ZwkouwkKrj2FS9MKnVd5WivDcQZ_wEEblh4lnaRv1nSAhpAnfhUpBUahXBfn3574Tg3n3mto19B9jjkMWScaR9TACFFzPgOoKrTsnmtyfl694hueieKo147EjD41kGZnIT8G4d1IXRVqlXbPi2-v0c8g1PTHAbe2v_umVWapMEG8oV5BEMCdnuO-XPhKbO9rwc3VyEDGKDJM3xE1Fa_6Qk4sVt3hoinNbwLBWYC8o" />
+                <div className="relative w-full md:w-1/2 h-64 md:h-screen hidden md:flex items-center justify-center p-12 bg-[#1e1e1e]">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#131313] z-10"></div>
+                    {settings?.logoUrl ? (
+                        <img alt="Logo" className="w-full h-full max-w-sm max-h-[50vh] object-contain relative z-10" src={settings.logoUrl} />
+                    ) : (
+                        <div className="w-40 h-40 rounded-full bg-[#131313] border border-white/10 flex items-center justify-center relative z-10 shadow-2xl">
+                            <Sparkles size={64} className="text-[#8B5CF6]" />
+                        </div>
+                    )}
                 </div>
-                <div className="relative w-full h-64 md:hidden">
+                <div className="relative w-full h-64 md:hidden flex items-center justify-center bg-[#1e1e1e] p-8">
                     <div className="absolute inset-0 bg-gradient-to-t from-[#131313] to-transparent z-10"></div>
-                    <img alt="High-end salon interior mobile" className="absolute w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/ADBb0ug4LT6ZKPn6fgy5WmmxY63ppLHVMLh8F_sT1O2p9JN2v9GLRtscDXxRm5RhU5af89xNcFMSIJVH_IAbiZWEv4kxS9mjxNJs0bdzCwr3dzkFHgmYBSwVxyeKH1Vj_Ye3Ad8spesQt3-71bollkqS8tPbsr_R3yh5dSLLK5exOx_lrRMvIWffdtUeCtRgJWVjmSY1EXGkvGPwXWEPX2HmHudqqvxdgizxKIUBk8nMhU7lW7M5rPi6W6rWPJ-satU-DYRnFQrsCvdDm_A" />
+                    {settings?.logoUrl ? (
+                        <img alt="Logo" className="w-48 h-48 object-contain relative z-10" src={settings.logoUrl} />
+                    ) : (
+                        <Sparkles size={48} className="text-[#8B5CF6] relative z-10" />
+                    )}
                 </div>
                 <div className="w-full md:w-1/2 min-h-[calc(100vh-16rem)] md:h-screen flex flex-col justify-center px-6 md:px-20 py-12 md:py-0 relative z-20">
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -140,13 +150,109 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                             </div>
                         </motion.div>
                     )}
-                    
-                    {step !== 'SERVICE' && (
+                    {step === 'DATETIME' && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                            <div className="mb-12">
+                                <h1 className="text-3xl font-bold text-[#e5e2e1] mb-2">Fecha y Hora</h1>
+                                <p className="text-lg text-[#cbc3d7]">Seleccione el momento que mejor se adapte a su agenda</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div className="bg-[#1E1E1E] border border-white/10 rounded-xl p-6 flex flex-col gap-6">
+                                    <div className="flex justify-between items-center">
+                                        <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:border-white/30 transition-colors">
+                                            {'<'}
+                                        </button>
+                                        <h3 className="text-xs font-bold text-[#e5e2e1] uppercase tracking-wider">Octubre 2023</h3>
+                                        <button className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#cbc3d7] hover:text-white hover:border-white/30 transition-colors">
+                                            {'>'}
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#cbc3d7] mb-2">
+                                        <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                                    </div>
+                                    <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                                        <div className="p-2 text-[#cbc3d7]/30"></div>
+                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">1</div>
+                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">2</div>
+                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">3</div>
+                                        <div className="p-2 bg-[#8B5CF6] text-white font-bold rounded-lg cursor-pointer shadow-[0_0_12px_rgba(139,92,246,0.4)]">4</div>
+                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">5</div>
+                                        <div className="p-2 text-[#e5e2e1] hover:bg-[#202020] cursor-pointer rounded-lg transition-colors">6</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-6">
+                                    <h3 className="text-xl font-bold text-[#e5e2e1]">Horas Disponibles</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button className="border border-white/10 rounded-lg py-3 px-4 text-sm text-[#cbc3d7] hover:border-[#8B5CF6]/50 hover:text-white transition-all text-center bg-[#2a2a2a]">
+                                            09:00
+                                        </button>
+                                        <button className="border border-[#8B5CF6] rounded-lg py-3 px-4 text-sm transition-all text-center shadow-[0_0_8px_rgba(139,92,246,0.3)] bg-[#2a2a2a] text-[#d0bcff]">
+                                            09:30
+                                        </button>
+                                        <button className="border border-white/10 rounded-lg py-3 px-4 text-sm text-[#cbc3d7] opacity-50 cursor-not-allowed bg-[#2a2a2a]">
+                                            10:00 (Ocupado)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {step !== 'SERVICE' && step !== 'DATETIME' && (
                         <div className="py-20 text-center">
-                            <h2 className="text-2xl font-bold mb-4">Esta vista de pasos posteriores se integraría igual que en la V2</h2>
-                            <button onClick={() => setStep('SERVICE')} className="text-[#8B5CF6]">Volver a servicios</button>
+                            <h2 className="text-2xl font-bold mb-4">Esta vista se integraría con el workflow V2</h2>
+                            <button onClick={() => setStep('DATETIME')} className="text-[#8B5CF6]">Volver a horarios</button>
                         </div>
                     )}
+                </div>
+
+                {/* Right Sidebar Summary */}
+                {selectedService && step !== 'ENTRANCE' && (
+                    <aside className="w-full xl:w-[400px] xl:border-l border-white/5 xl:pl-8 flex flex-col shrink-0">
+                        <div className="sticky top-24 bg-[#1E1E1E] border border-white/10 rounded-xl p-6 shadow-2xl">
+                            <h2 className="text-xl font-bold text-[#e5e2e1] mb-6 pb-4 border-b border-white/10">Resumen de Reserva</h2>
+                            
+                            <div className="flex flex-col gap-4 mb-8">
+                                <div className="flex items-start gap-4 pb-4 border-b border-white/10">
+                                    <div className="w-12 h-12 rounded-lg bg-[#202020] flex items-center justify-center shrink-0 border border-white/5">
+                                        <Sparkles className="text-[#8B5CF6]" size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Servicio</p>
+                                        <h4 className="text-sm font-medium text-[#e5e2e1]">{selectedService.name}</h4>
+                                    </div>
+                                    <div className="text-sm font-semibold text-[#e5e2e1]">
+                                        ${selectedService.price || '0.00'}
+                                    </div>
+                                </div>
+
+                                {(step === 'DATETIME' || step === 'FORM' || step === 'SUCCESS') && (
+                                    <div className="flex items-start gap-4 pb-4 border-b border-white/10">
+                                        <div className="w-12 h-12 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
+                                            <CalendarDays className="text-[#8B5CF6]" size={20} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-xs font-bold text-[#8B5CF6] uppercase mb-1">Fecha y Hora</p>
+                                            <h4 className="text-sm font-medium text-[#e5e2e1]">Jueves, 12 Octubre</h4>
+                                            <p className="text-sm text-[#cbc3d7]">09:30 AM</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="pt-2 flex justify-between items-end mb-6">
+                                <p className="text-sm text-[#cbc3d7]">Total a Pagar</p>
+                                <p className="text-2xl font-bold text-[#e5e2e1]">${selectedService.price || '0.00'}</p>
+                            </div>
+
+                            <button onClick={nextStep} className="w-full bg-[#8B5CF6] hover:bg-[#7c3aed] text-white py-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(139,92,246,0.4)] transition-all flex justify-center items-center gap-2">
+                                Continuar <span className="text-lg">→</span>
+                            </button>
+                        </div>
+                    </aside>
+                )}
                 </div>
             </main>
         </div>
