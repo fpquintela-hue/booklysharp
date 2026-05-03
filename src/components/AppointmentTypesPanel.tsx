@@ -30,6 +30,7 @@ interface AppointmentType {
     color: string;
     price?: number | null;
     image?: string | null;
+    description?: string | null;
 }
 
 const PREDEFINED_COLORS = [
@@ -244,6 +245,15 @@ export function AppointmentTypesPanel() {
                                                         value={editForm.name}
                                                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                                         className="h-11 rounded-xl bg-white dark:bg-slate-900 border-slate-200 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-[#2563EB]">Descripción</Label>
+                                                    <Input
+                                                        value={editForm.description || ''}
+                                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                                        className="h-11 rounded-xl bg-white dark:bg-slate-900 border-slate-200 font-bold"
+                                                        placeholder="Breve descripción del servicio"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4">

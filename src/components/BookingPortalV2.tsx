@@ -1,13 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Stethoscope, 
-    HeartPulse, 
-    Baby, 
-    Eye, 
-    Microscope, 
+    Sparkles, 
     User, 
     CalendarDays, 
     Clock, 
@@ -19,46 +15,199 @@ import {
 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
 
-type Step = 'SERVICE' | 'PROFESSIONAL' | 'DATETIME' | 'FORM' | 'SUCCESS';
+type Step = 'ENTRANCE' | 'SERVICE' | 'PROFESSIONAL' | 'DATETIME' | 'FORM' | 'SUCCESS';
 
-const STEPS_DATA = [
-    { key: 'SERVICE', label: 'Servicio', icon: <Stethoscope size={20} /> },
-    { key: 'PROFESSIONAL', label: 'Especialista', icon: <User size={20} /> },
-    { key: 'DATETIME', label: 'Fecha y Hora', icon: <CalendarDays size={20} /> },
-    { key: 'FORM', label: 'Datos del Paciente', icon: <User size={20} /> },
-    { key: 'SUCCESS', label: 'Confirmación', icon: <CheckCircle2 size={20} /> },
-];
+interface BookingPortalV2Props {
+    alias: string;
+    tenantName?: string;
+    services: any[];
+    professionals: any[];
+    settings?: any;
+}
 
-export function BookingPortalV2() {
-    const [step, setStep] = useState<Step>('SERVICE');
+const PALETTES: Record<string, { primary: string; secondary: string; bg: string; text: string }> = {
+    'yellow': { primary: '#ca8a04', secondary: '#fef08a', bg: '#fefce8', text: '#422006' }, // darker primary, text
+    'blue': { primary: '#1d4ed8', secondary: '#dbeafe', bg: '#eff6ff', text: '#172554' },
+    'red': { primary: '#b91c1c', secondary: '#fee2e2', bg: '#fef2f2', text: '#450a0a' },
+    'black': { primary: '#0f172a', secondary: '#e2e8f0', bg: '#f8fafc', text: '#020617' },
+    'green': { primary: '#15803d', secondary: '#dcfce7', bg: '#f0fdf4', text: '#052e16' },
+    'purple': { primary: '#6d28d9', secondary: '#ede9fe', bg: '#f5f3ff', text: '#2e1065' },
+};
+
+export function BookingPortalV2({ alias, tenantName, services, professionals, settings }: BookingPortalV2Props) {
+    const [step, setStep] = useState<Step>('ENTRANCE');
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedService, setSelectedService] = useState<any>(null);
     const [selectedProf, setSelectedProf] = useState<any>(null);
 
-    const currentStepIdx = STEPS_DATA.findIndex(s => s.key === step);
+    const [availableDays, setAvailableDays] = useState<string[]>([]);
+    const [timeSlots, setTimeSlots] = useState<string[]>([]);
+    const [loadingSlots, setLoadingSlots] = useState(false);
+    const [loadingAvailability, setLoadingAvailability] = useState(false);
+    const [visibleMonth, setVisibleMonth] = useState<Date>(new Date());
+    
+    const [clientInfo, setClientInfo] = useState({ name: '', email: '', phone: '' });
+    const [loading, setLoading] = useState(false);
+
+    const paletteName = settings?.portalColorPalette || 'blue';
+    const colors = PALETTES[paletteName] || PALETTES['blue'];
+
+    const displayTitle = settings?.appTitle || tenantName;
+    const logo = settings?.logoUrl || null;
+    const welcomeMessage = settings?.welcomeMessage || `Bienvenido al portal de reservas de ${displayTitle}`;
+    const enableProfSelection = settings?.enableProfessionalSelection === 'true';
+
+    const autoSkipProfessional = professionals.length <= 1 || !enableProfSelection;
+
+    const STEPS_DATA = [
+        { key: 'SERVICE', label: 'Servicio', icon: <Sparkles size={20} /> },
+        ...(autoSkipProfessional ? [] : [{ key: 'PROFESSIONAL', label: 'Profesional', icon: <User size={20} /> }]),
+        { key: 'DATETIME', label: 'Fecha y Hora', icon: <CalendarDays size={20} /> },
+        { key: 'FORM', label: 'Datos del Paciente', icon: <User size={20} /> },
+        { key: 'SUCCESS', label: 'Confirmación', icon: <CheckCircle2 size={20} /> },
+    ];
+
+    const currentStepIdx = step === 'ENTRANCE' ? -1 : STEPS_DATA.findIndex(s => s.key === step);
+
+    useEffect(() => {
+        if (visibleMonth && step === 'DATETIME') fetchMonthAvailability(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1);
+    }, [visibleMonth, alias, selectedProf, step]);
+
+    useEffect(() => {
+        if (selectedDate && step === 'DATETIME') fetchSlots(selectedDate);
+    }, [selectedDate, selectedProf, step]);
+
+    const fetchMonthAvailability = async (year: number, month: number) => {
+        setLoadingAvailability(true);
+        try {
+            const profQuery = selectedProf ? `&professionalId=${selectedProf.id}` : '';
+            const response = await fetch(`/api/public/month-availability?alias=${alias}&year=${year}&month=${month}${profQuery}`);
+            const data = await response.json();
+            if (data.availableDates) setAvailableDays(data.availableDates);
+        } catch (error) {
+            console.error('Error availability:', error);
+        } finally {
+            setLoadingAvailability(false);
+        }
+    };
+
+    const fetchSlots = async (date: Date) => {
+        setLoadingSlots(true);
+        setSelectedTime(null);
+        try {
+            const profQuery = selectedProf ? `&professionalId=${selectedProf.id}` : '';
+            const res = await fetch(`/api/public/availability?alias=${alias}&date=${format(date, 'yyyy-MM-dd')}${profQuery}`);
+            if (res.ok) {
+                const data = await res.json();
+                setTimeSlots(data.availableSlots || []);
+            }
+        } catch (e) { setTimeSlots([]); }
+        finally { setLoadingSlots(false); }
+    };
 
     const nextStep = () => {
-        if (step === 'SERVICE') setStep('PROFESSIONAL');
+        if (step === 'ENTRANCE') setStep('SERVICE');
+        else if (step === 'SERVICE') {
+            if (autoSkipProfessional) {
+                if (professionals.length === 1) setSelectedProf(professionals[0]);
+                setStep('DATETIME');
+            } else setStep('PROFESSIONAL');
+        }
         else if (step === 'PROFESSIONAL') setStep('DATETIME');
         else if (step === 'DATETIME') setStep('FORM');
-        else if (step === 'FORM') setStep('SUCCESS');
     };
 
     const prevStep = () => {
-        if (step === 'PROFESSIONAL') setStep('SERVICE');
-        else if (step === 'DATETIME') setStep('PROFESSIONAL');
+        if (step === 'SERVICE') setStep('ENTRANCE');
+        else if (step === 'PROFESSIONAL') setStep('SERVICE');
+        else if (step === 'DATETIME') setStep(autoSkipProfessional ? 'SERVICE' : 'PROFESSIONAL');
         else if (step === 'FORM') setStep('DATETIME');
     };
 
+    const handleConfirm = async () => {
+        if (!clientInfo.name || !clientInfo.email || !clientInfo.phone) { 
+            toast.error('Por favor, completa todos los campos.'); 
+            return; 
+        }
+        setLoading(true);
+        try {
+            Cookies.set(`bookly_client_${alias}`, JSON.stringify(clientInfo), { expires: 365 });
+            const localDateString = `${format(selectedDate!, 'yyyy-MM-dd')}T${selectedTime}:00`;
+            const absoluteIsoString = new Date(localDateString).toISOString();
+
+            const res = await fetch('/api/reservas/crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    alias, 
+                    serviceId: selectedService.id,
+                    date: format(selectedDate!, 'yyyy-MM-dd'), 
+                    time: selectedTime,
+                    datetimeISO: absoluteIsoString,
+                    professionalId: selectedProf?.id,
+                    name: clientInfo.name, 
+                    phone: clientInfo.phone, 
+                    email: clientInfo.email,
+                    notificationPreference: 'EMAIL'
+                })
+            });
+            if (res.ok) { setStep('SUCCESS'); }
+            else { const err = await res.json(); toast.error(err.error || 'Error al confirmar'); }
+        } catch (e) { toast.error('Error de conexión'); }
+        finally { setLoading(false); }
+    };
+
+    const dayDisabled = (date: Date) => {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        if (date < today) return true;
+        const dateStr = format(date, 'yyyy-MM-dd');
+        return !availableDays.includes(dateStr);
+    };
+
+    // --- Entrance Page ---
+    if (step === 'ENTRANCE') {
+        return (
+            <div className="min-h-screen flex w-full flex-col font-inter text-slate-900" style={{ backgroundColor: colors.bg }}>
+                <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 text-center max-w-2xl mx-auto w-full">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-8 w-full bg-white p-12 rounded-[2.5rem] shadow-xl border border-slate-100">
+                        {logo ? (
+                            <img src={logo} alt="Logo" className="w-32 h-32 object-contain rounded-2xl" />
+                        ) : (
+                            <div className="w-24 h-24 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
+                                <Sparkles size={40} />
+                            </div>
+                        )}
+                        <h1 className="font-manrope text-3xl md:text-5xl font-black tracking-tight" style={{ color: colors.text }}>
+                            {displayTitle}
+                        </h1>
+                        <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed max-w-lg">
+                            {welcomeMessage}
+                        </p>
+                        <button 
+                            onClick={nextStep} 
+                            className="mt-6 w-full md:w-auto px-10 py-5 text-white rounded-full font-bold font-manrope text-lg transition-transform hover:scale-105 active:scale-95 shadow-lg"
+                            style={{ backgroundColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}60` }}
+                        >
+                            Reservar Cita
+                        </button>
+                    </motion.div>
+                </main>
+            </div>
+        );
+    }
+
     // --- Desktop Sidebar ---
     const DesktopSidebar = () => (
-        <nav className="hidden md:flex bg-slate-50 dark:bg-slate-950 h-screen w-80 fixed left-0 border-r-0 flex-col gap-2 p-8 z-40">
-            <div className="mb-12">
-                <h1 className="text-lg font-black text-[#133156] mb-8 font-manrope">Clínica Precision</h1>
+        <nav className="hidden md:flex h-screen w-80 fixed left-0 border-r border-slate-100/50 flex-col gap-2 p-8 z-40 bg-white">
+            <div className="mb-12 flex flex-col gap-4">
+                {logo ? <img src={logo} alt="Logo" className="h-12 w-auto object-contain self-start" /> : <h1 className="text-xl font-black font-manrope truncate" style={{ color: colors.text }}>{displayTitle}</h1>}
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-1 font-manrope">Reserva de Cita</h2>
+                    <h2 className="text-2xl font-bold mb-1 font-manrope" style={{ color: colors.text }}>Reserva de Cita</h2>
                     <p className="text-slate-500 text-sm font-inter">Paso {currentStepIdx + 1} de {STEPS_DATA.length}</p>
                 </div>
             </div>
@@ -70,51 +219,45 @@ export function BookingPortalV2() {
                     
                     if (isActive) {
                         return (
-                            <div key={s.key} className="flex items-center gap-4 bg-white dark:bg-slate-800 text-[#133156] font-semibold rounded-full px-6 py-4 shadow-sm font-inter text-sm">
+                            <div key={s.key} className="flex items-center gap-4 font-semibold rounded-full px-6 py-4 shadow-md font-inter text-sm" style={{ backgroundColor: colors.primary, color: 'white' }}>
                                 {s.icon}
                                 <span>{s.label}</span>
                             </div>
                         );
                     }
                     return (
-                        <div key={s.key} className={`flex items-center gap-4 px-6 py-4 font-inter text-sm ${isPassed ? 'text-[#133156] font-medium' : 'text-slate-400'}`}>
+                        <div key={s.key} className={`flex items-center gap-4 px-6 py-4 font-inter text-sm ${isPassed ? 'font-medium' : 'text-slate-400'}`} style={{ color: isPassed ? colors.text : undefined }}>
                             {isPassed ? <CheckCircle2 size={20} /> : s.icon}
                             <span>{s.label}</span>
                         </div>
                     );
                 })}
             </div>
-
-            <div className="mt-auto pt-8">
-                <button className="w-full text-center rounded-full py-4 text-[#133156] font-medium bg-white border border-slate-200 hover:bg-slate-50 transition-colors font-inter">
-                    Cancelar Reserva
-                </button>
-            </div>
         </nav>
     );
 
     // --- Mobile Top Nav ---
     const MobileTopNav = () => (
-        <header className="md:hidden flex items-center justify-between p-4 sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md border-b border-slate-200/50">
-            {step !== 'SUCCESS' && step !== 'SERVICE' ? (
-                <button onClick={prevStep} className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-slate-600 shadow-sm"><ArrowLeft size={20} /></button>
+        <header className="md:hidden flex items-center justify-between p-4 sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100/50">
+            {step !== 'SUCCESS' ? (
+                <button onClick={prevStep} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-600 shadow-sm"><ArrowLeft size={20} /></button>
             ) : <div className="w-10" />}
             
             <div className="flex flex-col items-center">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 font-manrope">
                     Paso {currentStepIdx + 1} de {STEPS_DATA.length - 1}
                 </span>
-                <span className="text-sm font-bold text-[#133156] font-manrope">{STEPS_DATA[currentStepIdx].label}</span>
+                <span className="text-sm font-bold font-manrope" style={{ color: colors.text }}>{STEPS_DATA[currentStepIdx]?.label}</span>
             </div>
             
             {step !== 'SUCCESS' ? (
-                <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-slate-600 shadow-sm"><X size={20} /></button>
+                <button onClick={() => setStep('ENTRANCE')} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-600 shadow-sm"><X size={20} /></button>
             ) : <div className="w-10" />}
         </header>
     );
 
     return (
-        <div className="min-h-screen flex w-full bg-[#f7f9fb] font-inter text-slate-900">
+        <div className="min-h-screen flex w-full font-inter" style={{ backgroundColor: colors.bg }}>
             <DesktopSidebar />
             
             <main className="w-full md:ml-80 flex flex-col min-h-screen relative">
@@ -127,9 +270,9 @@ export function BookingPortalV2() {
                         {step !== 'SERVICE' && step !== 'SUCCESS' && (
                             <button 
                                 onClick={prevStep} 
-                                className="hidden md:inline-flex items-center gap-2 text-slate-500 hover:text-[#001c3b] font-medium font-inter mb-8 transition-colors"
+                                className="hidden md:inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-medium font-inter mb-8 transition-colors"
                             >
-                                <ArrowLeft size={16} /> Volver al paso anterior
+                                <ArrowLeft size={16} /> Volver
                             </button>
                         )}
 
@@ -137,54 +280,28 @@ export function BookingPortalV2() {
                         {step === 'SERVICE' && (
                             <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <header className="mb-8 md:mb-16">
-                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold text-[#001c3b] tracking-tight leading-tight mb-4">Seleccione el servicio</h1>
+                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold tracking-tight leading-tight mb-4" style={{ color: colors.text }}>Servicios</h1>
                                     <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-                                        Elija la especialidad o servicio que requiere para su consulta. Nuestros especialistas están capacitados para brindar la mejor atención.
+                                        Seleccione el servicio que requiere para su consulta.
                                     </p>
                                 </header>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                    {/* Featured Service */}
-                                    <div 
-                                        onClick={() => { setSelectedService('Consulta General'); nextStep(); }}
-                                        className="col-span-1 md:col-span-2 lg:col-span-2 bg-white rounded-[1.5rem] p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-start relative group cursor-pointer transition-all hover:bg-slate-50"
-                                    >
-                                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#d5e3ff] flex items-center justify-center shrink-0">
-                                            <Stethoscope className="text-[#001c3b]" size={32} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-manrope text-xl md:text-2xl font-bold text-[#001c3b] mb-3">Consulta General</h3>
-                                            <p className="text-slate-500 mb-6 leading-relaxed text-sm md:text-base">
-                                                Evaluación médica integral para diagnóstico, tratamiento de afecciones comunes y derivación a especialistas si es necesario. Ideal para primer contacto.
-                                            </p>
-                                            <div className="flex flex-wrap gap-3">
-                                                <span className="inline-flex items-center gap-2 rounded-full bg-[#d6e0f4] px-4 py-2 text-sm font-medium text-[#133156]">
-                                                    <Clock size={16} /> 30 min
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Normal Services */}
-                                    {[
-                                        { n: 'Cardiología', i: <HeartPulse size={28}/>, d: 'Evaluación del sistema cardiovascular.', t: '45 min' },
-                                        { n: 'Pediatría', i: <Baby size={28}/>, d: 'Atención médica para infantes y niños.', t: '40 min' },
-                                        { n: 'Oftalmología', i: <Eye size={28}/>, d: 'Examen visual completo y patologías.', t: '30 min' },
-                                        { n: 'Dermatología', i: <Microscope size={28}/>, d: 'Diagnóstico de afecciones de la piel.', t: '30 min' }
-                                    ].map((s, i) => (
+                                    {services.map((s, i) => (
                                         <div 
-                                            key={i}
-                                            onClick={() => { setSelectedService(s.n); nextStep(); }}
-                                            className="bg-white rounded-[1.5rem] p-6 md:p-8 flex flex-col gap-6 relative group cursor-pointer transition-all hover:bg-slate-50"
+                                            key={s.id}
+                                            onClick={() => { setSelectedService(s); nextStep(); }}
+                                            className="bg-white rounded-[1.5rem] p-6 md:p-8 flex flex-col gap-6 relative group cursor-pointer transition-all shadow-sm hover:shadow-xl border-2 border-transparent"
+                                            style={selectedService?.id === s.id ? { borderColor: colors.primary, boxShadow: `0 10px 25px -5px ${colors.primary}30` } : {}}
                                         >
-                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#d5e3ff] flex items-center justify-center">
-                                                <div className="text-[#001c3b]">{s.i}</div>
+                                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
+                                                {s.image ? <img src={s.image} alt={s.name} className="w-full h-full rounded-full object-cover" /> : <Sparkles size={28}/>}
                                             </div>
                                             <div>
-                                                <h3 className="font-manrope text-lg md:text-xl font-bold text-[#001c3b] mb-2">{s.n}</h3>
-                                                <p className="text-slate-500 text-sm mb-6">{s.d}</p>
-                                                <span className="inline-flex items-center gap-2 rounded-full bg-[#d6e0f4] px-3 py-1.5 text-sm font-medium text-[#133156] w-fit">
-                                                    <Clock size={16} /> {s.t}
+                                                <h3 className="font-manrope text-lg md:text-xl font-bold mb-2" style={{ color: colors.text }}>{s.name}</h3>
+                                                <p className="text-slate-500 text-sm mb-6">{s.description || 'Consulta especializada.'}</p>
+                                                <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium w-fit" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
+                                                    <Clock size={16} /> {s.duration} min
                                                 </span>
                                             </div>
                                         </div>
@@ -197,25 +314,39 @@ export function BookingPortalV2() {
                         {step === 'PROFESSIONAL' && (
                             <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <header className="mb-8 md:mb-16">
-                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold text-[#001c3b] tracking-tight leading-tight mb-4">Especialista</h1>
+                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold tracking-tight leading-tight mb-4" style={{ color: colors.text }}>Profesional</h1>
                                     <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-                                        Seleccione al profesional clínico que prefiera para su tratamiento de {selectedService}.
+                                        Seleccione al profesional que prefiera, o elija cualquiera para ver toda la disponibilidad.
                                     </p>
                                 </header>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    {[1, 2, 3].map(i => (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                                    <div 
+                                        onClick={() => { setSelectedProf(null); nextStep(); }}
+                                        className="bg-white rounded-[1.5rem] p-6 flex items-center gap-6 cursor-pointer transition-colors border-2 shadow-sm hover:shadow-md"
+                                        style={selectedProf === null ? { borderColor: colors.primary } : { borderColor: 'transparent' }}
+                                    >
+                                        <div className="w-16 h-16 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
+                                            <User size={32} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-manrope text-xl font-bold" style={{ color: colors.text }}>Cualquiera</h3>
+                                            <p className="text-slate-500 text-sm mt-1">Mayor disponibilidad</p>
+                                        </div>
+                                    </div>
+                                    {professionals.map(p => (
                                         <div 
-                                            key={i}
-                                            onClick={() => { setSelectedProf(`Dr. Especialista ${i}`); nextStep(); }}
-                                            className="bg-white rounded-[1.5rem] p-6 flex items-center gap-6 cursor-pointer hover:bg-slate-50 transition-colors"
+                                            key={p.id}
+                                            onClick={() => { setSelectedProf(p); nextStep(); }}
+                                            className="bg-white rounded-[1.5rem] p-6 flex items-center gap-6 cursor-pointer transition-colors border-2 shadow-sm hover:shadow-md"
+                                            style={selectedProf?.id === p.id ? { borderColor: colors.primary } : { borderColor: 'transparent' }}
                                         >
-                                            <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                                                <User className="text-slate-400" size={32} />
+                                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 text-slate-400">
+                                                {p.image ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" /> : <User size={32} />}
                                             </div>
                                             <div>
-                                                <h3 className="font-manrope text-xl font-bold text-[#001c3b]">Dr. Especialista {i}</h3>
-                                                <p className="text-slate-500 text-sm mt-1">Especialista Jefe · 4.9 ★</p>
+                                                <h3 className="font-manrope text-xl font-bold" style={{ color: colors.text }}>{p.name}</h3>
+                                                <p className="text-slate-500 text-sm mt-1">{p.description || 'Profesional'}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -227,50 +358,52 @@ export function BookingPortalV2() {
                         {step === 'DATETIME' && (
                             <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <header className="mb-8 md:mb-16">
-                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold text-[#001c3b] tracking-tight leading-tight mb-4">Fecha y Hora</h1>
+                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold tracking-tight leading-tight mb-4" style={{ color: colors.text }}>Fecha y Hora</h1>
                                     <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
                                         Seleccione el momento que mejor se adapte a su agenda.
                                     </p>
                                 </header>
 
                                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
-                                    <div className="flex-1 bg-white p-6 md:p-8 rounded-[2rem]">
+                                    <div className="flex-1 bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100/50">
                                         <Calendar
                                             mode="single"
                                             selected={selectedDate}
                                             onSelect={(d) => d && setSelectedDate(d)}
+                                            onMonthChange={setVisibleMonth}
+                                            disabled={dayDisabled}
                                             locale={es}
                                             className="w-full bg-transparent p-0"
                                             classNames={{
                                                 months: "w-full",
                                                 month: "w-full",
                                                 nav: "flex items-center gap-2 absolute top-0 right-0 w-auto justify-end",
-                                                button_previous: "w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-[#001c3b] hover:bg-slate-100 transition-colors [&>svg]:size-4 bg-transparent border-0 shadow-none",
-                                                button_next: "w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-[#001c3b] hover:bg-slate-100 transition-colors [&>svg]:size-4 bg-transparent border-0 shadow-none",
+                                                button_previous: "w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-transparent border-0 shadow-none hover:bg-slate-50",
+                                                button_next: "w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-transparent border-0 shadow-none hover:bg-slate-50",
                                                 month_caption: "flex justify-start h-10 mb-8 px-0",
-                                                caption_label: "text-2xl font-bold font-manrope text-[#001c3b] capitalize",
+                                                caption_label: "text-2xl font-bold font-manrope capitalize",
                                                 table: "w-full border-collapse space-y-1",
                                                 weekdays: "flex w-full mb-4",
                                                 weekday: "text-slate-400 font-medium text-[11px] uppercase tracking-wider w-full text-center",
                                                 week: "flex w-full mt-2",
                                                 day: "h-12 w-full text-center text-sm p-0 relative flex items-center justify-center",
-                                                // Override day button classes explicitly since Shadcn adds some default styling via DayButton component
                                             }}
                                             components={{
                                                 DayButton: (props: any) => {
                                                     const isSelected = props.modifiers?.selected;
-                                                    const isToday = props.modifiers?.today;
                                                     const isOutside = props.modifiers?.outside;
+                                                    const isDisabled = props.modifiers?.disabled;
                                                     return (
                                                         <button 
                                                             {...props} 
                                                             className={`h-10 w-10 mx-auto rounded-full font-inter font-medium text-sm transition-all flex items-center justify-center ${
                                                                 isSelected 
-                                                                    ? 'bg-[#001c3b] text-white shadow-lg' 
-                                                                    : isOutside 
+                                                                    ? 'text-white shadow-lg' 
+                                                                    : isDisabled || isOutside 
                                                                         ? 'text-slate-300 hover:bg-transparent cursor-default' 
                                                                         : 'text-slate-700 hover:bg-slate-50'
                                                             }`}
+                                                            style={isSelected ? { backgroundColor: colors.primary } : {}}
                                                         />
                                                     );
                                                 }
@@ -279,20 +412,33 @@ export function BookingPortalV2() {
                                     </div>
                                     
                                     <div className="flex-1">
-                                        <h3 className="font-manrope text-xl font-bold text-[#001c3b] mb-6">Horas Disponibles</h3>
-                                        <div className="grid grid-cols-3 gap-3 md:gap-4">
-                                            {['09:00', '09:30', '10:00', '11:30', '12:00', '16:00', '17:30', '18:00'].map(t => (
-                                                <button 
-                                                    key={t}
-                                                    onClick={() => setSelectedTime(t)}
-                                                    className={`py-4 rounded-[1rem] font-medium transition-all ${selectedTime === t ? 'bg-[#133156] text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-100'}`}
-                                                >
-                                                    {t}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        <h3 className="font-manrope text-xl font-bold mb-6" style={{ color: colors.text }}>Horas Disponibles</h3>
+                                        {loadingSlots ? (
+                                            <div className="flex justify-center p-12"><Loader2 className="animate-spin text-slate-400" size={32} /></div>
+                                        ) : timeSlots.length > 0 ? (
+                                            <div className="grid grid-cols-3 gap-3 md:gap-4">
+                                                {timeSlots.map(t => (
+                                                    <button 
+                                                        key={t}
+                                                        onClick={() => setSelectedTime(t)}
+                                                        className={`py-4 rounded-[1rem] font-medium transition-all bg-white border-2`}
+                                                        style={selectedTime === t ? { backgroundColor: colors.primary, color: 'white', borderColor: colors.primary, shadow: 'md' } : { color: colors.text, borderColor: 'transparent' }}
+                                                    >
+                                                        {t}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-white p-8 rounded-[1.5rem] text-center border border-slate-100">
+                                                <p className="text-slate-500">No hay disponibilidad para esta fecha.</p>
+                                            </div>
+                                        )}
                                         {selectedTime && (
-                                            <button onClick={nextStep} className="mt-8 w-full md:w-auto px-8 py-4 bg-[#001c3b] text-white rounded-full font-bold font-manrope">
+                                            <button 
+                                                onClick={nextStep} 
+                                                className="mt-8 w-full md:w-auto px-10 py-4 text-white rounded-full font-bold font-manrope shadow-lg transition-transform hover:scale-105 active:scale-95"
+                                                style={{ backgroundColor: colors.primary }}
+                                            >
                                                 Continuar
                                             </button>
                                         )}
@@ -305,28 +451,57 @@ export function BookingPortalV2() {
                         {step === 'FORM' && (
                             <motion.div key="s4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <header className="mb-8 md:mb-16">
-                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold text-[#001c3b] tracking-tight leading-tight mb-4">Tus Datos</h1>
+                                    <h1 className="font-manrope text-3xl md:text-[3.5rem] font-bold tracking-tight leading-tight mb-4" style={{ color: colors.text }}>Tus Datos</h1>
                                     <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-                                        Complete su información para confirmar la reserva clínica.
+                                        Complete su información para confirmar la reserva. Todos los campos son obligatorios.
                                     </p>
                                 </header>
 
-                                <div className="max-w-2xl bg-white p-8 md:p-12 rounded-[2rem] flex flex-col gap-6">
+                                <div className="max-w-2xl bg-white p-8 md:p-12 rounded-[2rem] flex flex-col gap-6 shadow-sm border border-slate-100/50">
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-semibold text-slate-700">Nombre Completo</label>
-                                        <input type="text" className="w-full p-4 rounded-[1rem] bg-[#f7f9fb] border-none focus:ring-2 focus:ring-[#133156] outline-none" placeholder="Ej. Ana García" />
+                                        <label className="text-sm font-semibold" style={{ color: colors.text }}>Nombre Completo *</label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            value={clientInfo.name}
+                                            onChange={e => setClientInfo({...clientInfo, name: e.target.value})}
+                                            className="w-full p-4 rounded-[1rem] bg-slate-50 border border-slate-100 focus:ring-2 focus:border-transparent outline-none transition-all" 
+                                            style={{ '--tw-ring-color': colors.primary } as any}
+                                            placeholder="Ej. Ana García" 
+                                        />
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-semibold text-slate-700">Correo Electrónico</label>
-                                        <input type="email" className="w-full p-4 rounded-[1rem] bg-[#f7f9fb] border-none focus:ring-2 focus:ring-[#133156] outline-none" placeholder="ana@ejemplo.com" />
+                                        <label className="text-sm font-semibold" style={{ color: colors.text }}>Correo Electrónico *</label>
+                                        <input 
+                                            type="email" 
+                                            required
+                                            value={clientInfo.email}
+                                            onChange={e => setClientInfo({...clientInfo, email: e.target.value})}
+                                            className="w-full p-4 rounded-[1rem] bg-slate-50 border border-slate-100 focus:ring-2 focus:border-transparent outline-none transition-all" 
+                                            style={{ '--tw-ring-color': colors.primary } as any}
+                                            placeholder="ana@ejemplo.com" 
+                                        />
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-semibold text-slate-700">Teléfono</label>
-                                        <input type="tel" className="w-full p-4 rounded-[1rem] bg-[#f7f9fb] border-none focus:ring-2 focus:ring-[#133156] outline-none" placeholder="600 000 000" />
+                                        <label className="text-sm font-semibold" style={{ color: colors.text }}>Teléfono *</label>
+                                        <input 
+                                            type="tel" 
+                                            required
+                                            value={clientInfo.phone}
+                                            onChange={e => setClientInfo({...clientInfo, phone: e.target.value})}
+                                            className="w-full p-4 rounded-[1rem] bg-slate-50 border border-slate-100 focus:ring-2 focus:border-transparent outline-none transition-all" 
+                                            style={{ '--tw-ring-color': colors.primary } as any}
+                                            placeholder="Ej. 600 000 000" 
+                                        />
                                     </div>
                                     
-                                    <button onClick={nextStep} className="mt-4 w-full py-5 bg-gradient-to-br from-[#001c3b] to-[#133156] text-white rounded-full font-bold font-manrope text-lg shadow-lg">
-                                        Confirmar Cita
+                                    <button 
+                                        onClick={handleConfirm} 
+                                        disabled={loading || !clientInfo.name || !clientInfo.email || !clientInfo.phone}
+                                        className="mt-6 w-full py-5 text-white rounded-full font-bold font-manrope text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                        style={{ backgroundColor: colors.primary }}
+                                    >
+                                        {loading ? <Loader2 className="animate-spin" /> : 'Confirmar Cita'}
                                     </button>
                                 </div>
                             </motion.div>
@@ -335,13 +510,20 @@ export function BookingPortalV2() {
                         {/* STEP 5: SUCCESS */}
                         {step === 'SUCCESS' && (
                             <motion.div key="s5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center py-20">
-                                <div className="w-24 h-24 bg-[#d5e3ff] rounded-full flex items-center justify-center mb-8">
-                                    <CheckCircle2 className="text-[#001c3b]" size={48} />
+                                <div className="w-24 h-24 rounded-full flex items-center justify-center mb-8" style={{ backgroundColor: colors.secondary, color: colors.primary }}>
+                                    <CheckCircle2 size={48} />
                                 </div>
-                                <h1 className="font-manrope text-[3rem] font-bold text-[#001c3b] mb-4">¡Reserva Confirmada!</h1>
-                                <p className="text-lg text-slate-500 max-w-md">
-                                    Hemos enviado los detalles de su cita al correo proporcionado. Le esperamos en Clínica Precision.
+                                <h1 className="font-manrope text-[3rem] font-bold mb-4" style={{ color: colors.text }}>¡Reserva Confirmada!</h1>
+                                <p className="text-lg text-slate-500 max-w-md mb-8">
+                                    Hemos enviado los detalles de su cita al correo proporcionado. Le esperamos en {displayTitle}.
                                 </p>
+                                <button 
+                                    onClick={() => window.location.reload()}
+                                    className="px-8 py-4 rounded-full font-bold font-inter text-sm shadow-sm transition-all hover:bg-white border"
+                                    style={{ color: colors.primary, borderColor: colors.primary, backgroundColor: colors.bg }}
+                                >
+                                    Hacer otra reserva
+                                </button>
                             </motion.div>
                         )}
 

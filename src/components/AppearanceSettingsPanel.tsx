@@ -373,7 +373,7 @@ export function AppearanceSettingsPanel() {
                                          className="flex items-center gap-2 group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800"
                                          onClick={() => {
                                              if (typeof window !== 'undefined') {
-                                                 const portalUrl = `${window.location.origin}/${user?.tenantAlias || ''}/reserve`;
+                                                 const portalUrl = `${window.location.origin}/${user?.tenantAlias || ''}/reserve-new`;
                                                  navigator.clipboard.writeText(portalUrl);
                                                  toast.success('Enlace copiado al portapapeles');
                                              }
@@ -381,14 +381,14 @@ export function AppearanceSettingsPanel() {
                                      >
                                          <Globe className="w-4 h-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
                                          <p className="text-sm font-bold text-slate-900 dark:text-white truncate tracking-tight">
-                                             {typeof window !== 'undefined' ? `${window.location.host}/${user?.tenantAlias || ''}/reserve` : ''}
+                                             {typeof window !== 'undefined' ? `${window.location.host}/${user?.tenantAlias || ''}/reserve-new` : ''}
                                          </p>
                                      </div>
                                  </div>
                                  <Button 
                                      onClick={() => {
                                          if (typeof window !== 'undefined') {
-                                            const portalUrl = `${window.location.origin}/${user?.tenantAlias || ''}/reserve`;
+                                            const portalUrl = `${window.location.origin}/${user?.tenantAlias || ''}/reserve-new`;
                                             navigator.clipboard.writeText(portalUrl);
                                             toast.success('Enlace copiado');
                                          }

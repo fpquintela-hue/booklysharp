@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         if (!tenantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await request.json();
-        const { id, name, duration, color, action, price, image } = body;
+        const { id, name, duration, color, action, price, image, description } = body;
 
         if (action === 'delete') {
             // Ensure at least one remains per tenant
@@ -59,12 +59,12 @@ export async function POST(request: Request) {
         if (id) {
             typeItem = await prisma.appointmentType.updateMany({
                 where: { id, tenantId },
-                data: { name, duration: parseInt(duration), color, price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : null, image }
+                data: { name, duration: parseInt(duration), color, price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : null, image, description }
             });
             typeItem = await prisma.appointmentType.findUnique({ where: { id } });
         } else {
             typeItem = await prisma.appointmentType.create({
-                data: { name, duration: parseInt(duration), color, price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : null, image, tenantId }
+                data: { name, duration: parseInt(duration), color, price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : null, image, description, tenantId }
             });
         }
 

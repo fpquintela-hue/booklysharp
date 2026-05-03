@@ -27,6 +27,7 @@ export default function PortalSettingsPage() {
     const alias = params?.alias as string;
     const fileInputRef = useRef<HTMLInputElement>(null);
     
+    const [appTitle, setAppTitle] = useState('');
     const [logoUrl, setLogoUrl] = useState('');
     const [welcomeMessage, setWelcomeMessage] = useState('');
     const [portalEnabled, setPortalEnabled] = useState(true);
@@ -42,6 +43,7 @@ export default function PortalSettingsPage() {
 
     useEffect(() => {
         if (settings) {
+            setAppTitle(settings.appTitle || '');
             setLogoUrl(settings.logoUrl || '');
             setWelcomeMessage(settings.welcomeMessage || '');
             setPortalEnabled(settings.portalEnabled !== 'false');
@@ -92,6 +94,7 @@ export default function PortalSettingsPage() {
         setLoading(true);
         try {
             await updateSettings({
+                appTitle,
                 logoUrl,
                 welcomeMessage: welcomeMessage,
                 portalEnabled: portalEnabled.toString(),
@@ -281,6 +284,17 @@ export default function PortalSettingsPage() {
                                     </div>
                                     <h2 className="text-xl font-black font-headline uppercase italic">MARCA CORPORATIVA</h2>
                                 </div>
+                                
+                                <div className="space-y-4 mb-8">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Nombre Comercial</label>
+                                    <input 
+                                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl focus:ring-2 focus:ring-[#004ac6]/20 text-sm font-bold outline-none" 
+                                        placeholder="Ej: Clínica Precision" 
+                                        value={appTitle}
+                                        onChange={(e) => setAppTitle(e.target.value)}
+                                    />
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Logo del Negocio</label>

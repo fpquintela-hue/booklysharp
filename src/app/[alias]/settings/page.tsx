@@ -53,9 +53,9 @@ export default function SettingsPage() {
         ...(user?.role === 'ADMIN' ? [
             { id: 'subscription', label: 'Suscripción', icon: CreditCard },
             { id: 'app', label: t('settings.tab_app'), icon: Fingerprint },
-            { id: 'citas', label: t('settings.tab_citas'), icon: CalendarDays },
+            { id: 'citas', label: 'Servicios', icon: CalendarDays },
             { id: 'horarios', label: t('settings.tab_horarios'), icon: Calendar },
-            { id: 'profesionais', label: t('settings.tab_professionals'), icon: Users },
+            { id: 'profesionais', label: 'Profesionales', icon: Users },
             { id: 'reminders', label: 'Recordatorios', icon: Bell },
             { id: 'email', label: 'Email', icon: Mail },
             { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },

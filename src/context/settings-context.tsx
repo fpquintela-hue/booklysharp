@@ -35,10 +35,8 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
             const settingsUrl = alias ? `settings?alias=${alias}` : 'settings';
             const configsUrl = alias ? `dayconfigs?alias=${alias}` : 'dayconfigs';
 
-            const [settingsData, configsData] = await Promise.all([
-                apiFetch(settingsUrl),
-                apiFetch(configsUrl)
-            ]);
+            const settingsData = await apiFetch(settingsUrl);
+            const configsData = await apiFetch(configsUrl);
 
             setIsNotFound(false); // Reset if success
 

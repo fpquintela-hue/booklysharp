@@ -124,10 +124,11 @@ model AppointmentType {
   id       String  @id @default(cuid())
   name     String
   duration Int     @default(30)
-  color    String  @default("#3b82f6")
-  price    Float?
-  image    String?
-  tenantId String?
+  color       String  @default("#3b82f6")
+  price       Float?
+  image       String?
+  description String?
+  tenantId    String?
   tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([name, tenantId])
