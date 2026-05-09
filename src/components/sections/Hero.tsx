@@ -1,11 +1,28 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
+const ROTATING_PHRASES = [
+  { white: "Más que un software de reservas", blue: "tu brazo derecho." },
+  { white: "Más que una agenda online", blue: "tu motor de ventas." },
+  { white: "Más que un calendario", blue: "la mejor experiencia para tu cliente." },
+  { white: "Más que recordatorios", blue: "el fin de las citas perdidas." }
+];
+
 export function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % ROTATING_PHRASES.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden min-h-[90vh] flex items-center bg-slate-950">
       {/* Background Video & Overlays */}
@@ -39,17 +56,23 @@ export function Hero() {
           <span>BooklySharp 2.0 ya disponible</span>
         </motion.div>
 
-        <motion.h1 
-          className="text-5xl md:text-7xl font-extrabold tracking-tight text-white max-w-4xl mb-6 text-balance leading-tight"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          Tu agenda siempre llena. <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-            Tus clientes siempre felices.
-          </span>
-        </motion.h1>
+        <div className="relative min-h-[250px] md:min-h-[180px] lg:min-h-[200px] w-full max-w-4xl mb-6 flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            <motion.h1 
+              key={currentIndex}
+              className="text-5xl md:text-7xl font-extrabold tracking-tight text-white text-balance leading-tight w-full"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              {ROTATING_PHRASES[currentIndex].white} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                {ROTATING_PHRASES[currentIndex].blue}
+              </span>
+            </motion.h1>
+          </AnimatePresence>
+        </div>
 
         <motion.p 
           className="text-lg md:text-xl text-slate-300 max-w-2xl mb-10 text-balance"
