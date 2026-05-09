@@ -121,9 +121,13 @@ export default function TenantCalendarPage() {
         const active = data.filter(p => p.isActive);
         setProfessionals(active);
         if (active.length > 0 && !activeProfId) {
-          // Default to 'all' professionals
-          setActiveProfId('all');
-          setVisibleProfIds(active.map(p => p.id));
+          if (active.length === 1) {
+            setActiveProfId(active[0].id);
+            setVisibleProfIds([active[0].id]);
+          } else {
+            setActiveProfId('all');
+            setVisibleProfIds(active.map(p => p.id));
+          }
         }
       })
       .catch(() => {});
@@ -253,6 +257,34 @@ export default function TenantCalendarPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
+              
+              {/* Dropdown Resultados de Búsqueda */}
+              {search.trim().length > 0 && (
+                <div className="absolute top-[calc(100%+8px)] left-0 w-64 max-h-80 overflow-y-auto rounded-xl z-50 p-2 animate-in fade-in slide-in-from-top-2"
+                     style={{ background: 'var(--bg-surface)', boxShadow: 'var(--card-shadow)', border: '1px solid var(--border-color)' }}>
+                  {(() => {
+                    const filtered = appointments.filter(a => 
+                      a.patientName.toLowerCase().includes(search.toLowerCase()) || 
+                      (a.notes && a.notes.toLowerCase().includes(search.toLowerCase()))
+                    );
+                    
+                    if (filtered.length === 0) {
+                      return <div className="text-xs font-semibold text-slate-400 text-center py-4">No se encontraron citas</div>;
+                    }
+                    
+                    return filtered.slice(0, 10).map(appt => (
+                      <div key={appt.id}
+                           onClick={() => { setSidebarAppt(appt); setSidebarDetailOpen(true); setSearch(''); }}
+                           className="flex flex-col gap-0.5 p-2 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <span className="text-sm font-semibold truncate" style={{ color: 'var(--text-main)' }}>{appt.patientName}</span>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                          {format(new Date(appt.start), "d MMM, HH:mm", { locale: es })} · {appt.type || 'Consulta'}
+                        </span>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
             </div>
 
             {/* Bell */}
@@ -423,15 +455,7 @@ export default function TenantCalendarPage() {
                           )}
                         </div>
                       ))}
-                      {/* Show all */}
-                      <div
-                        onClick={() => { setActiveProfId(null); setVisibleProfIds(professionals.map(p => p.id)); setProfDropOpen(false); }}
-                        className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 border-t border-slate-100 dark:border-slate-800">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 text-xs font-bold bg-slate-100 dark:bg-slate-800 flex-shrink-0">
-                          <Users className="h-3.5 w-3.5" />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-500">Todos los profesionales</span>
-                      </div>
+
                     </div>
                   )}
                 </div>
