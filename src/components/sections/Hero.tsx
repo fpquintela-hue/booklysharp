@@ -24,7 +24,7 @@ function TextRotator() {
   }, []);
 
   return (
-    <div className="relative min-h-[250px] md:min-h-[180px] lg:min-h-[200px] w-full max-w-4xl mb-6 flex items-center justify-center">
+    <div className="relative h-[280px] md:h-[200px] lg:h-[220px] w-full max-w-4xl mb-6 flex items-center justify-center">
       <AnimatePresence mode="wait">
         <motion.h1 
           key={currentIndex}
