@@ -8,6 +8,8 @@ import { Features } from '@/components/sections/Features';
 import { Pricing } from '@/components/sections/Pricing';
 import { FAQ } from '@/components/sections/FAQ';
 import { CTASection } from '@/components/sections/CTASection';
+import { Testimonials } from '@/components/sections/Testimonials';
+import { FAB } from '@/components/ui/FAB';
 
 export default function Home() {
   return (
@@ -19,9 +21,12 @@ export default function Home() {
       <Problem />     {/* Agitamos el dolor */}
       <UseCases />    {/* Segmentamos al cliente */}
       <Features />    {/* Demostramos el valor técnico */}
+      <Testimonials /> {/* Social proof extra */}
       <Pricing />     {/* Cerramos la venta */}
       <FAQ />         {/* Eliminamos dudas finales */}
       <CTASection />  {/* Última oportunidad de conversión */}
+      
+      <FAB />         {/* Botón flotante de contacto */}
       
       <Footer />
     </main>

@@ -175,7 +175,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     supportLevel: 'priority',
     features: [
       'Todo lo del Plan Individual',
-      'Profesionales ilimitados',
+      'Hasta 4 profesionales',
       'Hasta 3 recordatorios automáticos',
       'Roles y permisos de equipo',
       'Estadísticas avanzadas',
