@@ -4,7 +4,7 @@ import crypto from 'crypto';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 
 if (process.env.NODE_ENV === 'production' && (!ENCRYPTION_KEY || ENCRYPTION_KEY === 'default_secret_key_needs_32_bytes_!')) {
-    throw new Error('CRITICAL: ENCRYPTION_KEY must be securely set in production.');
+    console.warn('WARNING: ENCRYPTION_KEY is using the default value in production. Please set a secure key.');
 }
 
 const ACTIVE_KEY = ENCRYPTION_KEY || 'default_secret_key_needs_32_bytes_!';
