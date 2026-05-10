@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge'; // Assuming badge exists or use s
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Edit2, Check, X, Calendar as CalendarIcon, Phone, Mail, User as UserIcon, Trash2 } from 'lucide-react';
 import { PatientDialog } from '@/components/PatientDialog';
-import { Calendar as CalendarIcon, Phone, Mail, User as UserIcon, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { useRouter, useParams } from 'next/navigation';
 import {
@@ -29,6 +30,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
     const [patient, setPatient] = useState<Patient | null>(null);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    
+    // Notes and Treatment Plan State
+    const [editingGeneralNotes, setEditingGeneralNotes] = useState(false);
+    const [tempGeneralNotes, setTempGeneralNotes] = useState('');
+    const [editingAptNoteId, setEditingAptNoteId] = useState<string | null>(null);
+    const [tempAptNote, setTempAptNote] = useState('');
 
     const { user } = useAuth();
     const router = useRouter();
@@ -39,11 +46,35 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
     }, [id]);
 
     const loadData = () => {
-        patientService.getPatientById(id).then(p => setPatient(p || null));
+        patientService.getPatientById(id).then(p => {
+            setPatient(p || null);
+            if (p) {
+                setTempGeneralNotes(p.notes || '');
+            }
+        });
         appointmentService.getAppointments().then(all => {
             setAppointments(all.filter(a => a.patientId === id));
         });
     }
+
+    const handleSaveGeneralNotes = async () => {
+        if (!patient) return;
+        const updated = await patientService.updatePatient(patient.id, { notes: tempGeneralNotes });
+        setPatient(updated);
+        setEditingGeneralNotes(false);
+    };
+
+    const handleSaveTreatmentPlan = async (value: string) => {
+        if (!patient) return;
+        const updated = await patientService.updatePatient(patient.id, { treatmentPlan: value });
+        setPatient(updated);
+    };
+
+    const handleSaveAptNote = async (aptId: string) => {
+        const updated = await appointmentService.updateAppointment(aptId, { notes: tempAptNote });
+        setAppointments(prev => prev.map(a => a.id === aptId ? updated : a));
+        setEditingAptNoteId(null);
+    };
 
     const confirmDelete = async () => {
         if (patient) {
@@ -119,17 +150,6 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                     <p className="text-sm font-medium text-[#2c3437]">{patient.email || 'No proporcionado'}</p>
                                 </div>
                             </div>
-                            {patient.notes && (
-                                <div className="mt-4 p-4 bg-white rounded-xl border border-[#005bc4]/10">
-                                    <p className="text-[10px] uppercase tracking-wider text-[#005bc4] font-black mb-2 flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-[14px]" data-icon="description">description</span>
-                                        Notas Generales
-                                    </p>
-                                    <p className="text-xs text-[#596064] leading-relaxed whitespace-pre-wrap italic">
-                                        "{patient.notes}"
-                                    </p>
-                                </div>
-                            )}
                         </div>
                         
                         <div className="mt-8 w-full relative z-10">
@@ -184,7 +204,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                             <p className="font-medium">No hay citas registradas.</p>
                                         </td>
                                     </tr>
-                                ) : appointments.map((apt) => {
+                                ) : appointments.sort((a, b) => b.start.getTime() - a.start.getTime()).map((apt) => {
                                     const isPast = apt.start < new Date();
                                     const isCancelled = (apt as any).status === 'CANCELLED' || (apt as any).status === 'NO_SHOW';
                                     return (
@@ -224,28 +244,135 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                     </div>
 
                     {/* Bento Grid Details Section */}
-                    {appointments.length > 0 && appointments[0].notes && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                            <div className="bg-[#d3e4fe]/20 p-6 rounded-2xl">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="material-symbols-outlined text-[#506076]" data-icon="description">description</span>
-                                    <h4 className="font-bold text-[#2c3437]">Última Observación</h4>
-                                </div>
-                                <p className="text-sm text-[#44546a] leading-relaxed">
-                                    "{appointments[0].notes}"
-                                </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+                        <div className="bg-[#d3e4fe]/20 p-6 rounded-2xl border border-[#005bc4]/5">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="material-symbols-outlined text-[#506076]" data-icon="description">description</span>
+                                <h4 className="font-bold text-[#2c3437]">Última Observación</h4>
                             </div>
-                            <div className="bg-[#a589f8]/10 p-6 rounded-2xl">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="material-symbols-outlined text-[#684cb6]" data-icon="verified_user">verified_user</span>
-                                    <h4 className="font-bold text-[#2c3437]">Plan de Tratamiento</h4>
+                            <p className="text-sm text-[#44546a] leading-relaxed italic">
+                                {appointments.length > 0 && appointments.sort((a, b) => b.start.getTime() - a.start.getTime())[0].notes 
+                                    ? `"${appointments.sort((a, b) => b.start.getTime() - a.start.getTime())[0].notes}"`
+                                    : "No hay observaciones registradas."
+                                }
+                            </p>
+                        </div>
+                        <div className="bg-[#a589f8]/10 p-6 rounded-2xl border border-[#684cb6]/5">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="material-symbols-outlined text-[#684cb6]" data-icon="verified_user">verified_user</span>
+                                <h4 className="font-bold text-[#2c3437]">Plan de Tratamiento</h4>
+                            </div>
+                            <Select value={patient.treatmentPlan || "Seguimiento"} onValueChange={handleSaveTreatmentPlan}>
+                                <SelectTrigger className="w-full bg-white border-none shadow-sm rounded-xl text-xs font-bold text-[#684cb6] uppercase h-10">
+                                    <SelectValue placeholder="Seleccionar plan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Valoración inicial">Valoración inicial</SelectItem>
+                                    <SelectItem value="Seguimiento">Seguimiento</SelectItem>
+                                    <SelectItem value="Mantenimiento">Mantenimiento</SelectItem>
+                                    <SelectItem value="Observación">Observación</SelectItem>
+                                    <SelectItem value="Cerrado">Cerrado</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Yellow Zone: General Notes & Session Notes History */}
+                    <div className="bg-[#fff9e6] border border-[#fbe599] rounded-2xl p-8 mt-8 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold tracking-tight text-[#2c3437] flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[#eab308]" data-icon="sticky_note_2">sticky_note_2</span>
+                                Notas Clínicas Generales
+                            </h3>
+                            {!editingGeneralNotes && (
+                                <Button variant="outline" size="sm" onClick={() => setEditingGeneralNotes(true)} className="bg-white border-[#fbe599] text-[#b45309] hover:bg-[#fef3c7]">
+                                    <Edit2 className="w-4 h-4 mr-2" /> Editar Notas
+                                </Button>
+                            )}
+                        </div>
+
+                        {editingGeneralNotes ? (
+                            <div className="space-y-4">
+                                <Textarea 
+                                    className="min-h-[150px] bg-white border-[#fbe599] focus-visible:ring-[#eab308] text-sm text-[#2c3437] resize-none"
+                                    value={tempGeneralNotes}
+                                    onChange={(e) => setTempGeneralNotes(e.target.value)}
+                                    placeholder="Escribe aquí las notas generales, alergias, o información importante del cliente..."
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => { setEditingGeneralNotes(false); setTempGeneralNotes(patient.notes || ''); }}>
+                                        Cancelar
+                                    </Button>
+                                    <Button size="sm" onClick={handleSaveGeneralNotes} className="bg-[#eab308] hover:bg-[#ca8a04] text-white">
+                                        Guardar Notas
+                                    </Button>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="px-3 py-1 bg-white rounded-full text-[10px] font-bold text-[#684cb6] uppercase">Seguimiento</span>
-                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-white/60 p-6 rounded-xl border border-[#fbe599]/50 min-h-[100px]">
+                                {patient.notes ? (
+                                    <p className="text-sm text-[#44546a] leading-relaxed whitespace-pre-wrap">{patient.notes}</p>
+                                ) : (
+                                    <p className="text-sm text-[#b45309]/50 italic">No hay notas generales guardadas.</p>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="mt-10 border-t border-[#fbe599] pt-8">
+                            <h4 className="text-lg font-bold text-[#2c3437] mb-6 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[#eab308]" data-icon="history">history</span>
+                                Histórico de Notas por Visita
+                            </h4>
+                            
+                            <div className="space-y-4">
+                                {appointments.length === 0 ? (
+                                    <p className="text-sm text-[#b45309]/50 italic text-center py-4">No hay historial de visitas.</p>
+                                ) : appointments
+                                    .sort((a, b) => b.start.getTime() - a.start.getTime())
+                                    .map(apt => (
+                                    <div key={apt.id} className="bg-white p-5 rounded-xl shadow-sm border border-[#fbe599]/30">
+                                        <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-[#fef3c7] text-[#b45309] px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                                                    <CalendarIcon className="w-3.5 h-3.5" />
+                                                    {apt.start.toLocaleDateString()}
+                                                </div>
+                                                <span className="text-xs font-semibold text-gray-500">{apt.professionalName || 'Staff'}</span>
+                                            </div>
+                                            {editingAptNoteId !== apt.id && (
+                                                <button onClick={() => { setEditingAptNoteId(apt.id); setTempAptNote(apt.notes || ''); }} className="text-[#b45309]/60 hover:text-[#b45309] transition-colors p-1">
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        {editingAptNoteId === apt.id ? (
+                                            <div className="space-y-3">
+                                                <Textarea 
+                                                    className="min-h-[100px] text-sm focus-visible:ring-[#eab308]"
+                                                    value={tempAptNote}
+                                                    onChange={(e) => setTempAptNote(e.target.value)}
+                                                    placeholder="Añadir nota para esta sesión..."
+                                                />
+                                                <div className="flex justify-end gap-2">
+                                                    <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setEditingAptNoteId(null)}>
+                                                        <X className="w-3 h-3 mr-1" /> Cancelar
+                                                    </Button>
+                                                    <Button size="sm" className="h-8 text-xs bg-[#eab308] hover:bg-[#ca8a04] text-white" onClick={() => handleSaveAptNote(apt.id)}>
+                                                        <Check className="w-3 h-3 mr-1" /> Guardar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-[#44546a] whitespace-pre-wrap leading-relaxed">
+                                                {apt.notes ? apt.notes : <span className="italic opacity-40">Sin notas registradas en esta sesión.</span>}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                    )}
+                    </div>
                 </section>
             </div>
 

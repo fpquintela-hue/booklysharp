@@ -96,6 +96,7 @@ model Patient {
   updatedAt    DateTime      @updatedAt
   bloqueado    Boolean       @default(false)
   notes        String?
+  treatmentPlan String?
   tenantId     String?
   tenant       Tenant?       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   appointments Appointment[]

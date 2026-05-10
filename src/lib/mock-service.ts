@@ -87,17 +87,11 @@ export const patientService = {
     },
 
     async updatePatient(id: string, updates: Partial<Patient>): Promise<Patient> {
-        const patients = await this.getPatients();
-        const index = patients.findIndex(p => p.id === id);
-        if (index === -1) throw new Error('Paciente no encontrado');
-
-        patients[index] = { ...patients[index], ...updates };
-        await apiFetch('patients', {
+        return apiFetch('patients', {
             method: 'POST',
-            body: JSON.stringify(patients),
+            body: JSON.stringify({ id, ...updates }),
             headers: { 'Content-Type': 'application/json' }
         });
-        return patients[index];
     },
 
     async importPatients(newPatients: Omit<Patient, 'id' | 'history'>[]): Promise<{ imported: number, skipped: number }> {

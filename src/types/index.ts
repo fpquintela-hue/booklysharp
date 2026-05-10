@@ -34,6 +34,7 @@ export interface Patient {
     bloqueado: boolean;
     history: string[]; // Appointment IDs
     notes?: string;
+    treatmentPlan?: string;
 }
 
 export interface User {
