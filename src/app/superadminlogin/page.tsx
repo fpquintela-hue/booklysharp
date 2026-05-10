@@ -20,6 +20,7 @@ import { TenantUsersDialog } from '@/components/TenantUsersDialog';
 import { SuperadminSettingsDialog } from '@/components/SuperadminSettingsDialog';
 import { SuperadminPasswordDialog } from '@/components/SuperadminPasswordDialog';
 import { EvolutionMonitor } from '@/components/superadmin/EvolutionMonitor';
+import { SuperadminAnalytics } from '@/components/superadmin/SuperadminAnalytics';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Material Symbols Component (safely)
@@ -429,42 +430,7 @@ export default function SuperAdminDashboard() {
                         {isEvolutionMonitor ? (
                             <EvolutionMonitor />
                         ) : isAnalytics ? (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-                                <h2 className="text-4xl font-extrabold tracking-tight font-headline text-[#191b23]">Analytics & Ingresos</h2>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                                        <h3 className="text-lg font-bold mb-4 text-slate-800">Alta de Negocios por Mes</h3>
-                                        <div className="space-y-3">
-                                            {Object.entries(tenants.reduce((acc, t) => {
-                                                const month = new Date(t.createdAt).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-                                                acc[month] = (acc[month] || 0) + 1;
-                                                return acc;
-                                            }, {} as Record<string, number>)).map(([month, count]) => (
-                                                <div key={month} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
-                                                    <span className="font-medium text-slate-600 capitalize">{month}</span>
-                                                    <span className="font-black text-blue-600">{String(count)}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                                        <h3 className="text-lg font-bold mb-4 text-slate-800">Ingresos Proyectados (MRR)</h3>
-                                        <div className="space-y-3">
-                                            {Object.entries(tenants.reduce((acc, t) => {
-                                                const month = new Date(t.createdAt).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-                                                acc[month] = (acc[month] || 0) + 1;
-                                                return acc;
-                                            }, {} as Record<string, number>)).map(([month, count]) => (
-                                                <div key={month} className="flex justify-between items-center p-3 bg-green-50 rounded-xl">
-                                                    <span className="font-medium text-green-800 capitalize">{month}</span>
-                                                    <span className="font-black text-green-600">${Number(count) * 29}.00 /mes</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="text-xs text-slate-400 mt-4">*Basado en un plan estándar de $29 USD/mes.</p>
-                                    </div>
-                                </div>
-                            </motion.div>
+                            <SuperadminAnalytics tenants={tenants} />
                         ) : isAudit ? (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                                 <h2 className="text-4xl font-extrabold tracking-tight font-headline text-[#191b23]">Audit Logs Globales</h2>
