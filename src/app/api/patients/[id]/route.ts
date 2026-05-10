@@ -44,34 +44,55 @@ export async function PATCH(
         const { id } = await params;
         const updates = await request.json();
 
-        // Verify ownership
-        const existing = await (prisma as any).patient.findFirst({ where: { id, tenantId } });
-        if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        // Verify ownership first
+        const existing = await (prisma as any).patient.findFirst({ 
+            where: { id, tenantId },
+            select: { id: true } 
+        });
+        
+        if (!existing) return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
 
+        // Map updates to encrypted data
         const updateData: any = {};
-        if (updates.name !== undefined) updateData.name = encrypt(updates.name);
-        if (updates.apellidos !== undefined) updateData.apellidos = encrypt(updates.apellidos || '');
-        if (updates.phone !== undefined) updateData.phone = encrypt(updates.phone);
-        if (updates.email !== undefined) updateData.email = encrypt(updates.email || '');
-        if (updates.notes !== undefined) updateData.notes = updates.notes ? encrypt(updates.notes) : null;
-        if (updates.treatmentPlan !== undefined) updateData.treatmentPlan = updates.treatmentPlan ? encrypt(updates.treatmentPlan) : null;
-        if (updates.bloqueado !== undefined) updateData.bloqueado = updates.bloqueado;
-
-        if (Object.keys(updateData).length === 0) {
-            return NextResponse.json(decryptPatient(existing));
+        const fields = ['name', 'apellidos', 'phone', 'email', 'notes', 'treatmentPlan', 'bloqueado'];
+        
+        for (const field of fields) {
+            if (updates[field] !== undefined) {
+                const val = updates[field];
+                if (field === 'bloqueado') {
+                    updateData[field] = !!val;
+                } else if (val === null || val === undefined || val === '') {
+                    updateData[field] = null;
+                } else {
+                    updateData[field] = encrypt(String(val));
+                }
+            }
         }
-
-        console.log('[PATCH patient] id:', id, 'fields to update:', Object.keys(updateData));
 
         const result = await (prisma as any).patient.update({
             where: { id },
             data: updateData,
         });
 
-        return NextResponse.json(decryptPatient(result));
-    } catch (error) {
-        console.error('PATCH /api/patients/[id] error:', error);
-        return NextResponse.json({ error: 'Error updating patient', detail: String(error) }, { status: 500 });
+        // Return clean decrypted object
+        return NextResponse.json({
+            id: result.id,
+            name: decrypt(result.name) || '',
+            apellidos: decrypt(result.apellidos) || '',
+            phone: decrypt(result.phone) || '',
+            email: decrypt(result.email) || '',
+            notes: decrypt(result.notes) || '',
+            treatmentPlan: decrypt(result.treatmentPlan) || '',
+            bloqueado: result.bloqueado,
+            updatedAt: result.updatedAt
+        });
+    } catch (error: any) {
+        console.error('CRITICAL: PATCH /api/patients/[id] failed:', error);
+        return NextResponse.json({ 
+            error: 'Database update failed', 
+            detail: error.message,
+            code: error.code // Prisma error code (e.g. P2002)
+        }, { status: 500 });
     }
 }
 
