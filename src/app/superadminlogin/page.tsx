@@ -529,9 +529,9 @@ export default function SuperAdminDashboard() {
                                                                     </p>
                                                                     <p className="text-[10px] text-[#434655] font-medium mt-0.5 flex gap-2 items-center">
                                                                         <span>/{tenant.alias}</span>
-                                                                        {tenant.subscriptionExpiresAt && (
+                                                                        {(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && (
                                                                             <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                                                                                Exp: {new Date(tenant.subscriptionExpiresAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                                Exp: {new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                                             </span>
                                                                         )}
                                                                     </p>
@@ -579,7 +579,7 @@ export default function SuperAdminDashboard() {
                                                         <td className="px-8 py-6 text-right">
                                                             <div className="flex justify-end gap-2 items-center">
                                                                 <div className="flex border-r border-slate-100 pr-2 mr-2 gap-1">
-                                                                    {new Date(tenant.subscriptionExpiresAt) < new Date() ? (
+                                                                    {((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date() || tenant.subscription_status === 'expired') ? (
                                                                         <RowAction 
                                                                             icon="lock_open" 
                                                                             onClick={() => handleSubscriptionAction(tenant, 'reactivate')} 
@@ -597,6 +597,14 @@ export default function SuperAdminDashboard() {
                                                                 </div>
                                                                 <RowAction icon="group" onClick={() => setOpenUserDialogTenant(tenant)} title="Users" />
                                                                 <RowAction icon="visibility" onClick={() => setSelectedTenant(tenant)} title="View" />
+                                                                {((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date() || tenant.subscription_status === 'expired') && (
+                                                                    <button 
+                                                                        onClick={() => handleEnterTenant(tenant.alias)}
+                                                                        className="px-4 py-2 bg-[#e1e2ed] hover:bg-[#d9d9e5] rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 mx-1"
+                                                                    >
+                                                                        ENTER
+                                                                    </button>
+                                                                )}
                                                                 <RowAction icon="delete" onClick={() => setTenantToDelete({ id: tenant.id, name: tenant.nombre_comercial || tenant.alias || 'Negocio' })} title="Delete" danger />
                                                             </div>
                                                         </td>
