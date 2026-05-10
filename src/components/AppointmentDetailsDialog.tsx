@@ -643,7 +643,7 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                                     <button 
                                         onClick={() => handleStatusUpdate('COMPLETED')}
                                         disabled={isLoading || appointment.status === 'COMPLETED'}
-                                        className="px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-blue-500 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 disabled:opacity-50"
+                                        className="px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-primary text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 disabled:opacity-50"
                                     >
                                         Atendido
                                     </button>
@@ -747,7 +747,7 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
             {/* MODAL DE PREPARACIÓN DE EMAIL */}
             <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
                 <DialogContent className="max-w-lg rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-                    <DialogHeader className="p-8 bg-blue-600 text-white">
+                    <DialogHeader className="p-8 bg-primary text-white">
                         <DialogTitle className="text-2xl font-black flex items-center gap-3">
                             <Mail className="w-7 h-7" /> Redactar Email
                         </DialogTitle>
@@ -780,7 +780,7 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                     <DialogFooter className="p-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 sm:justify-between flex-row items-center gap-4">
                         <Button variant="ghost" onClick={() => setIsEmailModalOpen(false)} className="rounded-2xl font-bold dark:text-white dark:hover:bg-slate-800">Cancelar</Button>
                         <Button 
-                            className="rounded-2xl h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20"
+                            className="rounded-2xl h-12 px-8 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20"
                             onClick={async () => {
                                 setSendingEmail(true);
                                 try {

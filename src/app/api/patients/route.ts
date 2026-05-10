@@ -86,17 +86,6 @@ export async function POST(request: Request) {
 
         // Single create/update
         const id = data.id;
-        const patientData = {
-            name: encrypt(data.name) as string,
-            apellidos: encrypt(data.apellidos || '') as string,
-            phone: encrypt(data.phone) as string,
-            email: encrypt(data.email) as string,
-            notes: data.notes ? (encrypt(data.notes) as string) : null,
-            treatmentPlan: data.treatmentPlan ? (encrypt(data.treatmentPlan) as string) : null,
-            bloqueado: data.bloqueado ?? false,
-            tenantId,
-        };
-
         let result;
         if (id) {
             // First verify it belongs to tenant
@@ -105,9 +94,9 @@ export async function POST(request: Request) {
 
             const updateData: any = {};
             if (data.name !== undefined) updateData.name = encrypt(data.name);
-            if (data.apellidos !== undefined) updateData.apellidos = encrypt(data.apellidos);
+            if (data.apellidos !== undefined) updateData.apellidos = encrypt(data.apellidos || '');
             if (data.phone !== undefined) updateData.phone = encrypt(data.phone);
-            if (data.email !== undefined) updateData.email = encrypt(data.email);
+            if (data.email !== undefined) updateData.email = encrypt(data.email || '');
             if (data.notes !== undefined) updateData.notes = data.notes ? encrypt(data.notes) : null;
             if (data.treatmentPlan !== undefined) updateData.treatmentPlan = data.treatmentPlan ? encrypt(data.treatmentPlan) : null;
             if (data.bloqueado !== undefined) updateData.bloqueado = data.bloqueado;
@@ -117,6 +106,17 @@ export async function POST(request: Request) {
                 data: updateData
             });
         } else {
+            const patientData = {
+                name: encrypt(data.name) as string,
+                apellidos: encrypt(data.apellidos || '') as string,
+                phone: encrypt(data.phone) as string,
+                email: encrypt(data.email || '') as string,
+                notes: data.notes ? (encrypt(data.notes) as string) : null,
+                treatmentPlan: data.treatmentPlan ? (encrypt(data.treatmentPlan) as string) : null,
+                bloqueado: data.bloqueado ?? false,
+                tenantId,
+            };
+
             // 🔍 CHECK FOR DUPLICATES: 
             // 1. Email must be UNIQUE per tenant (if provided)
             // 2. Name + Apellidos + Phone must be unique (to allow family grouping by phone)

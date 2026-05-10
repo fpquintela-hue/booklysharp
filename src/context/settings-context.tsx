@@ -26,6 +26,23 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
     const [blockedDays, setBlockedDays] = useState<Record<string, boolean>>({});
     const [isNotFound, setIsNotFound] = useState(false);
 
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            const root = document.documentElement;
+            const primaryColor = settings.primaryColor || '#005bc4';
+            root.style.setProperty('--primary', primaryColor);
+            
+            // Hex to RGB for opacity usage
+            const hex = primaryColor.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                root.style.setProperty('--primary-rgb', `${r}, ${g}, ${b}`);
+            }
+        }
+    }, [settings.primaryColor]);
+
     const refreshSettings = async (alias?: string) => {
         // Only try to fetch if we have a session OR an alias for branding
         const hasSession = typeof window !== 'undefined' && !!localStorage.getItem('auth_session_user');

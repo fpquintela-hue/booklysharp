@@ -61,9 +61,8 @@ export function Sidebar() {
         >
             {/* Logo / brand */}
             <div>
-              <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-xl"
-                style={{ background: 'linear-gradient(135deg,#005bc4,#4388fd)', boxShadow: '0 4px 14px rgba(0,91,196,.3)', fontFamily: 'Manrope,sans-serif' }}>
+                style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))', opacity: 0.9, boxShadow: '0 4px 14px rgba(var(--primary-rgb),.3)', fontFamily: 'Manrope,sans-serif' }}>
                 {(settings.appTitle ?? alias ?? 'A').charAt(0).toUpperCase()}
               </div>
             </div>
@@ -82,7 +81,7 @@ export function Sidebar() {
                             <Link key={l.href} href={l.href} title={l.title}
                                 className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
                                 style={isActive
-                                    ? { background: 'rgba(0,91,196,.1)', color: '#005bc4' }
+                                    ? { background: 'rgba(var(--primary-rgb),.1)', color: 'var(--primary)' }
                                     : { color: '#94a3b8' }}>
                                 <Icon className="h-5 w-5" />
                                 <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -99,7 +98,7 @@ export function Sidebar() {
                     onClick={() => setIsGuideOpen(true)}
                     title="Primeros Pasos"
                     className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
-                    style={{ color: isGuideOpen ? '#005bc4' : '#94a3b8', background: isGuideOpen ? 'rgba(0,91,196,.1)' : 'transparent' }}
+                    style={{ color: isGuideOpen ? 'var(--primary)' : '#94a3b8', background: isGuideOpen ? 'rgba(var(--primary-rgb),.1)' : 'transparent' }}
                 >
                     <Rocket className="h-5 w-5" />
                     <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -111,7 +110,7 @@ export function Sidebar() {
                     onClick={() => setIsChatOpen(!isChatOpen)}
                     title="Ayuda"
                     className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
-                    style={{ color: isChatOpen ? '#005bc4' : '#94a3b8', background: isChatOpen ? 'rgba(0,91,196,.1)' : 'transparent' }}
+                    style={{ color: isChatOpen ? 'var(--primary)' : '#94a3b8', background: isChatOpen ? 'rgba(var(--primary-rgb),.1)' : 'transparent' }}
                 >
                     <HelpCircle className="h-5 w-5" />
                     <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -123,7 +122,7 @@ export function Sidebar() {
 
                 <Link href={`${base}/settings`} title="Configuración"
                     className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
-                    style={{ color: pathname.includes('/settings') ? '#005bc4' : 'var(--nav-icon-color, #94a3b8)', background: pathname.includes('/settings') ? 'rgba(0,91,196,.1)' : 'transparent' }}>
+                    style={{ color: pathname.includes('/settings') ? 'var(--primary)' : 'var(--nav-icon-color, #94a3b8)', background: pathname.includes('/settings') ? 'rgba(var(--primary-rgb),.1)' : 'transparent' }}>
                     <Settings className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
                     <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                         Configuración
@@ -141,7 +140,7 @@ export function Sidebar() {
 
                 {/* User avatar */}
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                    style={{ background: 'linear-gradient(135deg,#005bc4,#4388fd)' }}>
+                    style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))', opacity: 0.9 }}>
                     {initials(user?.name ?? '')}
                 </div>
             </div>

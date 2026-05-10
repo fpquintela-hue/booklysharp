@@ -213,7 +213,7 @@ export default function TenantCalendarPage() {
 
   // ── Colour helper for today's patient list ────────────────────────────────
   const PALETTE = [
-    { bg: 'rgba(67,136,253,.12)',  text: '#005bc4' },
+    { bg: 'rgba(var(--primary-rgb, 0, 91, 196),.12)',  text: 'var(--primary)' },
     { bg: 'rgba(165,137,248,.12)', text: '#684cb6' },
     { bg: 'rgba(250,116,111,.12)', text: '#a83836' },
     { bg: 'rgba(80,96,118,.12)',   text: '#506076' },
@@ -251,7 +251,7 @@ export default function TenantCalendarPage() {
             <div className="relative hidden lg:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               <input
-                className="border-none rounded-full pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 w-52 transition-colors placeholder-slate-400"
+                className="border-none rounded-full pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] w-52 transition-colors placeholder-slate-400"
                 style={{ background: 'var(--cal-slot-alt-bg)', color: 'var(--text-main)' }}
                 placeholder="Buscar citas…"
                 value={search}
@@ -296,7 +296,7 @@ export default function TenantCalendarPage() {
             <button
               onClick={openNuevaCita}
               className="flex items-center gap-2 text-white px-5 py-2 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95"
-              style={{ background: 'linear-gradient(135deg,#005bc4,#4388fd)', boxShadow: '0 4px 16px rgba(0,91,196,.22)' }}>
+              style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))', opacity: 0.9, boxShadow: '0 4px 16px rgba(var(--primary-rgb),.22)' }}>
               <Plus className="h-4 w-4" />
               Nueva Cita
             </button>
@@ -357,7 +357,7 @@ export default function TenantCalendarPage() {
                             position: 'absolute',
                             top: -6,
                             right: -2,
-                            background: '#005bc4',
+                            background: 'var(--primary)',
                             color: '#fff',
                             fontSize: 8,
                             fontWeight: 800,
@@ -379,7 +379,7 @@ export default function TenantCalendarPage() {
                         className="text-xs py-1 w-7 rounded-full cursor-pointer transition-all flex items-center justify-center"
                         style={{
                           color: !inMonth ? 'var(--text-muted)' : todayFlag ? '#ffffff' : 'var(--text-main)',
-                          background: todayFlag ? '#005bc4' : 'transparent',
+                          background: todayFlag ? 'var(--primary)' : 'transparent',
                           fontWeight: todayFlag || count > 0 ? '700' : '400',
                         }}>
                         {format(day, 'd')}
@@ -411,11 +411,11 @@ export default function TenantCalendarPage() {
                         {activeProfId === 'all' ? 'Todos los profesionales' : activeProf?.name}
                       </p>
                       {activeProfId === 'all' ? (
-                        <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: '#005bc4' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: 'var(--primary)' }}>
                           Vista Clínica Completa
                         </p>
                       ) : activeProf?.description && (
-                        <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: '#005bc4' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: 'var(--primary)' }}>
                           {activeProf.description}
                         </p>
                       )}
@@ -434,7 +434,7 @@ export default function TenantCalendarPage() {
                         className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800"
                         style={{ background: activeProfId === 'all' ? 'var(--border-color)' : 'transparent' }}>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                          style={{ background: '#005bc4' }}>
+                          style={{ background: 'var(--primary)' }}>
                           <RefreshCw className="h-3 w-3" />
                         </div>
                         <span className="text-sm font-semibold flex-1 truncate" style={{ color: '#2c3437' }}>Todos los profesionales</span>
@@ -451,7 +451,7 @@ export default function TenantCalendarPage() {
                           </div>
                           <span className="text-sm font-semibold flex-1 truncate" style={{ color: '#2c3437' }}>{p.name}</span>
                           {p.id === activeProfId && (
-                            <div className="w-2 h-2 rounded-full" style={{ background: '#005bc4' }} />
+                            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--primary)' }} />
                           )}
                         </div>
                       ))}
@@ -479,7 +479,7 @@ export default function TenantCalendarPage() {
             <section className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Clientes de hoy</p>
-                <Link href={`${base}/patients`} className="text-xs font-bold" style={{ color: '#005bc4' }}>
+                <Link href={`${base}/patients`} className="text-xs font-bold" style={{ color: 'var(--primary)' }}>
                   Ver todos
                 </Link>
               </div>

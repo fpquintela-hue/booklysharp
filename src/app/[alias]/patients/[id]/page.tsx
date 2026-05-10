@@ -54,7 +54,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
             }
         });
         appointmentService.getAppointments().then(all => {
-            setAppointments(all.filter(a => a.patientId === id));
+            setAppointments(all.filter(a => a.patientId === id).sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()));
         });
     }
 
@@ -72,8 +72,13 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
 
     const handleSaveTreatmentPlan = async (value: string) => {
         if (!patient) return;
-        const updated = await patientService.updatePatient(patient.id, { treatmentPlan: value });
-        setPatient(updated);
+        try {
+            const updated = await patientService.updatePatient(patient.id, { treatmentPlan: value });
+            setPatient(updated);
+            toast.success('Plan de tratamiento actualizado');
+        } catch (error) {
+            toast.error('Error al actualizar plan');
+        }
     };
 
     const handleSaveAptNote = async (aptId: string) => {
@@ -268,7 +273,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                 <span className="material-symbols-outlined text-[#684cb6]" data-icon="verified_user">verified_user</span>
                                 <h4 className="font-bold text-[#2c3437]">Plan de Tratamiento</h4>
                             </div>
-                            <Select value={patient.treatmentPlan || "Seguimiento"} onValueChange={handleSaveTreatmentPlan}>
+                            <Select 
+                                value={patient.treatmentPlan && patient.treatmentPlan.trim() !== '' ? patient.treatmentPlan : "SEGUIMIENTO"} 
+                                onValueChange={handleSaveTreatmentPlan}
+                            >
                                 <SelectTrigger className="w-full bg-white border-none shadow-sm rounded-xl text-xs font-bold text-[#684cb6] uppercase h-10">
                                     <SelectValue placeholder="Seleccionar plan" />
                                 </SelectTrigger>

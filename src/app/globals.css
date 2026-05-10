@@ -13,8 +13,6 @@
 }
 
 :root {
-  --primary: #0c63ce;
-  --primary-rgb: 12, 99, 206;
   --bg-main: #eef2f6;
   --bg-surface: #ffffff;
   --bg-sidebar: #ffffff;
@@ -29,7 +27,6 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #005bc4;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -41,7 +38,7 @@
   --destructive-foreground: #f8fafc;
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #005bc4;
+  --ring: var(--primary);
   
   --cal-bg: #f7f9fb;
   --cal-header-bg: #f7f9fb;

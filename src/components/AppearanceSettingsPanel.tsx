@@ -32,7 +32,7 @@ export function AppearanceSettingsPanel() {
     const logoToUse = mounted && theme === 'dark' ? '/logo_booklymo.png' : '/logo_bookly1.png';
     const currentLogoUrl = settings.logoUrl && settings.logoUrl !== '/logo_bookly1.png' && settings.logoUrl !== '/logo_booklymo.png' ? settings.logoUrl : logoToUse;
 
-    const colors = ['#2563EB', '#7C3AED', '#06B6D4', '#1F2937', '#166534', '#92400E', '#701A75', '#7e1b2f'];
+    const colors = ['#005bc4', '#2563EB', '#7C3AED', '#06B6D4', '#FF69B4', '#166534', '#92400E', '#7e1b2f'];
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col w-full h-full">
@@ -233,19 +233,43 @@ export function AppearanceSettingsPanel() {
                                         if (user) {
                                             updateUser({ primaryColor: c });
                                             await userService.updateUser(user.id, { primaryColor: c });
+                                            updateSettings({ primaryColor: c });
                                         }
                                     }}
                                     className={cn(
                                         "w-11 h-11 rounded-full flex items-center justify-center text-white transition-all overflow-hidden relative group",
-                                        (user?.primaryColor || '#2563EB') === c ? "ring-4 ring-primary/20 scale-110 shadow-md" : "hover:scale-110 hover:shadow-sm"
+                                        (user?.primaryColor || '#005bc4') === c ? "ring-4 ring-primary/20 scale-110 shadow-md" : "hover:scale-110 hover:shadow-sm"
                                     )}
                                 >
                                     <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: c }} />
-                                    {(user?.primaryColor || '#2563EB') === c && (
+                                    {(user?.primaryColor || '#005bc4') === c && (
                                         <Check className="w-4 h-4 drop-shadow-md relative z-10" />
                                     )}
                                 </button>
                             ))}
+                            
+                            {/* Custom Color Picker */}
+                            <div className="relative group">
+                                <input
+                                    type="color"
+                                    value={user?.primaryColor || '#005bc4'}
+                                    onChange={async (e) => {
+                                        const c = e.target.value;
+                                        if (user) {
+                                            updateUser({ primaryColor: c });
+                                            await userService.updateUser(user.id, { primaryColor: c });
+                                            updateSettings({ primaryColor: c });
+                                        }
+                                    }}
+                                    className="w-11 h-11 rounded-full border-none p-0 cursor-pointer overflow-hidden appearance-none"
+                                    style={{ backgroundColor: 'transparent' }}
+                                />
+                                {!colors.includes(user?.primaryColor || '') && (
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <Check className="w-4 h-4 text-white drop-shadow-md" />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <p className="mt-3 text-[10px] font-medium text-slate-400 italic">{t('settings.primary_color_desc')}</p>
                     </section>

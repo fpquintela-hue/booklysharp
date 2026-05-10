@@ -430,7 +430,7 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                         <div className="pt-6 mt-auto">
                             <Button 
                                 type="submit" 
-                                className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-4 h-14 rounded-[8px] shadow-lg hover:shadow-xl transition-all text-lg" 
+                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 h-14 rounded-[8px] shadow-lg hover:shadow-xl transition-all text-lg" 
                                 disabled={isLoading}
                             >
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
