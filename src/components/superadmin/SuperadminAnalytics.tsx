@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
     LineChart, Line, AreaChart, Area, BarChart, Bar, 
@@ -9,18 +9,32 @@ import {
 import { Calendar, Users, Briefcase, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// MOCK DATA: Generamos datos pseudo-realistas para los últimos 6 meses
-const mockData = [
-    { name: 'Ene', altas: 10, totalTenants: 10, ingresos: 290, mrr: 290, citas: 1500, cancelaciones: 0 },
-    { name: 'Feb', altas: 15, totalTenants: 24, ingresos: 450, mrr: 696, citas: 2300, cancelaciones: 1 },
-    { name: 'Mar', altas: 8, totalTenants: 30, ingresos: 320, mrr: 870, citas: 3400, cancelaciones: 2 },
-    { name: 'Abr', altas: 20, totalTenants: 48, ingresos: 650, mrr: 1392, citas: 5100, cancelaciones: 2 },
-    { name: 'May', altas: 25, totalTenants: 70, ingresos: 980, mrr: 2030, citas: 7800, cancelaciones: 3 },
-    { name: 'Jun', altas: 18, totalTenants: 85, ingresos: 720, mrr: 2465, citas: 8900, cancelaciones: 3 },
-];
-
 export const SuperadminAnalytics = ({ tenants }: { tenants: any[] }) => {
     const [dateRange, setDateRange] = useState('6m');
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState<any[]>([]);
+    const [kpis, setKpis] = useState<any>({
+        totalTenants: 0, newTenantsTrend: 0, currentMRR: 0, appointmentsThisMonth: 0, appointmentsTrend: 0, churnRate: 0
+    });
+
+    useEffect(() => {
+        let isMounted = true;
+        setLoading(true);
+        fetch(`/api/superadmin/analytics?range=${dateRange}`)
+            .then(res => res.json())
+            .then(resData => {
+                if(isMounted) {
+                    if (resData.chartData) setData(resData.chartData);
+                    if (resData.kpis) setKpis(resData.kpis);
+                    setLoading(false);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if(isMounted) setLoading(false);
+            });
+        return () => { isMounted = false; };
+    }, [dateRange]);
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
@@ -50,14 +64,38 @@ export const SuperadminAnalytics = ({ tenants }: { tenants: any[] }) => {
 
             {/* KPIs Principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <KPICard title="Total Negocios" value="85" trend="+18 este mes" icon={<Briefcase />} positive />
-                <KPICard title="MRR (Ingresos Recurrentes)" value="$2,465" trend="+$435 este mes" icon={<DollarSign />} positive />
-                <KPICard title="Citas Totales (Mes)" value="8,900" trend="+1,100 vs anterior" icon={<Calendar />} positive />
-                <KPICard title="Churn Rate" value="3.5%" trend="-0.5% vs anterior" icon={<Users />} positive />
+                <KPICard 
+                    title="Total Negocios" 
+                    value={loading ? "..." : kpis.totalTenants} 
+                    trend={loading ? "..." : `${kpis.newTenantsTrend > 0 ? '+' : ''}${kpis.newTenantsTrend} este mes`} 
+                    icon={<Briefcase />} 
+                    positive={kpis.newTenantsTrend >= 0} 
+                />
+                <KPICard 
+                    title="MRR (Ingresos Recurrentes)" 
+                    value={loading ? "..." : `$${kpis.currentMRR}`} 
+                    trend={loading ? "..." : "Suscripciones Activas"} 
+                    icon={<DollarSign />} 
+                    positive={true} 
+                />
+                <KPICard 
+                    title="Citas Totales (Mes)" 
+                    value={loading ? "..." : kpis.appointmentsThisMonth.toLocaleString()} 
+                    trend={loading ? "..." : `${kpis.appointmentsTrend > 0 ? '+' : ''}${kpis.appointmentsTrend} vs anterior`} 
+                    icon={<Calendar />} 
+                    positive={kpis.appointmentsTrend >= 0} 
+                />
+                <KPICard 
+                    title="Churn Rate" 
+                    value={loading ? "..." : `${kpis.churnRate}%`} 
+                    trend={loading ? "..." : "Cancelaciones recientes"} 
+                    icon={<Users />} 
+                    positive={kpis.churnRate < 5} 
+                />
             </div>
 
             {/* Gráficas Principales */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-6 transition-opacity duration-300", loading ? "opacity-50" : "opacity-100")}>
                 
                 {/* 1. Evolución de Negocios */}
                 <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col">
@@ -67,7 +105,7 @@ export const SuperadminAnalytics = ({ tenants }: { tenants: any[] }) => {
                     </div>
                     <div className="flex-1 min-h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={mockData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                                 <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
@@ -92,7 +130,7 @@ export const SuperadminAnalytics = ({ tenants }: { tenants: any[] }) => {
                     </div>
                     <div className="flex-1 min-h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={mockData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                            <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorMrr" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -124,7 +162,7 @@ export const SuperadminAnalytics = ({ tenants }: { tenants: any[] }) => {
                     </div>
                     <div className="flex-1 min-h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={mockData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                            <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
