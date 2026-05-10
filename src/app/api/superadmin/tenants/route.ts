@@ -162,6 +162,7 @@ export async function PATCH(request: Request) {
         }
 
         const dataToUpdate: any = {};
+
         
         // Allowed generic fields
         const allowedFields = [
@@ -183,11 +184,19 @@ export async function PATCH(request: Request) {
         if (typeof maxProfessionals === 'number' && !Number.isNaN(maxProfessionals)) {
             dataToUpdate.maxProfessionals = maxProfessionals;
         }
-        if (subscriptionType) dataToUpdate.subscriptionType = subscriptionType;
-        if (subscriptionExpiresAt) dataToUpdate.subscriptionExpiresAt = new Date(subscriptionExpiresAt);
+        
+        // Map old frontend fields to correct Prisma schema fields
+        if (subscriptionType) {
+            dataToUpdate.subscription_status = subscriptionType; // In frontend 'active', 'expired', 'trial' is passed here
+        }
+        if (subscriptionExpiresAt) {
+            dataToUpdate.expires_at = new Date(subscriptionExpiresAt);
+            dataToUpdate.fecha_fin_suscripcion = new Date(subscriptionExpiresAt); // Backward compat
+        }
+        
         if (rest.fecha_fin_suscripcion) dataToUpdate.fecha_fin_suscripcion = new Date(rest.fecha_fin_suscripcion);
-        if (billingAddress !== undefined) dataToUpdate.billingAddress = billingAddress;
-        if (paymentMethod !== undefined) dataToUpdate.paymentMethod = paymentMethod;
+        if (billingAddress !== undefined) dataToUpdate.billing_info = billingAddress;
+        if (paymentMethod !== undefined) dataToUpdate.payment_methods = paymentMethod;
 
         if (Object.keys(dataToUpdate).length === 0) {
             return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 });

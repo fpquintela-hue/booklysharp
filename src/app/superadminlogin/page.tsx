@@ -194,7 +194,7 @@ export default function SuperAdminDashboard() {
         if (action === 'suspend') {
             expiresAt.setDate(expiresAt.getDate() - 1); // Yesterday
         } else {
-            expiresAt.setDate(expiresAt.getDate() + 30); // 1 Month
+            expiresAt.setDate(expiresAt.getDate() + 15); // 15 Days
         }
 
         try {
@@ -204,11 +204,11 @@ export default function SuperAdminDashboard() {
                 body: JSON.stringify({ 
                     id: tenant.id, 
                     subscriptionExpiresAt: expiresAt.toISOString(),
-                    subscriptionType: action === 'reactivate' && (tenant.subscriptionType === 'EXPIRED' || !tenant.subscriptionType) ? 'FREE' : tenant.subscriptionType
+                    subscriptionType: action === 'reactivate' && (tenant.subscription_status === 'expired' || !tenant.subscription_status) ? 'trial' : 'expired'
                 })
             });
             if (res.ok) {
-                toast.success(action === 'suspend' ? 'Acceso suspendido' : 'Acceso restaurado (30 días)');
+                toast.success(action === 'suspend' ? 'Acceso suspendido' : 'Acceso restaurado (15 días)');
                 fetchTenants();
             }
         } catch (e) {
@@ -551,7 +551,7 @@ export default function SuperAdminDashboard() {
                                                 {filteredTenants.length > 0 ? filteredTenants.map((tenant: any) => {
                                                     const isExpired = ((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date()) || tenant.subscription_status === 'expired';
                                                     return (
-                                                    <tr key={tenant.id} className={cn("transition-colors group", isExpired ? "bg-red-50/30 hover:bg-red-50/60" : "hover:bg-[#f3f3fe]/30")}>
+                                                    <tr key={tenant.id} className={cn("transition-colors group", isExpired ? "bg-red-100/40 hover:bg-red-200/40" : "hover:bg-[#f3f3fe]/30")}>
                                                         <td className="px-8 py-6">
                                                             <div className="flex items-center gap-4">
                                                                  <div className="w-10 h-10 rounded-xl bg-[#ededf9] flex items-center justify-center font-bold text-[#004ac6] shadow-inner uppercase">
@@ -622,10 +622,10 @@ export default function SuperAdminDashboard() {
                                                             <div className="flex justify-end gap-2 items-center">
                                                                 <div className="flex border-r border-slate-100 pr-2 mr-2 gap-1">
                                                                     {isExpired ? (
-                                                                        <RowAction 
+                                                                            <RowAction 
                                                                             icon="lock" 
                                                                             onClick={() => handleSubscriptionAction(tenant, 'reactivate')} 
-                                                                            title="Reactivar (30 días)" 
+                                                                            title="Reactivar (15 días)" 
                                                                             danger 
                                                                         />
                                                                     ) : (
@@ -639,14 +639,6 @@ export default function SuperAdminDashboard() {
                                                                 </div>
                                                                 <RowAction icon="group" onClick={() => setOpenUserDialogTenant(tenant)} title="Users" />
                                                                 <RowAction icon="visibility" onClick={() => setSelectedTenant(tenant)} title="View" />
-                                                                {!isExpired && (
-                                                                    <button 
-                                                                        onClick={() => handleEnterTenant(tenant.alias)}
-                                                                        className="px-4 py-2 bg-[#e1e2ed] hover:bg-[#d9d9e5] rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 mx-1"
-                                                                    >
-                                                                        ENTER
-                                                                    </button>
-                                                                )}
                                                                 <RowAction icon="delete" onClick={() => setTenantToDelete({ id: tenant.id, name: tenant.nombre_comercial || tenant.alias || 'Negocio' })} title="Delete" danger />
                                                             </div>
                                                         </td>
