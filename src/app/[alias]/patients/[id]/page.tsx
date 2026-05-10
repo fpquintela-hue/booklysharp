@@ -3,6 +3,7 @@ import { useEffect, useState, use } from 'react';
 import { Appointment, Patient } from '@/types';
 import { patientService, appointmentService } from '@/lib/mock-service';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge'; // Assuming badge exists or use simple span, actually I should add it first or use span. I'll use span for now to avoid errors or add it. Let's assume standard span with Tailwind.
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
