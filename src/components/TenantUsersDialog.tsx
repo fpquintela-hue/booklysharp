@@ -39,10 +39,10 @@ export function TenantUsersDialog({ tenant, open: externalOpen, onOpenChange: ex
     const [formRole, setFormRole] = useState('USER');
 
     useEffect(() => {
-        if (open) {
+        if (open && tenant?.id) {
             fetchUsers();
         }
-    }, [open]);
+    }, [open, tenant]);
 
     const fetchUsers = async () => {
         setIsLoading(true);
