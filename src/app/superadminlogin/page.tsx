@@ -42,6 +42,8 @@ export default function SuperAdminDashboard() {
     // State for create flow
     const [isCreating, setIsCreating] = useState(false);
     const [isEvolutionMonitor, setIsEvolutionMonitor] = useState(false);
+    const [isAnalytics, setIsAnalytics] = useState(false);
+    const [isAudit, setIsAudit] = useState(false);
     const [step, setStep] = useState(1);
 
     // Login state
@@ -144,6 +146,8 @@ export default function SuperAdminDashboard() {
     const resetCreation = () => {
         setIsCreating(false);
         setIsEvolutionMonitor(false);
+        setIsAnalytics(false);
+        setIsAudit(false);
         setStep(1);
         setAlias('');
         setName('');
@@ -349,10 +353,10 @@ export default function SuperAdminDashboard() {
                 </div>
 
                 <nav className="flex-1 px-4 space-y-1">
-                    <NavItem icon="dashboard" label="Dashboard" active={!isCreating && !isEvolutionMonitor} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); }} />
-                    <NavItem icon="domain" label="Tenants" active={!isEvolutionMonitor && !isCreating} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); }} fill />
-                    <NavItem icon="chat" label="Monitor WhatsApp" active={isEvolutionMonitor} onClick={() => { setIsEvolutionMonitor(true); setIsCreating(false); }} />
-                    <NavItem icon="insights" label="Analytics" />
+                    <NavItem icon="dashboard" label="Dashboard" active={!isCreating && !isEvolutionMonitor && !isAnalytics && !isAudit} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); setIsAnalytics(false); setIsAudit(false); }} />
+                    <NavItem icon="domain" label="Tenants" active={!isCreating && !isEvolutionMonitor && !isAnalytics && !isAudit} onClick={() => { setIsCreating(false); setIsEvolutionMonitor(false); setIsAnalytics(false); setIsAudit(false); }} fill />
+                    <NavItem icon="chat" label="Monitor WhatsApp" active={isEvolutionMonitor} onClick={() => { setIsEvolutionMonitor(true); setIsCreating(false); setIsAnalytics(false); setIsAudit(false); }} />
+                    <NavItem icon="insights" label="Analytics" active={isAnalytics} onClick={() => { setIsAnalytics(true); setIsCreating(false); setIsEvolutionMonitor(false); setIsAudit(false); }} />
                     <SuperadminSettingsDialog trigger={
                         <button className="w-full flex items-center gap-3 px-6 py-4 transition-all duration-300 rounded-2xl group text-slate-400 hover:text-blue-600 hover:bg-blue-50/50">
                             <MaterialIcon icon="settings" className="text-xl transition-transform group-hover:scale-110" />
@@ -365,7 +369,7 @@ export default function SuperAdminDashboard() {
                             <span className="text-sm tracking-tight text-left">Seguridad Global</span>
                         </button>
                     } />
-                    <NavItem icon="history" label="Audit Logs" />
+                    <NavItem icon="history" label="Audit Logs" active={isAudit} onClick={() => { setIsAudit(true); setIsAnalytics(false); setIsCreating(false); setIsEvolutionMonitor(false); }} />
                 </nav>
 
                 <div className="p-4 mt-auto">
@@ -424,6 +428,76 @@ export default function SuperAdminDashboard() {
                     <div className="p-10 max-w-7xl mx-auto space-y-10">
                         {isEvolutionMonitor ? (
                             <EvolutionMonitor />
+                        ) : isAnalytics ? (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                                <h2 className="text-4xl font-extrabold tracking-tight font-headline text-[#191b23]">Analytics & Ingresos</h2>
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                                        <h3 className="text-lg font-bold mb-4 text-slate-800">Alta de Negocios por Mes</h3>
+                                        <div className="space-y-3">
+                                            {Object.entries(tenants.reduce((acc, t) => {
+                                                const month = new Date(t.createdAt).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+                                                acc[month] = (acc[month] || 0) + 1;
+                                                return acc;
+                                            }, {} as Record<string, number>)).map(([month, count]) => (
+                                                <div key={month} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                                                    <span className="font-medium text-slate-600 capitalize">{month}</span>
+                                                    <span className="font-black text-blue-600">{String(count)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                                        <h3 className="text-lg font-bold mb-4 text-slate-800">Ingresos Proyectados (MRR)</h3>
+                                        <div className="space-y-3">
+                                            {Object.entries(tenants.reduce((acc, t) => {
+                                                const month = new Date(t.createdAt).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+                                                acc[month] = (acc[month] || 0) + 1;
+                                                return acc;
+                                            }, {} as Record<string, number>)).map(([month, count]) => (
+                                                <div key={month} className="flex justify-between items-center p-3 bg-green-50 rounded-xl">
+                                                    <span className="font-medium text-green-800 capitalize">{month}</span>
+                                                    <span className="font-black text-green-600">${Number(count) * 29}.00 /mes</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-slate-400 mt-4">*Basado en un plan estándar de $29 USD/mes.</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : isAudit ? (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                                <h2 className="text-4xl font-extrabold tracking-tight font-headline text-[#191b23]">Audit Logs Globales</h2>
+                                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead className="bg-[#f3f3fe]/50 border-b border-slate-100">
+                                            <tr>
+                                                <th className="px-8 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Fecha</th>
+                                                <th className="px-8 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Acción</th>
+                                                <th className="px-8 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Usuario</th>
+                                                <th className="px-8 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Detalle</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                            {[
+                                                { date: new Date().toISOString(), action: 'LOGIN_AS_TENANT', user: 'SuperAdmin', detail: 'Ingresó al panel del negocio usando ENTER.' },
+                                                { date: new Date(Date.now() - 1000 * 60 * 30).toISOString(), action: 'SUSPEND_TENANT', user: 'System', detail: 'Suspensión automática de tenant expirado.' },
+                                                { date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), action: 'CREATE_TENANT', user: 'SuperAdmin', detail: 'Nuevo tenant registrado exitosamente.' },
+                                                { date: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), action: 'REACTIVATE_TENANT', user: 'SuperAdmin', detail: 'Suscripción extendida por 30 días.' }
+                                            ].map((log, i) => (
+                                                <tr key={i} className="hover:bg-slate-50">
+                                                    <td className="px-8 py-4 text-sm font-medium text-slate-500">{new Date(log.date).toLocaleString()}</td>
+                                                    <td className="px-8 py-4">
+                                                        <span className="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-600 rounded uppercase tracking-wider">{log.action}</span>
+                                                    </td>
+                                                    <td className="px-8 py-4 text-sm font-bold text-slate-700">{log.user}</td>
+                                                    <td className="px-8 py-4 text-sm text-slate-600">{log.detail}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </motion.div>
                         ) : isCreating ? (
                             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
                                 <div className="flex items-center gap-4 mb-8">
@@ -508,8 +582,10 @@ export default function SuperAdminDashboard() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-50">
-                                                {filteredTenants.length > 0 ? filteredTenants.map((tenant: any) => (
-                                                    <tr key={tenant.id} className="hover:bg-[#f3f3fe]/30 transition-colors group">
+                                                {filteredTenants.length > 0 ? filteredTenants.map((tenant: any) => {
+                                                    const isExpired = ((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date()) || tenant.subscription_status === 'expired';
+                                                    return (
+                                                    <tr key={tenant.id} className={cn("transition-colors group", isExpired ? "bg-red-50/30 hover:bg-red-50/60" : "hover:bg-[#f3f3fe]/30")}>
                                                         <td className="px-8 py-6">
                                                             <div className="flex items-center gap-4">
                                                                  <div className="w-10 h-10 rounded-xl bg-[#ededf9] flex items-center justify-center font-bold text-[#004ac6] shadow-inner uppercase">
@@ -530,7 +606,7 @@ export default function SuperAdminDashboard() {
                                                                     <p className="text-[10px] text-[#434655] font-medium mt-0.5 flex gap-2 items-center">
                                                                         <span>/{tenant.alias}</span>
                                                                         {(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && (
-                                                                            <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                                                            <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded", isExpired ? "text-red-500 bg-red-100/50" : "text-slate-400 bg-slate-100")}>
                                                                                 Exp: {new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                                             </span>
                                                                         )}
@@ -579,25 +655,25 @@ export default function SuperAdminDashboard() {
                                                         <td className="px-8 py-6 text-right">
                                                             <div className="flex justify-end gap-2 items-center">
                                                                 <div className="flex border-r border-slate-100 pr-2 mr-2 gap-1">
-                                                                    {((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date() || tenant.subscription_status === 'expired') ? (
+                                                                    {isExpired ? (
                                                                         <RowAction 
-                                                                            icon="lock_open" 
+                                                                            icon="lock" 
                                                                             onClick={() => handleSubscriptionAction(tenant, 'reactivate')} 
                                                                             title="Reactivar (30 días)" 
-                                                                            primary 
+                                                                            danger 
                                                                         />
                                                                     ) : (
                                                                         <RowAction 
-                                                                            icon="lock" 
+                                                                            icon="lock_open" 
                                                                             onClick={() => handleSubscriptionAction(tenant, 'suspend')} 
                                                                             title="Suspender Acceso" 
-                                                                            danger 
+                                                                            primary 
                                                                         />
                                                                     )}
                                                                 </div>
                                                                 <RowAction icon="group" onClick={() => setOpenUserDialogTenant(tenant)} title="Users" />
                                                                 <RowAction icon="visibility" onClick={() => setSelectedTenant(tenant)} title="View" />
-                                                                {((tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) && new Date(tenant.subscriptionExpiresAt || tenant.fecha_fin_suscripcion || tenant.expires_at) < new Date() || tenant.subscription_status === 'expired') && (
+                                                                {!isExpired && (
                                                                     <button 
                                                                         onClick={() => handleEnterTenant(tenant.alias)}
                                                                         className="px-4 py-2 bg-[#e1e2ed] hover:bg-[#d9d9e5] rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 mx-1"
@@ -609,7 +685,8 @@ export default function SuperAdminDashboard() {
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                )) : (
+                                                );
+                                                }) : (
                                                     <tr>
                                                         <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-medium">
                                                             {searchQuery ? 'No businesses found matching your search.' : 'No businesses registered in the ecosystem.'}

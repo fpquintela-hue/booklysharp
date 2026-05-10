@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Search, Plus, Edit2, Trash2, KeyRound, X } from 'lucide-react';
+import { Users, Search, Plus, Edit2, Trash2, Mail, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -223,8 +223,9 @@ export function TenantUsersDialog({ tenant, open, onOpenChange }: TenantUsersDia
                                                 <button 
                                                     onClick={() => toast.success('Enlace de recuperación enviado.')}
                                                     className="p-3 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
+                                                    title="Enviar e-mail de recuperación"
                                                 >
-                                                    <KeyRound className="w-5 h-5" />
+                                                    <Mail className="w-5 h-5" />
                                                 </button>
                                                 <button 
                                                     onClick={() => openEdit(u)}
