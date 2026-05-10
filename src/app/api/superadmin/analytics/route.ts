@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { subDays, subMonths, startOfDay, endOfDay, format, isAfter, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { normalizePlanId, getPlanById } from '@/lib/subscription-plans';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,8 +73,11 @@ export async function GET(request: Request) {
         
         // Active Tenants for MRR
         const activeTenants = allTenants.filter(t => t.subscription_status !== 'expired');
-        // Usamos un base de $29 si no hay price property 
-        const currentMRR = activeTenants.length * 29;
+        const currentMRR = activeTenants.reduce((acc, t) => {
+            const planId = normalizePlanId(t.subscription_plan);
+            const plan = getPlanById(planId);
+            return acc + plan.monthlyPrice;
+        }, 0);
 
         // Appointments
         const appointmentsThisMonth = await prisma.appointment.count({
@@ -124,8 +128,11 @@ export async function GET(request: Request) {
             
             accumulatedTenants += altasInPeriod;
             
-            const activeTenantsInPeriod = accumulatedTenants; 
-            const mrrInPeriod = activeTenantsInPeriod * 29;
+            const activeTenantsInPeriod = allTenants.filter(t => t.createdAt < nextIter && t.subscription_status !== 'expired'); 
+            const mrrInPeriod = activeTenantsInPeriod.reduce((acc, t) => {
+                const planId = normalizePlanId(t.subscription_plan);
+                return acc + getPlanById(planId).monthlyPrice;
+            }, 0);
 
             chartData.push({
                 name: periodName.charAt(0).toUpperCase() + periodName.slice(1),

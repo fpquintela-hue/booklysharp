@@ -7,9 +7,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSettings } from '@/context/settings-context';
 import { format, startOfDay, startOfMonth, endOfMonth, isSameDay, isSameMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
 import { es, gl } from 'date-fns/locale';
-import { BarChart3, CalendarDays, CheckCircle2, TrendingUp, CalendarCheck, AlertTriangle, Clock, Filter, User, PieChart } from 'lucide-react';
+import { BarChart3, CalendarDays, CheckCircle2, TrendingUp, AlertTriangle, User, PieChart, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
+import { normalizePlanId } from '@/lib/subscription-plans';
+import { 
+    LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
+} from 'recharts';
 
 export default function StatsPage() {
     const { t, lang } = useTranslation();
@@ -116,8 +120,9 @@ export default function StatsPage() {
             return {
                 key: format(date, 'yyyy-MM'),
                 label: (format as any)(date, 'MMM', { locale: dateLocale }),
-                count: 0,
-                revenue: 0
+                Citas: 0,
+                Ingresos: 0,
+                Ausencias: 0
             };
         });
 
@@ -126,16 +131,19 @@ export default function StatsPage() {
             const key = format(appDate, 'yyyy-MM');
             const found = last12.find(m => m.key === key);
             if (found) {
-                found.count++;
+                found.Citas++;
                 if (app.status === 'COMPLETED') {
                     const aType = appointmentTypes.find((t: any) => t.id === app.type);
-                    found.revenue += (aType?.price || 0);
+                    found.Ingresos += (aType?.price || 0);
+                }
+                if (app.status === 'NO_SHOW' || app.status === 'CANCELLED') {
+                    found.Ausencias++;
                 }
             }
         });
 
-        const maxCount = Math.max(...last12.map(m => m.count), 1);
-        const maxRevenue = Math.max(...last12.map(m => m.revenue), 1);
+        const maxCount = Math.max(...last12.map(m => m.Citas), 1);
+        const maxRevenue = Math.max(...last12.map(m => m.Ingresos), 1);
 
         const typeStatsArray = Object.entries(typeStats)
             .filter(([id]) => appointmentTypes.some((t: any) => t.id === id))
@@ -160,6 +168,8 @@ export default function StatsPage() {
 
     const viewMode = user?.calendarViewMode || settings.calendarViewMode || 'vista1';
     const isClassic = viewMode === 'vista2';
+    const planId = normalizePlanId(user?.tenantPlan || user?.tenantSubscriptionPlan);
+    const isProfessional = planId === 'profesional';
 
     return (
         <div className={cn(
@@ -305,72 +315,67 @@ export default function StatsPage() {
 
                 {/* Main Content: Chart & Activity */}
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
-                    {/* Bar Chart Panel */}
+                    {/* Line Chart Panel (Main) */}
                     <div className={cn(
                         "xl:col-span-3 glass-panel rounded-xl p-6 flex flex-col min-h-[400px]",
                         isClassic && "border border-slate-200 dark:border-slate-800 shadow-none"
                     )}>
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                <BarChart3 className="w-5 h-5 text-primary" />
-                                Ingresos y Actividad Mensual
+                                <TrendingUp className="w-5 h-5 text-primary" />
+                                Evolución de la Actividad
                             </h3>
-                            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-3 h-3 bg-primary rounded-sm"></div>
-                                    <span className="text-slate-500">Citas</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-3 h-3 bg-emerald-500 rounded-sm"></div>
-                                    <span className="text-slate-500">Ingresos (€)</span>
-                                </div>
-                            </div>
                         </div>
 
-                        {/* Custom CSS Bar Chart */}
-                        <div className="flex-1 flex items-end gap-2 md:gap-4 relative pt-10">
-                            {/* Horizontal guide lines */}
-                            <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between pointer-events-none z-0">
-                                {[1, 0.75, 0.5, 0.25, 0].map((tick, i) => (
-                                    <div key={i} className="w-full flex items-center border-b border-slate-200/50 dark:border-slate-700/50 flex-1 border-dashed">
-                                        <span className="-ml-6 text-[10px] text-slate-400 absolute">
-                                            {Math.round(tick * stats.maxCount)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Bars */}
-                            {stats.last12.map((month: any, idx: number) => {
-                                const heightCount = stats.maxCount > 0 ? (month.count / stats.maxCount) * 100 : 0;
-                                const heightRev = stats.maxRevenue > 0 ? (month.revenue / stats.maxRevenue) * 100 : 0;
-                                return (
-                                    <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full z-10 group mt-auto">
-
-                                        {/* Value Tooltip pop up on hover */}
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[9px] font-black px-2 py-1.5 rounded-lg mb-2 whitespace-nowrap shadow-xl flex flex-col items-center gap-0.5 z-20">
-                                            <span>{month.count} CITAS</span>
-                                            <span className="text-emerald-400">{month.revenue.toFixed(2)}€</span>
-                                        </div>
-
-                                        <div className="w-full relative flex justify-center h-[85%] items-end gap-0.5">
-                                            <div
-                                                className="w-full max-w-[12px] bg-primary rounded-t-sm transition-all duration-700 ease-out group-hover:brightness-110"
-                                                style={{ height: `${heightCount}%` }}
-                                            />
-                                            <div
-                                                className="w-full max-w-[12px] bg-emerald-500 rounded-t-sm transition-all duration-700 ease-out group-hover:brightness-110"
-                                                style={{ height: `${heightRev}%`, transitionDelay: '100ms' }}
-                                            />
-                                        </div>
-                                        <span className="text-[9px] font-black text-slate-400 mt-3 uppercase tracking-tighter">
-                                            {month.label.substring(0, 3)}
-                                        </span>
-                                    </div>
-                                );
-                            })}
+                        <div className="flex-1 min-h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={stats.last12} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(val) => `€${val}`} />
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                                        itemStyle={{ fontSize: '13px', fontWeight: 'bold' }}
+                                    />
+                                    <Legend wrapperStyle={{ fontSize: '12px', fontWeight: '600', marginTop: '10px' }} />
+                                    <Line yAxisId="left" type="monotone" name="Citas Atendidas" dataKey="Citas" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                    <Line yAxisId="left" type="monotone" name="Ausencias" dataKey="Ausencias" stroke="#ef4444" strokeWidth={3} strokeDasharray="5 5" dot={false} />
+                                    <Line yAxisId="right" type="monotone" name="Ingresos (€)" dataKey="Ingresos" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
+
+                    {/* Bar Chart Panel (Professional Plan Only) */}
+                    {isProfessional && (
+                        <div className={cn(
+                            "xl:col-span-3 glass-panel rounded-xl p-6 flex flex-col min-h-[350px] mt-6",
+                            isClassic && "border border-slate-200 dark:border-slate-800 shadow-none"
+                        )}>
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-primary" />
+                                    Rendimiento por Profesional
+                                </h3>
+                            </div>
+                            <div className="flex-1 min-h-[250px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={stats.profStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                                        <Tooltip 
+                                            cursor={{ fill: '#f8fafc' }}
+                                            contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                                        />
+                                        <Bar dataKey="attendanceCount" name="Citas Atendidas" fill="#6366f1" radius={[6, 6, 0, 0]} barSize={40} />
+                                        <Bar dataKey="revenue" name="Ingresos Generados (€)" fill="#10b981" radius={[6, 6, 0, 0]} barSize={40} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Secondary Metrics / Info */}
                     <div className={cn(
