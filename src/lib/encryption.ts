@@ -16,7 +16,8 @@ const getKey = () => {
 };
 
 export const encrypt = (text: string | null | undefined): string | null => {
-    if (!text) return text as any;
+    if (text === null || text === undefined) return null;
+    if (text === '') return ''; // Don't encrypt empty strings — return as-is
 
     // If it's already encrypted, don't encrypt again
     if (text.startsWith('ENC:')) return text;

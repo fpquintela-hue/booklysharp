@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { encrypt, decrypt } from '@/lib/encryption';
 
-type RouteContext = { params: Promise<{ id: string }> };
-
 function decryptPatient(p: any) {
     return {
         ...p,
@@ -16,12 +14,15 @@ function decryptPatient(p: any) {
     };
 }
 
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const tenantId = request.headers.get('x-tenant-id');
         if (!tenantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { id } = await context.params;
+        const { id } = await params;
         const patient = await (prisma as any).patient.findFirst({ where: { id, tenantId } });
         if (!patient) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -32,22 +33,20 @@ export async function GET(request: Request, context: RouteContext) {
     }
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+export async function PATCH(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const tenantId = request.headers.get('x-tenant-id');
         if (!tenantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { id } = await context.params;
+        const { id } = await params;
         const updates = await request.json();
-
-        console.log(`[PATCH /api/patients/${id}] tenantId=${tenantId}`, updates);
 
         // Verify ownership
         const existing = await (prisma as any).patient.findFirst({ where: { id, tenantId } });
-        if (!existing) {
-            console.error(`[PATCH /api/patients/${id}] Not found for tenant ${tenantId}`);
-            return NextResponse.json({ error: 'Not found' }, { status: 404 });
-        }
+        if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
         const updateData: any = {};
         if (updates.name !== undefined) updateData.name = encrypt(updates.name);
@@ -62,25 +61,29 @@ export async function PATCH(request: Request, context: RouteContext) {
             return NextResponse.json(decryptPatient(existing));
         }
 
+        console.log('[PATCH patient] id:', id, 'fields to update:', Object.keys(updateData));
+
         const result = await (prisma as any).patient.update({
             where: { id },
             data: updateData,
         });
 
-        console.log(`[PATCH /api/patients/${id}] Updated successfully`);
         return NextResponse.json(decryptPatient(result));
     } catch (error) {
-        console.error(`PATCH /api/patients/[id] error:`, error);
+        console.error('PATCH /api/patients/[id] error:', error);
         return NextResponse.json({ error: 'Error updating patient', detail: String(error) }, { status: 500 });
     }
 }
 
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const tenantId = request.headers.get('x-tenant-id');
         if (!tenantId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { id } = await context.params;
+        const { id } = await params;
         const patient = await (prisma as any).patient.findFirst({ where: { id, tenantId } });
         if (!patient) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
