@@ -277,10 +277,13 @@ export default function CalendarView({
         const g = parseInt(hexVal.substring(2, 4), 16);
         const b = parseInt(hexVal.substring(4, 6), 16);
 
+        const prof = professionals.find(p => p.id === event.professionalId);
+        const profColor = event.professionalColor || prof?.color || baseColor;
+
         return {
             style: {
-                backgroundColor: `rgba(${r},${g},${b}, 0.15)`, /* Soft color bubble */
-                borderLeft: `4px solid ${baseColor}`,          /* Solid left bar */
+                backgroundColor: `rgba(${r},${g},${b}, 0.15)`, /* Soft color bubble based on service */
+                borderLeft: `4px solid ${profColor}`,          /* Solid left bar based on professional */
                 color: 'var(--text-main)',
                 borderTopLeftRadius: '4px',
                 borderBottomLeftRadius: '4px',
@@ -362,13 +365,15 @@ export default function CalendarView({
 
         const baseColor = event.color || typeConfig?.color || '#3b82f6';
         
-        // Parse hex to rgba for the soft background
         const h = baseColor.replace('#', '');
         const r = parseInt(h.substring(0, 2), 16);
         const g = parseInt(h.substring(2, 4), 16);
         const b = parseInt(h.substring(4, 6), 16);
         const softBg = isBlocked ? 'rgba(239, 68, 68, 0.1)' : isUrgency ? 'rgba(104, 76, 182, 0.1)' : `rgba(${r},${g},${b}, 0.12)`;
-        const solidBar = isBlocked ? '#ef4444' : isUrgency ? '#684cb6' : baseColor;
+        
+        const prof = professionals.find(p => p.id === event.professionalId);
+        const profColor = event.professionalColor || prof?.color || baseColor;
+        const solidBar = isBlocked ? '#ef4444' : isUrgency ? '#684cb6' : profColor;
 
         return (
             <div className={containerClass} 
