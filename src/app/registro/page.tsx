@@ -64,6 +64,7 @@ export default function RegisterWizard() {
     const [facturacionCalle, setFacturacionCalle] = useState('');
     const [facturacionNumero, setFacturacionNumero] = useState('');
     const [facturacionCodigoPostal, setFacturacionCodigoPostal] = useState('');
+    const [aceptaLegal, setAceptaLegal] = useState(false);
 
     const handleNext = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -473,6 +474,21 @@ export default function RegisterWizard() {
                                             <span className="material-symbols-outlined text-[#acb3b7]">lock</span>
                                         </div>
 
+                                        <div className="mt-6 p-4 rounded-xl border border-[#eaeff2] hover:bg-[#f7f9fb] transition-colors">
+                                            <label className="flex items-start gap-4 cursor-pointer group">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={aceptaLegal} 
+                                                    onChange={() => setAceptaLegal(!aceptaLegal)} 
+                                                    className="mt-1 w-5 h-5 rounded border-[#acb3b7] text-[#005bc4] focus:ring-[#005bc4] transition-all cursor-pointer" 
+                                                    required
+                                                />
+                                                <span className="text-sm text-[#596064] leading-relaxed">
+                                                    He leído y acepto los <Link href="/terminos-del-servicio" target="_blank" className="text-[#005bc4] font-bold hover:underline">Términos del Servicio</Link> y la <Link href="/politica-de-privacidad" target="_blank" className="text-[#005bc4] font-bold hover:underline">Política de Privacidad</Link>.
+                                                </span>
+                                            </label>
+                                        </div>
+
                                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[#eaeff2] mt-8">
                                             <button 
                                                 type="button"
@@ -483,7 +499,7 @@ export default function RegisterWizard() {
                                                 <span className="material-symbols-outlined text-lg">arrow_back</span> Volver
                                             </button>
                                             <button 
-                                                disabled={loading}
+                                                disabled={loading || !aceptaLegal}
                                                 className="w-full sm:w-auto px-10 py-3 rounded-xl bg-gradient-to-r from-[#005bc4] to-[#4388fd] text-white font-bold shadow-lg shadow-[#005bc4]/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100" 
                                                 type="submit"
                                             >

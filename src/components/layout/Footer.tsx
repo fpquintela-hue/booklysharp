@@ -48,9 +48,9 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Legal</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/privacidad" className="hover:text-primary transition-colors">Política de Privacidad</Link></li>
-              <li><Link href="/cookies" className="hover:text-primary transition-colors">Política de Cookies</Link></li>
-              <li><Link href="/terminos" className="hover:text-primary transition-colors">Términos del Servicio</Link></li>
+              <li><Link href="/politica-de-privacidad" className="hover:text-primary transition-colors">Política de Privacidad</Link></li>
+              <li><Link href="/politica-de-cookies" className="hover:text-primary transition-colors">Política de Cookies</Link></li>
+              <li><Link href="/terminos-del-servicio" className="hover:text-primary transition-colors">Términos del Servicio</Link></li>
               <li className="pt-4 mt-4 border-t border-slate-800 flex items-center gap-2 text-xs text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
                 Sistemas operativos 100%
