@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/auth-context';
 import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
