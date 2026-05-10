@@ -59,9 +59,14 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
 
     const handleSaveGeneralNotes = async () => {
         if (!patient) return;
-        const updated = await patientService.updatePatient(patient.id, { notes: tempGeneralNotes });
-        setPatient(updated);
-        setEditingGeneralNotes(false);
+        try {
+            const updated = await patientService.updatePatient(patient.id, { notes: tempGeneralNotes });
+            setPatient(updated);
+            setEditingGeneralNotes(false);
+            toast.success('Notas guardadas correctamente');
+        } catch (error) {
+            toast.error('Error al guardar las notas');
+        }
     };
 
     const handleSaveTreatmentPlan = async (value: string) => {
@@ -267,11 +272,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                     <SelectValue placeholder="Seleccionar plan" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Valoración inicial">Valoración inicial</SelectItem>
-                                    <SelectItem value="Seguimiento">Seguimiento</SelectItem>
-                                    <SelectItem value="Mantenimiento">Mantenimiento</SelectItem>
-                                    <SelectItem value="Observación">Observación</SelectItem>
-                                    <SelectItem value="Cerrado">Cerrado</SelectItem>
+                                    <SelectItem value="VALORACIÓN INICIAL">Valoración inicial</SelectItem>
+                                    <SelectItem value="SEGUIMIENTO">Seguimiento</SelectItem>
+                                    <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                                    <SelectItem value="OBSERVACIÓN">Observación</SelectItem>
+                                    <SelectItem value="CERRADO">Cerrado</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -282,7 +287,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold tracking-tight text-[#2c3437] flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#eab308]" data-icon="sticky_note_2">sticky_note_2</span>
-                                notas generales
+                                Notas Generales
                             </h3>
                             {!editingGeneralNotes && (
                                 <Button variant="outline" size="sm" onClick={() => setEditingGeneralNotes(true)} className="bg-white border-[#fbe599] text-[#b45309] hover:bg-[#fef3c7]">

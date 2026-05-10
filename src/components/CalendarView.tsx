@@ -714,7 +714,7 @@ export default function CalendarView({
                     getSlotStyle(date, resourceId ? String(resourceId) : (activeProfessionalId === 'all' ? null : activeProfessionalId))
                 }
                 onSelectEvent={onSelectEvent}
-                scrollToTime={new Date(new Date().setHours(new Date().getHours() - 1))}
+                scrollToTime={new Date(new Date().setHours(new Date().getHours() - 4))}
             />
 
             <AppointmentDetailsDialog
