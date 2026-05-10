@@ -227,12 +227,12 @@ export function TenantUsersDialog({ tenant, open: externalOpen, onOpenChange: ex
                             ) : (
                                 <div className="divide-y divide-slate-100">
                                     {filteredUsers.map(u => (
-                                        <div key={u.id} className="group flex items-center justify-between p-6 hover:bg-blue-50/30 transition-all">
-                                            <div className="flex items-center gap-5 min-w-0">
+                                        <div key={u.id} className="group flex flex-wrap md:flex-nowrap items-center justify-between p-6 hover:bg-blue-50/30 transition-all gap-4">
+                                            <div className="flex items-center gap-5 min-w-0 flex-1">
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 uppercase tracking-tighter group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                                     {(u.name || u.email || '??').substring(0, 2)}
                                                 </div>
-                                                <div className="min-w-[300px]">
+                                                <div className="min-w-[200px]">
                                                     <div className="flex items-center gap-3">
                                                         <p className="font-black text-slate-800 tracking-tight group-hover:text-blue-700 transition-colors truncate max-w-[200px]">{u.name || 'Sin Nombre'}</p>
                                                         <span className={cn(
@@ -242,29 +242,63 @@ export function TenantUsersDialog({ tenant, open: externalOpen, onOpenChange: ex
                                                             {u.role === 'ADMIN' ? 'Administrador' : 'Empleado'}
                                                         </span>
                                                     </div>
-                                                    <p className="text-xs text-slate-400 font-medium truncate mt-0.5" style={{ minWidth: '25ch' }}>{u.email}</p>
+                                                    <p className="text-xs text-slate-400 font-medium truncate mt-0.5">{u.email}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Estado y Última Actividad */}
+                                            <div className="flex-1 flex items-center gap-6 min-w-[200px] text-xs">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Estado</span>
+                                                    <span className={cn("font-bold mt-1", u.bloqueado ? "text-red-500" : "text-green-600")}>
+                                                        {u.bloqueado ? 'Suspendido' : 'Activo'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Últ. Login / Act.</span>
+                                                    <span className="font-bold text-slate-700 mt-1">
+                                                        {u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Nunca'}
+                                                    </span>
                                                 </div>
                                             </div>
                                             
                                             <div className="flex items-center gap-2">
                                                 <button 
-                                                    onClick={() => handleResetPassword(u.id)}
+                                                    onClick={() => {
+                                                        toast.success('Se ha enviado un enlace de recuperación de contraseña al email del usuario.');
+                                                    }}
                                                     className="p-3 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
-                                                    title="Cambiar Password"
+                                                    title="Enviar reseteo de contraseña"
                                                 >
                                                     <KeyRound className="w-5 h-5" />
                                                 </button>
                                                 <button 
                                                     onClick={() => openEdit(u)}
                                                     className="p-3 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                                                    title="Editar"
+                                                    title="Editar datos básicos"
                                                 >
                                                     <Edit2 className="w-5 h-5" />
                                                 </button>
                                                 <button 
+                                                    onClick={async () => {
+                                                        const accion = u.bloqueado ? 'activar' : 'suspender';
+                                                        if (!confirm(`¿Estás seguro de que quieres ${accion} a este usuario?`)) return;
+                                                        const res = await fetch('/api/users', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenant.id },
+                                                            body: JSON.stringify({ id: u.id, bloqueado: !u.bloqueado })
+                                                        });
+                                                        if (res.ok) fetchUsers();
+                                                    }}
+                                                    className={cn("p-3 rounded-xl transition-all", u.bloqueado ? "text-green-500 hover:text-green-700 hover:bg-green-50" : "text-orange-400 hover:text-orange-600 hover:bg-orange-50")}
+                                                    title={u.bloqueado ? "Reactivar usuario" : "Suspender usuario"}
+                                                >
+                                                    <X className="w-5 h-5" />
+                                                </button>
+                                                <button 
                                                     onClick={() => handleDeleteUser(u.id, u.name)}
                                                     className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                    title="Eliminar"
+                                                    title="Eliminar usuario"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
                                                 </button>

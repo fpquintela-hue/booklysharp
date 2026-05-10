@@ -37,6 +37,7 @@ export default function SuperAdminDashboard() {
     const [stats, setStats] = useState<any>({ totalTenants: 0, totalAppointments: 0, totalProfessionals: 0, growth: '0' });
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
 
     // State for create flow
     const [isCreating, setIsCreating] = useState(false);
@@ -151,7 +152,15 @@ export default function SuperAdminDashboard() {
         setPasswordError('');
     };
 
-    const handleEnterTenant = (alias: string) => {
+    const handleEnterTenant = async (alias: string) => {
+        try {
+            await fetch('/api/superadmin/audit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenantAlias: alias, adminUser: user?.email || 'Superadmin' })
+            });
+        } catch (e) {}
+
         logout();
         toast.info('Cerrando sesión de superadmin...');
         setTimeout(() => {
@@ -267,10 +276,27 @@ export default function SuperAdminDashboard() {
         }
     };
 
-    const filteredTenants = tenants.filter((t: any) => 
+    const sortedTenants = [...tenants].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const filteredTenants = sortedTenants.filter((t: any) => 
         (t.nombre_comercial?.toLowerCase().includes(searchQuery.toLowerCase()) || 
          t.alias?.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+
+    const handleSort = (key: string) => {
+        setSortConfig({
+            key,
+            direction: sortConfig.key === key && sortConfig.direction === 'desc' ? 'asc' : 'desc'
+        });
+    };
 
     if (authLoading) return null;
 
@@ -343,13 +369,7 @@ export default function SuperAdminDashboard() {
                 </nav>
 
                 <div className="p-4 mt-auto">
-                    <button 
-                        onClick={() => setIsCreating(true)}
-                        className="w-full bg-[#004ac6] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-[#003ea8] active:scale-[0.98] transition-all shadow-xl shadow-blue-600/20"
-                    >
-                        <MaterialIcon icon="add" className="text-xl" />
-                        Add New Tenant
-                    </button>
+                    {/* Botón inferior duplicado eliminado para evitar confusión */}
                 </div>
             </aside>
 
@@ -475,11 +495,17 @@ export default function SuperAdminDashboard() {
                                             <thead>
                                                 <tr className="bg-[#f3f3fe]/50 border-b border-slate-100">
                                                     <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest">ID</th>
-                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest">Business Name</th>
-                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest">Alias</th>
-                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-center">Citas</th>
-                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-center">Staff</th>
-                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-right">Actions</th>
+                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest">Negocio / Plan</th>
+                                                    <th 
+                                                        className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors"
+                                                        onClick={() => handleSort('createdAt')}
+                                                    >
+                                                        Registro {sortConfig.key === 'createdAt' && (sortConfig.direction === 'desc' ? '↓' : '↑')}
+                                                    </th>
+                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest">Actividad</th>
+                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-center">Citas / Límite</th>
+                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-center">Staff / Límite</th>
+                                                    <th className="px-8 py-6 text-[10px] font-black text-[#434655] uppercase tracking-widest text-right">Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-50">
@@ -492,36 +518,57 @@ export default function SuperAdminDashboard() {
                                                                     {(tenant.nombre_comercial || tenant.alias || '??').substring(0, 2)}
                                                                 </div>
                                                                 <div>
-                                                                    <p className="font-bold text-[#191b23] group-hover:text-blue-600 transition-colors">{tenant.nombre_comercial || tenant.alias}</p>
-                                                                    <p className="text-[10px] text-[#434655] font-medium italic">{tenant.telefono || 'Sin teléfono'}</p>
+                                                                    <p className="font-bold text-[#191b23] group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                                                                        {tenant.nombre_comercial || tenant.alias}
+                                                                        <span className={cn(
+                                                                            "text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest border",
+                                                                            tenant.subscription_status === 'trial' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                                                            tenant.subscription_status === 'expired' ? "bg-red-50 text-red-600 border-red-200" :
+                                                                            "bg-green-50 text-green-600 border-green-200"
+                                                                        )}>
+                                                                            {tenant.subscription_plan || tenant.subscription_status || 'Trial'}
+                                                                        </span>
+                                                                    </p>
+                                                                    <p className="text-[10px] text-[#434655] font-medium mt-0.5">/{tenant.alias}</p>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-8 py-6">
-                                                            <div className="flex flex-col gap-1">
-                                                                <span className={cn(
-                                                                    "px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest inline-block w-fit",
-                                                                    (new Date(tenant.subscriptionExpiresAt) < new Date()) 
-                                                                        ? "bg-red-100 text-red-600" 
-                                                                        : "bg-[#dbe1ff] text-[#003ea8]"
-                                                                )}>
-                                                                    {tenant.alias || 'n/a'}
-                                                                </span>
-                                                                {new Date(tenant.subscriptionExpiresAt) < new Date() && (
-                                                                    <span className="text-[8px] text-red-500 font-bold uppercase ml-1 italic">Caducado</span>
-                                                                )}
+                                                            <span className="text-xs font-bold text-slate-700 block">
+                                                                {new Date(tenant.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-8 py-6">
+                                                            <span className="text-xs font-bold text-slate-600 block">
+                                                                {tenant.lastActivity ? new Date(tenant.lastActivity).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-8 py-6 text-center w-32">
+                                                            <div className="flex flex-col gap-1.5">
+                                                                <div className="flex justify-between items-center text-[10px] font-bold">
+                                                                    <span className="text-slate-700">{tenant._count?.appointments || 0}</span>
+                                                                    <span className="text-slate-400">/ {tenant.maxAppointmentTypes}</span>
+                                                                </div>
+                                                                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                                    <div 
+                                                                        className={cn("h-full rounded-full transition-all", ((tenant._count?.appointments || 0) >= tenant.maxAppointmentTypes) ? "bg-red-500" : "bg-blue-500")}
+                                                                        style={{ width: `${Math.min(100, ((tenant._count?.appointments || 0) / Math.max(1, tenant.maxAppointmentTypes)) * 100)}%` }}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </td>
-                                                        <td className="px-8 py-6 text-center">
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="font-bold text-sm text-slate-700">{tenant._count?.appointments || 0}</span>
-                                                                <span className="text-[9px] text-slate-400 font-bold">Límite: {tenant.maxAppointmentTypes}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-8 py-6 text-center">
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="font-bold text-sm text-slate-700">{tenant._count?.professionals || 0}</span>
-                                                                <span className="text-[9px] text-slate-400 font-bold">Límite: {tenant.maxProfessionals}</span>
+                                                        <td className="px-8 py-6 text-center w-32">
+                                                            <div className="flex flex-col gap-1.5">
+                                                                <div className="flex justify-between items-center text-[10px] font-bold">
+                                                                    <span className="text-slate-700">{tenant._count?.professionals || 0}</span>
+                                                                    <span className="text-slate-400">/ {tenant.maxProfessionals}</span>
+                                                                </div>
+                                                                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                                    <div 
+                                                                        className={cn("h-full rounded-full transition-all", ((tenant._count?.professionals || 0) >= tenant.maxProfessionals) ? "bg-red-500" : "bg-blue-500")}
+                                                                        style={{ width: `${Math.min(100, ((tenant._count?.professionals || 0) / Math.max(1, tenant.maxProfessionals)) * 100)}%` }}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-8 py-6 text-right">

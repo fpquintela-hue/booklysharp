@@ -4,17 +4,30 @@ import bcrypt from 'bcryptjs';
 
 export async function GET() {
     try {
-        const tenants = await (prisma as any).tenant.findMany({
+        const tenantsRaw = await (prisma as any).tenant.findMany({
             include: {
                 _count: {
                     select: {
                         appointments: true,
                         professionals: true
                     }
+                },
+                users: {
+                    orderBy: { updatedAt: 'desc' },
+                    take: 1,
+                    select: { updatedAt: true }
                 }
             },
             orderBy: { createdAt: 'desc' }
         });
+        
+        // Formatear la salida para incluir lastActivity
+        const tenants = tenantsRaw.map((t: any) => ({
+            ...t,
+            lastActivity: t.users[0]?.updatedAt || t.createdAt,
+            users: undefined // No devolver el array de users
+        }));
+        
         return NextResponse.json(tenants);
     } catch (error) {
         console.error('Error fetching tenants:', error);
