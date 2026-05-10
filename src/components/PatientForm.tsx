@@ -72,14 +72,16 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsLoading(true);
         try {
-            const dataToSave = patient ? { id: patient.id, ...values } : values;
-            await apiFetch('patients', {
-                method: 'POST',
-                body: JSON.stringify(dataToSave),
-                headers: { 'Content-Type': 'application/json' }
-            });
+            let savedPatient;
+            if (patient) {
+                // UPDATE (PATCH)
+                savedPatient = await patientService.updatePatient(patient.id, values);
+            } else {
+                // CREATE (POST)
+                savedPatient = await patientService.createPatient(values);
+            }
 
-            onSuccess({ id: patient?.id || 'new', ...values } as any);
+            onSuccess(savedPatient);
         } catch (error) {
             console.error(error);
             form.setError('root', { message: t('modal.save_error') });
