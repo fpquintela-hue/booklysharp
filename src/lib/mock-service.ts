@@ -92,9 +92,9 @@ export const patientService = {
     },
 
     async updatePatient(id: string, updates: Partial<Patient>): Promise<Patient> {
-        const p = await apiFetch('patients', {
+        const p = await apiFetch(`patients/${id}`, {
             method: 'PATCH',
-            body: JSON.stringify({ id, ...updates }),
+            body: JSON.stringify(updates),
             headers: { 'Content-Type': 'application/json' }
         });
         return p;

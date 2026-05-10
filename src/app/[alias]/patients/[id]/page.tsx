@@ -62,11 +62,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
         if (!patient) return;
         try {
             const updated = await patientService.updatePatient(patient.id, { notes: tempGeneralNotes });
-            setPatient(updated);
+            setPatient(prev => prev ? { ...prev, notes: updated.notes } : prev);
             setEditingGeneralNotes(false);
             toast.success('Notas guardadas correctamente');
-        } catch (error) {
-            toast.error('Error al guardar las notas');
+        } catch (error: any) {
+            console.error('Error saving notes:', error?.message, error?.status);
+            toast.error(`Error al guardar notas: ${error?.message || 'desconocido'}`);
         }
     };
 
@@ -74,10 +75,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
         if (!patient) return;
         try {
             const updated = await patientService.updatePatient(patient.id, { treatmentPlan: value });
-            setPatient(updated);
+            setPatient(prev => prev ? { ...prev, treatmentPlan: updated.treatmentPlan } : prev);
             toast.success('Plan de tratamiento actualizado');
-        } catch (error) {
-            toast.error('Error al actualizar plan');
+        } catch (error: any) {
+            console.error('Error saving treatment plan:', error?.message, error?.status);
+            toast.error(`Error al actualizar plan: ${error?.message || 'desconocido'}`);
         }
     };
 
