@@ -102,9 +102,19 @@ export async function POST(request: Request) {
             // First verify it belongs to tenant
             const p = await (prisma as any).patient.findFirst({ where: { id, tenantId } });
             if (!p) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+            const updateData: any = {};
+            if (data.name !== undefined) updateData.name = encrypt(data.name);
+            if (data.apellidos !== undefined) updateData.apellidos = encrypt(data.apellidos);
+            if (data.phone !== undefined) updateData.phone = encrypt(data.phone);
+            if (data.email !== undefined) updateData.email = encrypt(data.email);
+            if (data.notes !== undefined) updateData.notes = data.notes ? encrypt(data.notes) : null;
+            if (data.treatmentPlan !== undefined) updateData.treatmentPlan = data.treatmentPlan ? encrypt(data.treatmentPlan) : null;
+            if (data.bloqueado !== undefined) updateData.bloqueado = data.bloqueado;
+
             result = await (prisma as any).patient.update({
                 where: { id },
-                data: { ...patientData, tenantId: undefined }
+                data: updateData
             });
         } else {
             // 🔍 CHECK FOR DUPLICATES: 

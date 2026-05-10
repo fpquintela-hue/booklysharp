@@ -45,11 +45,16 @@ export const appointmentService = {
     },
 
     async updateAppointment(id: string, updates: Partial<Appointment>): Promise<Appointment> {
-        return apiFetch(`appointments/${id}`, {
+        const a = await apiFetch(`appointments/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(updates),
             headers: { 'Content-Type': 'application/json' }
         });
+        return {
+            ...a,
+            start: new Date(a.start),
+            end: new Date(a.end)
+        };
     },
 
     async deleteAppointment(id: string): Promise<void> {
@@ -87,11 +92,12 @@ export const patientService = {
     },
 
     async updatePatient(id: string, updates: Partial<Patient>): Promise<Patient> {
-        return apiFetch('patients', {
+        const p = await apiFetch('patients', {
             method: 'POST',
             body: JSON.stringify({ id, ...updates }),
             headers: { 'Content-Type': 'application/json' }
         });
+        return p;
     },
 
     async importPatients(newPatients: Omit<Patient, 'id' | 'history'>[]): Promise<{ imported: number, skipped: number }> {

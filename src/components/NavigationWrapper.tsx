@@ -16,11 +16,11 @@ export function NavigationWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { settings, isNotFound } = useSettings();
     const { user, isLoading: authLoading } = useAuth();
-    const isPublicPage = pathname === '/' || pathname === '/registro' || pathname === '/register' || pathname.endsWith('/login') || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname.endsWith('/reserve-new') || pathname.endsWith('/verificar') || pathname.includes('/confirm');
+    const isPublicPage = pathname === '/' || pathname === '/registro' || pathname === '/register' || pathname.endsWith('/login') || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname.endsWith('/reserve-new') || pathname.endsWith('/verificar') || pathname.includes('/confirm') || pathname === '/politica-de-privacidad' || pathname === '/politica-de-cookies' || pathname === '/terminos-del-servicio';
 
     // The tenant main calendar page is a full self-contained shell — no external chrome needed
     const pathParts2 = pathname.split('/').filter(Boolean);
-    const isTenantCalendarRoot = pathParts2.length === 1 && !['registro', 'register', 'superadminlogin', 'login'].includes(pathParts2[0]);
+    const isTenantCalendarRoot = pathParts2.length === 1 && !['registro', 'register', 'superadminlogin', 'login', 'politica-de-privacidad', 'politica-de-cookies', 'terminos-del-servicio'].includes(pathParts2[0]);
 
     useEffect(() => {
         const pathParts = pathname.split('/').filter(Boolean);

@@ -282,7 +282,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold tracking-tight text-[#2c3437] flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#eab308]" data-icon="sticky_note_2">sticky_note_2</span>
-                                Notas Clínicas Generales
+                                notas generales
                             </h3>
                             {!editingGeneralNotes && (
                                 <Button variant="outline" size="sm" onClick={() => setEditingGeneralNotes(true)} className="bg-white border-[#fbe599] text-[#b45309] hover:bg-[#fef3c7]">
