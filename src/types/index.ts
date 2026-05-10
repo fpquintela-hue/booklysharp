@@ -33,6 +33,7 @@ export interface Patient {
     email?: string;
     bloqueado: boolean;
     history: string[]; // Appointment IDs
+    notes?: string;
 }
 
 export interface User {

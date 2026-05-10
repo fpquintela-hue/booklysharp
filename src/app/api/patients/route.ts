@@ -17,7 +17,8 @@ export async function GET(request: Request) {
             name: decrypt(p.name) || '',
             apellidos: decrypt(p.apellidos) || '',
             phone: decrypt(p.phone) || '',
-            email: decrypt(p.email) || ''
+            email: decrypt(p.email) || '',
+            notes: p.notes ? decrypt(p.notes) : ''
         }));
 
         // Ordenar en memoria por apellidos y nombre, ya que en la base están cifrados
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
                     apellidos: encrypt(p.apellidos || '') as string,
                     phone: encrypt(p.phone) as string,
                     email: encrypt(p.email) as string,
+                    notes: p.notes ? (encrypt(p.notes) as string) : null,
                     bloqueado: p.bloqueado ?? false,
                 };
 
@@ -87,6 +89,7 @@ export async function POST(request: Request) {
             apellidos: encrypt(data.apellidos || '') as string,
             phone: encrypt(data.phone) as string,
             email: encrypt(data.email) as string,
+            notes: data.notes ? (encrypt(data.notes) as string) : null,
             bloqueado: data.bloqueado ?? false,
             tenantId,
         };
@@ -141,7 +144,8 @@ export async function POST(request: Request) {
             name: decrypt(result.name),
             apellidos: decrypt(result.apellidos),
             phone: decrypt(result.phone),
-            email: decrypt(result.email)
+            email: decrypt(result.email),
+            notes: result.notes ? decrypt(result.notes) : ''
         });
     } catch (error) {
         console.error(error);

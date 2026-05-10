@@ -14,6 +14,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { patientService, apiFetch, appointmentService } from '@/lib/mock-service';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -52,6 +53,7 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
         apellidos: z.string().min(1, t('validation.required')),
         phone: z.string().min(5, t('validation.required')),
         email: z.string().email(t('validation.invalid_email')).optional().or(z.literal('')),
+        notes: z.string().optional(),
         bloqueado: z.boolean(),
     });
 
@@ -62,6 +64,7 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
             apellidos: patient?.apellidos || '',
             phone: patient?.phone || '',
             email: patient?.email || '',
+            notes: patient?.notes || '',
             bloqueado: patient?.bloqueado || false
         }
     });
@@ -209,6 +212,24 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
                             )}
                         />
 
+                        <FormField
+                            control={form.control}
+                            name="notes"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Notas / Historial Clínico</FormLabel>
+                                    <FormControl>
+                                        <Textarea 
+                                            className="min-h-[100px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus-visible:ring-primary rounded-2xl text-slate-900 dark:text-white resize-none" 
+                                            placeholder="Alergias, antecedentes, objetivos generales..." 
+                                            {...field} 
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         {user?.role === 'ADMIN' && patient && (
                             <FormField
                                 control={form.control}
@@ -262,27 +283,39 @@ export function PatientForm({ patient, onSuccess }: PatientFormProps) {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {patientHistory.map((apt) => (
-                                        <tr key={apt.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="py-3 px-3 font-bold text-slate-700 dark:text-slate-300">
-                                                {format(new Date(apt.start), "dd/MM/yyyy")}
-                                            </td>
-                                            <td className="py-3 px-1 font-mono font-bold text-primary">
-                                                {format(new Date(apt.start), "HH:mm")}
-                                            </td>
-                                            <td className="py-3 px-3 text-slate-600 dark:text-slate-400">
-                                                {apt.professionalName}
-                                            </td>
-                                            <td className="py-3 px-3">
-                                                <span className={cn(
-                                                    "text-[9px] font-black uppercase tracking-tight",
-                                                    apt.status === 'COMPLETED' ? "text-emerald-500" :
-                                                    apt.status === 'NO_SHOW' ? "text-rose-500" :
-                                                    "text-amber-500"
-                                                )}>
-                                                    {apt.status === 'COMPLETED' ? 'OK' : apt.status === 'NO_SHOW' ? 'Fallo' : 'Pend.'}
-                                                </span>
-                                            </td>
-                                        </tr>
+                                        <React.Fragment key={apt.id}>
+                                            <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="py-3 px-3 font-bold text-slate-700 dark:text-slate-300">
+                                                    {format(new Date(apt.start), "dd/MM/yyyy")}
+                                                </td>
+                                                <td className="py-3 px-1 font-mono font-bold text-primary">
+                                                    {format(new Date(apt.start), "HH:mm")}
+                                                </td>
+                                                <td className="py-3 px-3 text-slate-600 dark:text-slate-400">
+                                                    {apt.professionalName}
+                                                </td>
+                                                <td className="py-3 px-3">
+                                                    <span className={cn(
+                                                        "text-[9px] font-black uppercase tracking-tight px-2 py-1 rounded-full",
+                                                        apt.status === 'COMPLETED' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400" :
+                                                        apt.status === 'NO_SHOW' ? "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400" :
+                                                        "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
+                                                    )}>
+                                                        {apt.status === 'COMPLETED' ? 'OK' : apt.status === 'NO_SHOW' ? 'Fallo' : 'Pend.'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {apt.notes && (
+                                                <tr className="bg-slate-50/30 dark:bg-slate-900/30">
+                                                    <td colSpan={4} className="py-2 px-4 pb-4">
+                                                        <div className="text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-400 mb-1 block">Notas de sesión:</span>
+                                                            <div className="whitespace-pre-wrap">{apt.notes}</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
                                     ))}
                                 </tbody>
                             </table>
