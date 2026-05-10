@@ -57,10 +57,13 @@ function VerificarContent({ tenantAlias }: { tenantAlias: string }) {
   );
 }
 
-export default function VerificarPage({ params }: { params: { alias: string } }) {
+import * as React from "react";
+
+export default function VerificarPage({ params }: { params: Promise<{ alias: string }> }) {
+  const { alias } = React.use(params);
   return (
     <Suspense fallback={<div>Cargando...</div>}>
-      <VerificarContent tenantAlias={params.alias} />
+      <VerificarContent tenantAlias={alias} />
     </Suspense>
   );
 }

@@ -119,6 +119,17 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                     <p className="text-sm font-medium text-[#2c3437]">{patient.email || 'No proporcionado'}</p>
                                 </div>
                             </div>
+                            {patient.notes && (
+                                <div className="mt-4 p-4 bg-white rounded-xl border border-[#005bc4]/10">
+                                    <p className="text-[10px] uppercase tracking-wider text-[#005bc4] font-black mb-2 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[14px]" data-icon="description">description</span>
+                                        Notas Generales
+                                    </p>
+                                    <p className="text-xs text-[#596064] leading-relaxed whitespace-pre-wrap italic">
+                                        "{patient.notes}"
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="mt-8 w-full relative z-10">
@@ -185,7 +196,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                                 {apt.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td className="px-6 py-5 text-sm font-semibold text-[#2c3437]">
-                                                Sr Sergio
+                                                {apt.professionalName || 'Staff'}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <span className={cn(
@@ -197,8 +208,13 @@ export default function PatientDetailPage({ params }: { params: Promise<{ alias:
                                                     {isPast ? 'Finalizada' : (isCancelled ? 'Cancelada' : 'Pendiente')}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-5 text-sm text-[#596064] max-w-xs truncate text-right" title={apt.notes}>
-                                                {apt.notes || '-'}
+                                            <td className="px-6 py-5 text-sm text-[#596064] text-right">
+                                                {apt.notes ? (
+                                                    <div className="bg-[#f0f4f7] dark:bg-slate-800 p-2 rounded-lg inline-block max-w-[200px] text-left">
+                                                        <p className="text-[10px] font-bold uppercase text-[#005bc4] mb-1">Nota de sesión:</p>
+                                                        <p className="text-[11px] leading-tight italic truncate" title={apt.notes}>{apt.notes}</p>
+                                                    </div>
+                                                ) : '-'}
                                             </td>
                                         </tr>
                                     );
