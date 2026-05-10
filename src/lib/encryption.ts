@@ -59,6 +59,6 @@ export const decrypt = (encryptedText: string | null | undefined): string | null
         return decrypted;
     } catch (error) {
         console.error('Decryption error:', error);
-        throw new Error('Decryption failed.');
+        return encryptedText; // Return raw text if decryption fails to avoid crashing
     }
 };
