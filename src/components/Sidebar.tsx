@@ -59,8 +59,8 @@ export function Sidebar() {
             className="hidden md:flex flex-col items-center py-8 gap-8 flex-shrink-0 z-20 sticky top-0 h-screen transition-colors duration-300 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]"
             style={{ width: 80 }}
         >
-            {/* Logo / brand */}
             <div>
+              <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-xl"
                 style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))', opacity: 0.9, boxShadow: '0 4px 14px rgba(var(--primary-rgb),.3)', fontFamily: 'Manrope,sans-serif' }}>
                 {(settings.appTitle ?? alias ?? 'A').charAt(0).toUpperCase()}
