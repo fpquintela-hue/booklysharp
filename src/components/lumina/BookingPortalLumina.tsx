@@ -141,9 +141,12 @@ export function BookingPortalLumina({ alias, tenantName, services, professionals
                     serviceId: selectedService.id,
                     date: format(selectedDate!, 'yyyy-MM-dd'), 
                     time: selectedTime,
-                    datetime: absoluteIsoString,
-                    client: clientInfo,
-                    professionalId: selectedProf?.id || null
+                    datetimeISO: absoluteIsoString,
+                    name: clientInfo.name,
+                    email: clientInfo.email,
+                    phone: clientInfo.phone,
+                    professionalId: selectedProf?.id || null,
+                    notificationPreference: 'EMAIL'
                 })
             });
             if (res.ok) {
