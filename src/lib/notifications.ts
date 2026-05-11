@@ -263,6 +263,29 @@ export async function sendImmediateNotification(
                             </p>
                         </div>
                     </div>`,
+                attachments: [
+                    {
+                        filename: 'cita.ics',
+                        content: Buffer.from([
+                            'BEGIN:VCALENDAR',
+                            'VERSION:2.0',
+                            'PRODID:-//BooklySharp//App//ES',
+                            'CALSCALE:GREGORIAN',
+                            'METHOD:REQUEST',
+                            'BEGIN:VEVENT',
+                            `UID:${appointment.id || new Date().getTime()}`,
+                            `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+                            `DTSTART:${new Date(appointment.start).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+                            `DTEND:${new Date(appointment.end || new Date(appointment.start).getTime() + 30 * 60000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+                            `SUMMARY:Cita: ${appointment.type || 'Consulta'}`,
+                            `DESCRIPTION:Reserva confirmada en ${businessName}.\\n\\nVer o anular cita: ${confirmUrl}`,
+                            `LOCATION:${businessName}`,
+                            'END:VEVENT',
+                            'END:VCALENDAR'
+                        ].join('\r\n'), 'utf8'),
+                        contentType: 'text/calendar; charset=utf-8; method=REQUEST'
+                    }
+                ]
             });
             return true;
         }
