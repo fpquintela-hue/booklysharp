@@ -129,7 +129,26 @@ export async function GET(request: Request) {
             return availableProfs.length > busyCount;
         });
 
-        const slotsWithProfs = finalAvailableSlots.map(slotTime => {
+        // Filter out past slots if today
+        const now = new Date();
+        const madridTime = new Intl.DateTimeFormat('en-GB', { 
+            timeZone: 'Europe/Madrid', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false 
+        }).format(now);
+        const [currH, currM] = madridTime.split(':').map(Number);
+
+        const filteredSlots = finalAvailableSlots.filter(slotTime => {
+            if (targetDate.getTime() === today.getTime()) {
+                const [sh, sm] = slotTime.split(':').map(Number);
+                if (sh < currH) return false;
+                if (sh === currH && sm <= currM) return false;
+            }
+            return true;
+        });
+
+        const slotsWithProfs = filteredSlots.map(slotTime => {
             const [sh, sm] = slotTime.split(':').map(Number);
             const slotDate = new Date(`${dateStr}T${String(sh).padStart(2, '0')}:${String(sm).padStart(2, '0')}:00`);
             const availableProfs = activeProfessionals.filter((prof: any) => {
@@ -151,7 +170,7 @@ export async function GET(request: Request) {
             return { time: slotTime, professionals: availableProfs.map((p: any) => ({ id: p.id, name: p.name })) };
         });
 
-        return NextResponse.json({ availableSlots: finalAvailableSlots, slotDetails: slotsWithProfs });
+        return NextResponse.json({ availableSlots: filteredSlots, slotDetails: slotsWithProfs });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

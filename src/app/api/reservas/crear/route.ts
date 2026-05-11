@@ -128,6 +128,12 @@ export async function POST(req: Request) {
         const start = datetimeISO ? new Date(datetimeISO) : new Date(`${date}T${time}:00`);
         const end = addMinutes(start, duration);
 
+        // Security check: No booking in the past
+        const now = new Date();
+        if (start < now) {
+            return NextResponse.json({ error: 'No se puede reservar en una fecha u hora que ya ha pasado.' }, { status: 400 });
+        }
+
         // 5. DETERMINE FREE PROFESSIONAL
         const dayOfWeek = start.getDay();
         const settingsMap = tenant.settings.reduce((acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }), {});
@@ -196,13 +202,12 @@ export async function POST(req: Request) {
         }
 
         // 6. Preparar recordatorios según config del tenant
-        const remindersToCreate = [
-            {
-                type: (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL',
-                timeMinutes: 0, // Inmediata (confirmación)
-                status: 'PENDING'
-            }
-        ];
+        const remindersToCreate: any[] = [];
+        
+        // Immediate confirmations (resguardo de la cita)
+        if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: 0, status: 'PENDING' });
+        if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: 0, status: 'PENDING' });
+
 
         const configStr = settingsMap['reminders_config'];
         if (configStr) {
@@ -226,11 +231,14 @@ export async function POST(req: Request) {
                         if (r.method === 'WHATSAPP') type = 'WHATSAPP';
                         if (r.method === 'EMAIL') type = 'EMAIL';
 
-                        remindersToCreate.push({
-                            type,
-                            timeMinutes: mins,
-                            status: 'PENDING'
-                        });
+                        // Only add if we have the corresponding contact info
+                        if ((type === 'WHATSAPP' && phone) || (type === 'EMAIL' && email)) {
+                            remindersToCreate.push({
+                                type,
+                                timeMinutes: mins,
+                                status: 'PENDING'
+                            });
+                        }
                     }
                 });
             } catch (e) {
@@ -238,11 +246,8 @@ export async function POST(req: Request) {
             }
         } else {
             // Default 1 day before if no config found
-            remindersToCreate.push({
-                type: (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL',
-                timeMinutes: 1440,
-                status: 'PENDING'
-            });
+            if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: 1440, status: 'PENDING' });
+            if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: 1440, status: 'PENDING' });
         }
 
         // 7. Create the appointment with assigned professional
@@ -266,20 +271,41 @@ export async function POST(req: Request) {
         });
 
         try {
-            const success = await sendImmediateNotification(
-                { ...appointment, patient: { name, phone, email } }, 
-                tenant, 
-                (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL',
-                true  // patient data is already plain-text from the booking form
-            );
+            // Send to WhatsApp if phone exists
+            if (phone) {
+                const wsSuccess = await sendImmediateNotification(
+                    { ...appointment, patient: { name, phone, email } }, 
+                    tenant, 
+                    'WHATSAPP',
+                    true
+                );
+                if (wsSuccess) {
+                    const wsReminder = appointment.reminders.find((r: any) => r.timeMinutes === 0 && r.type === 'WHATSAPP');
+                    if (wsReminder) {
+                        await prisma.reminder.update({
+                            where: { id: wsReminder.id },
+                            data: { status: 'SENT' }
+                        });
+                    }
+                }
+            }
 
-            if (success) {
-                const immediateReminder = appointment.reminders.find((r: any) => r.timeMinutes === 0);
-                if (immediateReminder) {
-                    await prisma.reminder.update({
-                        where: { id: immediateReminder.id },
-                        data: { status: 'SENT' }
-                    });
+            // Send to Email if email exists
+            if (email) {
+                const mailSuccess = await sendImmediateNotification(
+                    { ...appointment, patient: { name, phone, email } }, 
+                    tenant, 
+                    'EMAIL',
+                    true
+                );
+                if (mailSuccess) {
+                    const mailReminder = appointment.reminders.find((r: any) => r.timeMinutes === 0 && r.type === 'EMAIL');
+                    if (mailReminder) {
+                        await prisma.reminder.update({
+                            where: { id: mailReminder.id },
+                            data: { status: 'SENT' }
+                        });
+                    }
                 }
             }
         } catch (e) {
