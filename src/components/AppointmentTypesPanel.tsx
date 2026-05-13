@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,7 +44,7 @@ const PREDEFINED_COLORS = [
     '#2563EB', '#7C3AED', '#DB2777', '#F59E0B', '#10B981', '#EF4444', '#0EA5E9', '#6366F1',
 ];
 
-const CATEGORY_ICONS: Record<string, {id: string, name: string, svg: (props: any) => JSX.Element}[]> = {
+const CATEGORY_ICONS: Record<string, {id: string, name: string, svg: (props: any) => React.ReactNode}[]> = {
   Peluquería: [
     { id: 'peluqueria-1', name: 'Tijeras', svg: (props: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg> },
     { id: 'peluqueria-2', name: 'Peine', svg: (props: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 12h16"/><path d="M8 12v6"/><path d="M12 12v6"/><path d="M16 12v6"/></svg> },
