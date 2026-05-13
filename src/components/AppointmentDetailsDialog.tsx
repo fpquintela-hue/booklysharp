@@ -349,7 +349,7 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                 setEditDate('');
             }
         }}>
-            <DialogContent className="max-w-[100vw] w-full max-h-[90dvh] m-0 sm:max-w-lg p-0 overflow-hidden border-none sm:shadow-2xl bg-background rounded-t-2xl sm:rounded-3xl animate-in zoom-in-95 duration-300 flex flex-col">
+            <DialogContent showCloseButton={false} className="max-w-[100vw] w-full max-h-[90dvh] m-0 sm:max-w-lg p-0 overflow-hidden border-none sm:shadow-2xl bg-background rounded-t-2xl sm:rounded-3xl animate-in zoom-in-95 duration-300 flex flex-col">
                 <DialogTitle className="sr-only">{t('modal.details_title')}</DialogTitle>
 
                 {isEditing ? (

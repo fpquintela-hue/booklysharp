@@ -19,7 +19,7 @@ import { OnboardingGuide } from '@/components/OnboardingGuide';
 import {
   CalendarDays, Users, LayoutDashboard, BarChart3, Globe,
   Settings, LogOut, Search, Bell, Plus, ChevronLeft, ChevronRight, HelpCircle,
-  RefreshCw
+  RefreshCw, CheckCircle2, XCircle
 } from 'lucide-react';
 
 // ── date-fns ─────────────────────────────────────────────────────────────────
@@ -507,7 +507,15 @@ export default function TenantCalendarPage() {
                             {format(new Date(appt.start), 'HH:mm')} · {appt.type || 'Consulta'}
                           </p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-slate-300 flex-shrink-0" />
+                        <div className="flex-shrink-0">
+                          {appt.status === 'COMPLETED' ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                          ) : appt.status === 'NO_SHOW' ? (
+                            <XCircle className="h-5 w-5 text-rose-500" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-slate-300" />
+                          )}
+                        </div>
                       </div>
                     );
                   })}
