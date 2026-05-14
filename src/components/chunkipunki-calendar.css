@@ -216,7 +216,14 @@
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header,
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header-content {
-    min-height: 70px !important; /* increased slightly to be safe */
+    min-height: 90px !important; 
+}
+.chunkipunki-theme.schedule-settings-theme .rbc-header {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-gutter .rbc-timeslot-group {
     font-size: 0.65rem !important;

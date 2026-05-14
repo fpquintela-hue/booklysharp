@@ -102,13 +102,14 @@ export function ScheduleSettingsPanel() {
 
     const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
         return (
-            <div className="flex flex-col items-center justify-center h-full pt-1 pb-1 gap-1">
-                <span className="text-[10px] md:text-xs uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400">
+            <div className="flex flex-col items-center justify-center py-2 gap-2 w-full h-full">
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.15em] font-black text-slate-400 dark:text-slate-500">
                     {label}
                 </span>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
                             setManualDayTarget(getDay(date));
                             setManualDayLabel(label);
                             setManualStartTime(openTime);
@@ -116,17 +117,20 @@ export function ScheduleSettingsPanel() {
                             setManualAllDay(false);
                             setManualDayOpen(true);
                         }}
-                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                        className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-primary/10 hover:text-primary rounded-lg transition-all border border-transparent hover:border-primary/20 group"
                         title="Configurar cierre manual"
                     >
-                        <Clock className="w-3.5 h-3.5 text-slate-400 hover:text-primary transition-colors" />
+                        <Clock className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
                     </button>
                     <button 
-                        onClick={() => handleQuickBlockAllDay(date)}
-                        className="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg transition-colors group"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickBlockAllDay(date);
+                        }}
+                        className="p-1.5 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-lg transition-all border border-transparent hover:border-rose-500/20 group"
                         title="Bloquear todo el día"
                     >
-                        <CalendarOff className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500 transition-colors" />
+                        <CalendarOff className="w-4 h-4 text-rose-300 group-hover:text-rose-500 transition-colors" />
                     </button>
                 </div>
             </div>
@@ -330,7 +334,7 @@ export function ScheduleSettingsPanel() {
 
             {/* Calendar Container */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-                <div className="bg-slate-50/30 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 relative overflow-hidden chunkipunki-theme schedule-settings-theme" style={{ height: '500px' }}>
+                <div className="bg-slate-50/30 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 relative chunkipunki-theme schedule-settings-theme" style={{ height: '500px' }}>
                     <DnDCalendar
                         localizer={localizer}
                         culture={lang === 'gl' ? 'gl' : 'es'}
