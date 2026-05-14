@@ -27,6 +27,7 @@ import { AppearanceSettingsPanel } from '@/components/AppearanceSettingsPanel';
 import { SecuritySettingsPanel } from '@/components/SecuritySettingsPanel';
 import { RemindersSettingsPanel } from '@/components/RemindersSettingsPanel';
 import { SubscriptionSettingsPanel } from '@/components/SubscriptionSettingsPanel';
+import { StaffSettingsPanel } from '@/components/StaffSettingsPanel';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 
@@ -43,7 +44,7 @@ export default function SettingsPage() {
 
     const searchParams = useSearchParams();
     const queryTab = searchParams?.get('tab');
-    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'reminders' | 'subscription'>(
+    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'reminders' | 'subscription' | 'staff'>(
         isExpired ? 'subscription' : (queryTab as any) || 'appearance'
     );
 
@@ -56,8 +57,8 @@ export default function SettingsPage() {
             { id: 'citas', label: 'Servicios', icon: CalendarDays },
             { id: 'horarios', label: t('settings.tab_horarios'), icon: Calendar },
             { id: 'profesionais', label: 'Profesionales', icon: Users },
+            { id: 'staff', label: 'Staff', icon: Users },
             { id: 'reminders', label: 'Recordatorios', icon: Bell },
-            { id: 'email', label: 'Email', icon: Mail },
             { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
         ] : []),
     ];
@@ -115,6 +116,7 @@ export default function SettingsPage() {
                     {activeTab === 'reminders' && <RemindersSettingsPanel />}
                     {activeTab === 'email' && <CustomNotificationsPanel />}
                     {activeTab === 'whatsapp' && <WhatsAppSettingsPanel />}
+                    {activeTab === 'staff' && <StaffSettingsPanel />}
                 </div>
             </main>
         </div>

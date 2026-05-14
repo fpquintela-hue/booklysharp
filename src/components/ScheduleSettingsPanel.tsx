@@ -91,26 +91,44 @@ export function ScheduleSettingsPanel() {
     // As per user request, height is slightly reduced but CSS handles the compact flex
     const calendarHeight = Math.max(350, (Math.ceil(totalMinutes / 15) * 50) * 0.4);
 
+    const handleQuickBlockAllDay = (date: Date) => {
+        const dayOfWeek = getDay(date);
+        const newSlot: BlockedSlot = { dayOfWeek, startTime: openTime, endTime: closeTime };
+        const newSlots = [...slots, newSlot];
+        setSlots(newSlots);
+        saveSettingsToApi(newSlots);
+        toast.success(`Día bloqueado por completo`);
+    };
+
     const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
         return (
             <div className="flex flex-col items-center justify-center h-full pt-1 pb-1 gap-1">
                 <span className="text-[10px] md:text-xs uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400">
                     {label}
                 </span>
-                <button 
-                    onClick={() => {
-                        setManualDayTarget(getDay(date));
-                        setManualDayLabel(label);
-                        setManualStartTime(openTime);
-                        setManualEndTime(closeTime);
-                        setManualAllDay(false);
-                        setManualDayOpen(true);
-                    }}
-                    className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors"
-                    title="Configurar cierre manual"
-                >
-                    <Clock className="w-3.5 h-3.5 text-slate-400 hover:text-primary transition-colors" />
-                </button>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={() => {
+                            setManualDayTarget(getDay(date));
+                            setManualDayLabel(label);
+                            setManualStartTime(openTime);
+                            setManualEndTime(closeTime);
+                            setManualAllDay(false);
+                            setManualDayOpen(true);
+                        }}
+                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                        title="Configurar cierre manual"
+                    >
+                        <Clock className="w-3.5 h-3.5 text-slate-400 hover:text-primary transition-colors" />
+                    </button>
+                    <button 
+                        onClick={() => handleQuickBlockAllDay(date)}
+                        className="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg transition-colors group"
+                        title="Bloquear todo el día"
+                    >
+                        <CalendarOff className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-500 transition-colors" />
+                    </button>
+                </div>
             </div>
         );
     };
