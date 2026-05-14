@@ -711,8 +711,8 @@ export default function CalendarView({
                 messages={sharedMessages}
                 min={minDate}
                 max={maxDate}
-                step={gridStep}
-                timeslots={1}
+                step={30}
+                timeslots={2}
                 allDaySlot={false}
                 formats={calendarFormats}
                 slotPropGetter={(date: Date, resourceId?: string | number) =>

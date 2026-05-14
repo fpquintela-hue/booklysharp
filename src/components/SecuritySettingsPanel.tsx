@@ -60,8 +60,8 @@ export function SecuritySettingsPanel() {
                 <p className="text-slate-500 font-medium">{t('settings.security_desc')}</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
-                <div className="lg:col-span-1">
+            <div className="flex flex-col gap-8 pt-4 max-w-2xl">
+                <div>
                     <div className="p-8 rounded-[2.5rem] bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 space-y-4">
                         <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-xl shadow-emerald-500/20">
                             <ShieldCheck className="w-7 h-7" />
@@ -75,7 +75,7 @@ export function SecuritySettingsPanel() {
                     </div>
                 </div>
 
-                <div className="lg:col-span-2">
+                <div>
                     <form onSubmit={handlePasswordChange} className="space-y-6">
                         <div className="bg-white dark:bg-slate-800/50 p-8 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800 space-y-6 shadow-sm">
                             <div className="space-y-5">

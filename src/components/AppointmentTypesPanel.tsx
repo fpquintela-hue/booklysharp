@@ -256,9 +256,9 @@ export function AppointmentTypesPanel() {
                 </button>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-4 space-y-6 text-slate-800 dark:text-slate-200">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-sm transition-all hover:shadow-md">
+            <div className="flex flex-col gap-6 items-start max-w-5xl">
+                <div className="w-full space-y-6 text-slate-800 dark:text-slate-200">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-sm transition-all hover:shadow-md w-full sm:max-w-md">
                         <p className="text-blue-700 dark:text-blue-400 font-bold text-sm mb-1 uppercase tracking-widest">Citas este mes</p>
                         <p className="text-5xl font-black text-blue-800 dark:text-blue-300 tracking-tighter">{stats.count}</p>
                         <div className="flex items-center gap-1 mt-2">
@@ -268,7 +268,7 @@ export function AppointmentTypesPanel() {
                     </div>
                 </div>
 
-                <div className="lg:col-span-8">
+                <div className="w-full">
                     <section className="bg-white dark:bg-slate-900/50 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800">
                         <div className="flex justify-between items-center mb-8">
                             <div className="flex items-center gap-3">

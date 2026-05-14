@@ -34,6 +34,7 @@ import { BookingAdvancePanel } from './BookingAdvancePanel';
 import { useSettings } from '@/context/settings-context';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
+import { StaffSettingsPanel } from './StaffSettingsPanel';
 
 interface SettingsDialogProps {
     open?: boolean;
@@ -49,7 +50,7 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
     const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
     const setOpen = controlledOnOpenChange !== undefined ? controlledOnOpenChange : setInternalOpen;
 
-    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp'>('appearance');
+    const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'staff'>('appearance');
     const { settings, refreshSettings } = useSettings();
     const { t, lang } = useTranslation();
 
@@ -198,6 +199,20 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
                                 >
                                     <Users className="w-4 h-4" />
                                     {t('settings.tab_professionals')}
+                                </button>
+                            )}
+                             {user?.role === 'ADMIN' && (
+                                <button
+                                    onClick={() => setActiveTab('staff')}
+                                    className={cn(
+                                        "flex items-center justify-start gap-3 py-3 px-4 rounded-xl text-sm font-semibold transition-all",
+                                        activeTab === 'staff'
+                                            ? "bg-white dark:bg-slate-800 text-primary dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
+                                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50 dark:hover:text-slate-300 dark:hover:bg-slate-800/50"
+                                    )}
+                                >
+                                    <Users className="w-4 h-4" />
+                                    Staff
                                 </button>
                             )}
                              {user?.role === 'ADMIN' && (
@@ -539,6 +554,18 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
                                 </div>
                                 <div className="pt-2">
                                     <ProfessionalsPanel />
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'staff' && user?.role === 'ADMIN' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1 flex flex-col">
+                                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Staff de la App</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Gestión de accesos y permisos al sistema</p>
+                                </div>
+                                <div className="pt-2 flex-1 relative min-h-[500px]">
+                                    <StaffSettingsPanel />
                                 </div>
                             </div>
                         )}

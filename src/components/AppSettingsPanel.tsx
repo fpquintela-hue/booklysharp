@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useSettings } from '@/context/settings-context';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/mock-service';
-import { Loader2, Check, Save } from 'lucide-react';
+import { Loader2, Check, Save, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
+import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
 
 export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
     const { settings, refreshSettings } = useSettings();
@@ -14,6 +17,17 @@ export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
     const [gridStep, setGridStep] = useState(settings.gridStep || '30');
     const [timezone, setTimezone] = useState(settings.timezone || 'Europe/Madrid');
     const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
+    const { updateSettings } = useSettings();
+    const { theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const logoToUse = mounted && theme === 'dark' ? '/logo_booklymo.png' : '/logo_bookly1.png';
+    const currentLogoUrl = settings.logoUrl && settings.logoUrl !== '/logo_bookly1.png' && settings.logoUrl !== '/logo_booklymo.png' ? settings.logoUrl : logoToUse;
 
     useEffect(() => {
         if (settings) {
@@ -67,6 +81,68 @@ export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
                     </div>
                     
                     <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 space-y-8 transition-colors">
+                        {/* Logo */}
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">Logo de la Aplicación</label>
+                            <div className="flex flex-col items-center sm:items-start gap-6 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl">
+                                <label className="relative group cursor-pointer inline-block">
+                                    <div className="w-32 h-32 rounded-3xl bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group-hover:border-primary group-hover:shadow-xl group-hover:shadow-primary/10">
+                                        {settings.logoUrl ? (
+                                            <img src={currentLogoUrl} alt="Logo actual" className="w-full h-full object-contain p-4" />
+                                        ) : (
+                                            <div className="text-slate-400 dark:text-slate-600 flex flex-col items-center gap-2">
+                                                <Globe className="w-8 h-8" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Subir Logo</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="text-white text-[10px] font-black uppercase tracking-widest">Cambiar Logo</span>
+                                        </div>
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            const formData = new FormData();
+                                            formData.append('logo', file);
+                                            try {
+                                                const res = await fetch('/api/settings/logo', {
+                                                    method: 'POST',
+                                                    headers: { 'x-tenant-id': user?.tenantId || '' },
+                                                    body: formData
+                                                });
+                                                if (res.ok) {
+                                                    const data = await res.json();
+                                                    updateSettings({ logoUrl: data.logoUrl });
+                                                    toast.success('Logo actualizado correctamente');
+                                                } else {
+                                                    toast.error('Error al subir el logo');
+                                                }
+                                            } catch (error) {
+                                                toast.error('Error de conexión');
+                                            }
+                                        }}
+                                    />
+                                </label>
+                                {(settings.logoUrl && settings.logoUrl !== '/logo_bookly1.png' && settings.logoUrl !== '/logo_booklymo.png') && (
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-8 rounded-lg px-4 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-[10px] font-black uppercase tracking-widest"
+                                        onClick={async () => {
+                                            await updateSettings({ logoUrl: '' });
+                                            toast.info('Restaurado logo por defecto');
+                                        }}
+                                    >
+                                        Eliminar Personalización
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
                         {/* App Title */}
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">Nombre Comercial</label>

@@ -47,7 +47,6 @@ export function Sidebar() {
     const navLinks = [
         { href: base,               icon: CalendarDays,    title: 'Calendario',   always: true  },
         { href: `${base}/patients`, icon: Users,           title: 'Clientes',    always: true  },
-        { href: `${base}/userapp`,  icon: LayoutDashboard, title: 'Staff',        admin: true, hideOnIndividual: true   },
         { href: `${base}/stats`,    icon: BarChart3,       title: 'Estadísticas', admin: true   },
         { href: `${base}/portal`,   icon: Globe,           title: 'Portal web',   admin: true   },
     ];
