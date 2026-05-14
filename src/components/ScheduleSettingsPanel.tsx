@@ -321,7 +321,7 @@ export function ScheduleSettingsPanel() {
                         onEventDrop={handleEventDrop}
                         onEventResize={handleEventResize}
                         onSelectEvent={handleSelectEvent}
-                        step={30}
+                        step={15}
                         timeslots={2}
                         min={calendarMin}
                         max={calendarMax}
