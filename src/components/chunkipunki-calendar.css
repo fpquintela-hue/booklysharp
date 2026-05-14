@@ -216,7 +216,8 @@
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header,
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header-content {
-    min-height: 90px !important; 
+    min-height: 120px !important; 
+    overflow: visible !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-header {
     height: 100% !important;
@@ -224,6 +225,13 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 30 !important;
+}
+.chunkipunki-theme.schedule-settings-theme .rbc-time-header {
+    z-index: 20 !important;
+    position: relative !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-gutter .rbc-timeslot-group {
     font-size: 0.65rem !important;

@@ -102,7 +102,7 @@ export function ScheduleSettingsPanel() {
 
     const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
         return (
-            <div className="flex flex-col items-center justify-center py-2 gap-2 w-full h-full">
+            <div className="flex flex-col items-center justify-center py-4 gap-3 w-full h-full min-h-[100px]">
                 <span className="text-[10px] md:text-xs uppercase tracking-[0.15em] font-black text-slate-400 dark:text-slate-500">
                     {label}
                 </span>
