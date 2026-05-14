@@ -306,7 +306,7 @@ export function ScheduleSettingsPanel() {
 
             {/* Calendar Container */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-                <div className="bg-slate-50/30 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 relative overflow-hidden chunkipunki-theme schedule-settings-theme" style={{ height: `${calendarHeight}px` }}>
+                <div className="bg-slate-50/30 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 relative overflow-hidden chunkipunki-theme schedule-settings-theme" style={{ height: '500px' }}>
                     <DnDCalendar
                         localizer={localizer}
                         culture={lang === 'gl' ? 'gl' : 'es'}
@@ -321,12 +321,14 @@ export function ScheduleSettingsPanel() {
                         onEventDrop={handleEventDrop}
                         onEventResize={handleEventResize}
                         onSelectEvent={handleSelectEvent}
-                        step={15}
+                        step={30}
                         timeslots={2}
                         min={calendarMin}
                         max={calendarMax}
-                        style={{ height: `${calendarHeight}px` }}
+                        style={{ height: '500px' }}
                         formats={{
+                            timeGutterFormat: (date: Date, culture?: string, localizer?: any) => 
+                                date.getMinutes() === 0 ? localizer?.format(date, 'HH:mm', culture) : '',
                             dayFormat: (date: Date, culture?: string, localizer?: any) => {
                                 const formatted = localizer?.format(date, 'EEEE', culture) || '';
                                 return formatted.charAt(0).toUpperCase() + formatted.slice(1);

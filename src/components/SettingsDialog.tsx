@@ -215,20 +215,7 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
                                     Staff
                                 </button>
                             )}
-                             {user?.role === 'ADMIN' && (
-                                <button
-                                    onClick={() => setActiveTab('email')}
-                                    className={cn(
-                                        "flex items-center justify-start gap-3 py-3 px-4 rounded-xl text-sm font-semibold transition-all",
-                                        activeTab === 'email'
-                                            ? "bg-white dark:bg-slate-800 text-primary dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
-                                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50 dark:hover:text-slate-300 dark:hover:bg-slate-800/50"
-                                    )}
-                                >
-                                    <Bell className="w-4 h-4" />
-                                    Email
-                                </button>
-                            )}
+
                             {user?.role === 'ADMIN' && (
                                 <button
                                     onClick={() => setActiveTab('whatsapp')}
@@ -570,17 +557,7 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
                             </div>
                         )}
 
-                        {activeTab === 'email' && user?.role === 'ADMIN' && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1 flex flex-col">
-                                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Configuración de Email</h3>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Configura tu servidor SMTP personalizado para el envío de correos</p>
-                                </div>
-                                <div className="pt-2 flex-1">
-                                    <CustomNotificationsPanel />
-                                </div>
-                            </div>
-                        )}
+
 
                         {activeTab === 'whatsapp' && user?.role === 'ADMIN' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1 flex flex-col">
