@@ -102,11 +102,11 @@ export function ScheduleSettingsPanel() {
 
     const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
         return (
-            <div className="flex flex-col items-center justify-center py-4 gap-3 w-full h-full min-h-[100px]">
-                <span className="text-[10px] md:text-xs uppercase tracking-[0.15em] font-black text-slate-400 dark:text-slate-500">
+            <div className="flex flex-col items-center justify-center py-4 gap-3 w-full h-full min-h-[100px] relative z-50">
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-black text-slate-500 dark:text-slate-400">
                     {label}
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     <button 
                         onClick={(e) => {
                             e.stopPropagation();
@@ -117,20 +117,20 @@ export function ScheduleSettingsPanel() {
                             setManualAllDay(false);
                             setManualDayOpen(true);
                         }}
-                        className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-primary/10 hover:text-primary rounded-lg transition-all border border-transparent hover:border-primary/20 group"
+                        className="p-2 bg-slate-200 dark:bg-slate-700 hover:bg-primary text-slate-600 dark:text-slate-300 hover:text-white rounded-xl transition-all shadow-sm active:scale-90"
                         title="Configurar cierre manual"
                     >
-                        <Clock className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+                        <Clock className="w-4 h-4" />
                     </button>
                     <button 
                         onClick={(e) => {
                             e.stopPropagation();
                             handleQuickBlockAllDay(date);
                         }}
-                        className="p-1.5 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-lg transition-all border border-transparent hover:border-rose-500/20 group"
+                        className="p-2 bg-rose-100 dark:bg-rose-900/40 hover:bg-rose-500 text-rose-600 dark:text-rose-400 hover:text-white rounded-xl transition-all shadow-sm active:scale-90"
                         title="Bloquear todo el día"
                     >
-                        <CalendarOff className="w-4 h-4 text-rose-300 group-hover:text-rose-500 transition-colors" />
+                        <CalendarOff className="w-4 h-4" />
                     </button>
                 </div>
             </div>

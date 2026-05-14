@@ -218,6 +218,7 @@
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header-content {
     min-height: 120px !important; 
     overflow: visible !important;
+    background: transparent !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-header {
     height: 100% !important;
@@ -227,11 +228,20 @@
     justify-content: center !important;
     overflow: visible !important;
     position: relative !important;
-    z-index: 30 !important;
+    z-index: 50 !important;
+    background: transparent !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-header {
-    z-index: 20 !important;
+    z-index: 40 !important;
     position: relative !important;
+}
+/* Completely hide the all-day row and its container in schedule settings */
+.chunkipunki-theme.schedule-settings-theme .rbc-allday-cell,
+.chunkipunki-theme.schedule-settings-theme .rbc-time-header-content > .rbc-row + .rbc-row {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    visibility: hidden !important;
 }
 .chunkipunki-theme.schedule-settings-theme .rbc-time-gutter .rbc-timeslot-group {
     font-size: 0.65rem !important;
