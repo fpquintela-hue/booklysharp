@@ -93,14 +93,36 @@ export function ScheduleSettingsPanel() {
 
     const handleQuickBlockAllDay = (date: Date) => {
         const dayOfWeek = getDay(date);
-        const newSlot: BlockedSlot = { dayOfWeek, startTime: openTime, endTime: closeTime };
-        const newSlots = [...slots, newSlot];
+        const isFullDayBlocked = slots.some(s => 
+            s.dayOfWeek === dayOfWeek && 
+            s.startTime === openTime && 
+            s.endTime === closeTime
+        );
+
+        let newSlots;
+        if (isFullDayBlocked) {
+            newSlots = slots.filter(s => 
+                !(s.dayOfWeek === dayOfWeek && s.startTime === openTime && s.endTime === closeTime)
+            );
+            toast.success(`Día desbloqueado`);
+        } else {
+            const newSlot: BlockedSlot = { dayOfWeek, startTime: openTime, endTime: closeTime };
+            newSlots = [...slots, newSlot];
+            toast.success(`Día bloqueado por completo`);
+        }
+        
         setSlots(newSlots);
         saveSettingsToApi(newSlots);
-        toast.success(`Día bloqueado por completo`);
     };
 
     const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
+        const dayOfWeek = getDay(date);
+        const isFullDayBlocked = slots.some(s => 
+            s.dayOfWeek === dayOfWeek && 
+            s.startTime === openTime && 
+            s.endTime === closeTime
+        );
+
         return (
             <div className="flex flex-col items-center justify-center py-4 gap-3 w-full h-full min-h-[100px] relative z-50">
                 <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-black text-slate-500 dark:text-slate-400">
@@ -127,8 +149,13 @@ export function ScheduleSettingsPanel() {
                             e.stopPropagation();
                             handleQuickBlockAllDay(date);
                         }}
-                        className="p-2 bg-rose-100 dark:bg-rose-900/40 hover:bg-rose-500 text-rose-600 dark:text-rose-400 hover:text-white rounded-xl transition-all shadow-sm active:scale-90"
-                        title="Bloquear todo el día"
+                        className={cn(
+                            "p-2 rounded-xl transition-all shadow-sm active:scale-90",
+                            isFullDayBlocked 
+                                ? "bg-rose-500 text-white hover:bg-rose-600" 
+                                : "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white"
+                        )}
+                        title={isFullDayBlocked ? "Desbloquear día" : "Bloquear todo el día"}
                     >
                         <CalendarOff className="w-4 h-4" />
                     </button>
