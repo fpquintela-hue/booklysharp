@@ -131,7 +131,8 @@ export function AppearanceSettingsPanel() {
 
                 {/* Section: ESTILO DEL CALENDARIO */}
                 <section>
-                    <h2 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">{t('settings.calendar_style')}</h2>            {/* MODERNO */}
+                    <h2 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">{t('settings.calendar_style')}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div 
                             className={cn(
                                 "relative p-6 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer hover:shadow-sm",
