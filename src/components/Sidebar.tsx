@@ -69,7 +69,7 @@ export function Sidebar() {
             {/* Nav links */}
             <nav className="flex flex-col gap-4">
                 {navLinks
-                    .filter(l => (l.always || (l.admin && isAdmin)) && !(l.hideOnIndividual && isIndividualPlan))
+                    .filter(l => (l.always || (l.admin && isAdmin)))
                     .map(l => {
                         const Icon = l.icon;
                         const isActive = l.href === base
