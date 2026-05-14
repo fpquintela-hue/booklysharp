@@ -52,7 +52,6 @@ export function StaffSettingsPanel() {
 
     const handleDeleteClick = (u: User) => {
         if (u.id === currentUser?.id) {
-            alert("No puedes eliminar tu propio usuario.");
             return;
         }
         setUserToDelete(u);
@@ -71,107 +70,117 @@ export function StaffSettingsPanel() {
     const isAdmin = currentUser?.role === 'ADMIN';
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-background transition-colors duration-300">
-            <div className="max-w-6xl mx-auto w-full space-y-8 p-8">
-                <header className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-primary/10 p-3 rounded-2xl">
-                            <UserCog className="w-8 h-8 text-primary" />
+        <div className="flex-1 flex flex-col min-h-screen bg-transparent">
+            <div className="max-w-7xl mx-auto w-full space-y-12 p-4 md:p-8">
+                {/* Header Section */}
+                <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800">
+                    <div className="space-y-4 max-w-2xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                            <UserCog className="w-3 h-3" />
+                            Seguridad de Organización
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-black tracking-tighter text-primary dark:text-primary-light uppercase leading-none">
-                                Staff de la App
-                            </h1>
-                            <p className="text-muted-foreground text-sm font-medium mt-1 uppercase tracking-widest">
-                                Gestión de accesos y permisos
-                            </p>
-                        </div>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                            Miembros del <span className="text-primary">Staff</span>
+                        </h1>
+                        <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                            Aquí configuras el acceso a la aplicación a los miembros de tu organización, definiendo sus roles y niveles de permiso.
+                        </p>
                     </div>
                     {isAdmin && (
-                        <UserEditDialog onUserSaved={loadUsers} />
+                        <div className="shrink-0 pb-1">
+                            <UserEditDialog onUserSaved={loadUsers} />
+                        </div>
                     )}
                 </header>
 
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <Loader2 className="h-10 w-10 animate-spin text-primary opacity-50" />
-                        <p className="text-muted-foreground font-bold tracking-widest text-[10px] uppercase">Cargando Usuarios...</p>
+                    <div className="flex flex-col items-center justify-center py-32 gap-6 animate-pulse">
+                        <div className="w-16 h-16 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Sincronizando Accesos</span>
                     </div>
                 ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {users.map(u => (
-                            <Card key={u.id} className="glass-panel border-white/10 hover:shadow-xl transition-all relative overflow-hidden group hover:-translate-y-1 duration-300">
-                                {/* Accent stripe */}
-                                <div className={cn(
-                                    "absolute top-0 left-0 w-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity",
-                                    u.role === 'ADMIN' ? "bg-primary" : "bg-slate-400"
-                                )} />
-
-                                <CardContent className="pt-8">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="bg-primary/5 p-2 rounded-xl">
-                                                <UserIcon className="w-5 h-5 text-primary" />
-                                            </div>
-                                            <div>
-                                                <div className="text-xl font-black text-foreground group-hover:text-primary transition-colors">
-                                                    {u.name}
-                                                </div>
-                                                <div className="flex items-center gap-1.5 mt-0.5">
-                                                    {u.role === 'ADMIN' ? (
-                                                        <div className="flex items-center gap-1 text-[10px] uppercase font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                                                            <ShieldCheck className="w-3 h-3" />
-                                                            Administrador
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-slate-500 bg-slate-500/10 px-2 py-0.5 rounded-full">
-                                                            <Shield className="w-3 h-3" />
-                                                            Usuario
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                            <div 
+                                key={u.id} 
+                                className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-2"
+                            >
+                                {/* Role Badge */}
+                                <div className="absolute top-8 right-8">
+                                    {u.role === 'ADMIN' ? (
+                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/5 border border-amber-500/10 text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                                            <ShieldCheck className="w-3 h-3" />
+                                            Admin
                                         </div>
+                                    ) : (
+                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-500/5 border border-slate-500/10 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                                            <UserIcon className="w-3 h-3" />
+                                            Staff
+                                        </div>
+                                    )}
+                                </div>
 
-                                        {isAdmin && (
-                                            <div className="flex gap-1">
-                                                <UserEditDialog user={u} onUserSaved={loadUsers} />
-                                                {u.id !== currentUser?.id && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleDeleteClick(u)}
-                                                        className="rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                )}
+                                {/* User Info */}
+                                <div className="flex flex-col items-center text-center space-y-4">
+                                    <div className="relative">
+                                        <div className="w-24 h-24 rounded-[2rem] bg-slate-50 dark:bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform duration-500 border border-slate-100 dark:border-slate-700 shadow-inner">
+                                            <UserIcon className="w-10 h-10 text-slate-400 dark:text-slate-600 group-hover:text-primary transition-colors" />
+                                        </div>
+                                        {u.id === currentUser?.id && (
+                                            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-xl border-4 border-white dark:border-slate-900 shadow-lg">
+                                                <div className="w-2 h-2 rounded-full bg-white animate-ping" />
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="space-y-3 pt-4 border-t border-white/5 mt-4">
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Mail className="w-4 h-4 text-muted-foreground" />
-                                            <span className="font-medium text-slate-600 dark:text-slate-400 truncate">
-                                                {u.email}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">
-                                            <span className="opacity-50">ID:</span> {u.id}
-                                        </div>
+                                    <div className="space-y-1">
+                                        <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+                                            {u.name}
+                                        </h3>
+                                        <p className="text-sm font-medium text-slate-400 flex items-center justify-center gap-2">
+                                            <Mail className="w-3.5 h-3.5" />
+                                            {u.email}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Metadata & Actions */}
+                                <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">Identificador</span>
+                                        <code className="text-[10px] font-mono text-slate-400 mt-1 opacity-70 truncate max-w-[120px]">
+                                            {u.id.substring(0, 12)}...
+                                        </code>
                                     </div>
 
-                                    <div className="mt-6">
-                                        <div className="bg-white/50 dark:bg-white/5 rounded-xl p-3 text-xs font-semibold text-center text-muted-foreground border border-white/5 italic">
-                                            {u.id === currentUser?.id ? 'Tu sesión actual' : 'Usuario registrado'}
+                                    {isAdmin && (
+                                        <div className="flex items-center gap-2">
+                                            <UserEditDialog user={u} onUserSaved={loadUsers} />
+                                            {u.id !== currentUser?.id && (
+                                                <button
+                                                    onClick={() => handleDeleteClick(u)}
+                                                    className="p-2 rounded-xl text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all active:scale-90"
+                                                    title="Eliminar Acceso"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            )}
                                         </div>
+                                    )}
+                                </div>
+
+                                {u.id === currentUser?.id && (
+                                    <div className="mt-6 py-2 px-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold text-emerald-600 text-center uppercase tracking-widest">
+                                        Sesión Activa
                                     </div>
-                                </CardContent>
-                            </Card>
+                                )}
+                            </div>
                         ))}
                     </div>
-                )}
+                )
+            }
             </div>
 
             {/* Modal de Confirmación de Borrado */}
