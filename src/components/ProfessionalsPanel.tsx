@@ -199,11 +199,19 @@ export function ProfessionalsPanel() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto w-full">
-            {/* Header / Top Bar like layout */}
-            <div className="flex justify-between items-center mb-4">
-                <div>
-                    <h2 className="font-black text-2xl text-slate-900 dark:text-white tracking-tight uppercase italic">Configuración de Elección</h2>
-                    <p className="text-slate-500 font-medium text-sm">Gestiona cómo tus clientes interactúan con tus especialistas durante el proceso de reserva.</p>
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <User className="w-3 h-3" />
+                        Equipo de Especialistas
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Tus <span className="text-primary">Profesionales</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Gestiona el equipo de profesionales de tu centro, configura sus perfiles públicos y vincula sus calendarios para una sincronización total.
+                    </p>
                 </div>
                 {!showAddForm && (
                      <Button
@@ -214,13 +222,13 @@ export function ProfessionalsPanel() {
                              }
                              setShowAddForm(true); setEditingId(null); resetForm();
                          }}
-                         className="bg-primary hover:bg-primary-container text-white px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-all shadow-lg active:scale-95"
+                         className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all active:scale-95 group"
                      >
-                         <Plus className="w-5 h-5" />
-                         Añadir Profesional
+                         <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+                         <span className="uppercase tracking-widest text-xs">Añadir Profesional</span>
                      </Button>
                 )}
-            </div>
+            </header>
 
             {/* Professionals List Section */}
             <section className="space-y-6">

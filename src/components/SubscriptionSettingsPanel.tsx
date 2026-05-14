@@ -84,14 +84,21 @@ export function SubscriptionSettingsPanel() {
     
     return (
         <div className="max-w-4xl space-y-8 animate-in fade-in duration-300">
-            <div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">
-                    Suscripción y Pagos
-                </h3>
-                <p className="text-slate-500 font-medium">
-                    Gestiona tu plan activo, métodos de pago y datos de facturación.
-                </p>
-            </div>
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <CreditCard className="w-3 h-3" />
+                        Estado del Servicio
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Tu <span className="text-primary">Suscripción</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Revisa el estado de tu plan actual, gestiona tus métodos de pago y consulta el historial de facturación de tu plataforma.
+                    </p>
+                </div>
+            </header>
 
             {/* ERROR / EXPIRED BANNER */}
             {isExpired && (

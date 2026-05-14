@@ -3,7 +3,7 @@
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/auth-context';
 import { userService } from '@/lib/mock-service';
-import { Check, Square, Monitor, Globe } from 'lucide-react';
+import { Check, Square, Monitor, Globe, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -38,10 +38,21 @@ export function AppearanceSettingsPanel() {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col w-full h-full">
 
             {/* TopAppBar Equivalent */}
-            <div className="flex flex-col mb-10 px-2 lg:px-8">
-                <h1 className="text-2xl font-black text-primary dark:text-blue-400 uppercase tracking-tight">{t('settings.tab_appearance')}</h1>
-                <p className="text-sm text-slate-500 font-medium">{t('settings.appearance_desc')}</p>
-            </div>
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10 px-2 lg:px-8">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <Palette className="w-3 h-3" />
+                        Identidad Visual
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Apariencia de la <span className="text-primary">Interfaz</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Personaliza cómo se ve tu plataforma, desde el esquema de colores hasta el modo de visualización del calendario.
+                    </p>
+                </div>
+            </header>
 
             <div className="px-2 lg:px-8 space-y-12 pb-24 max-w-5xl">
                 {/* Section: TEMA VISUAL */}
@@ -120,9 +131,7 @@ export function AppearanceSettingsPanel() {
 
                 {/* Section: ESTILO DEL CALENDARIO */}
                 <section>
-                    <h2 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">{t('settings.calendar_style')}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* MODERNO */}
+                    <h2 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">{t('settings.calendar_style')}</h2>            {/* MODERNO */}
                         <div 
                             className={cn(
                                 "relative p-6 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer hover:shadow-sm",

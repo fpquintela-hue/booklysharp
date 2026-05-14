@@ -298,21 +298,27 @@ export function ScheduleSettingsPanel() {
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col flex-1 min-h-[700px]">
 
             {/* Header and Controls */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <section className="flex flex-col gap-1">
-                    <h3 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-3 uppercase">
-                        Cierres de Agenda
-                        <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Global / Perfil</span>
-                    </h3>
-                    <p className="text-slate-500 text-sm font-medium">Selecciona bloques específicos para cerrar o arrastra el cursor para rangos múltiples.</p>
-                </section>
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <CalendarIcon className="w-3 h-3" />
+                        Disponibilidad Semanal
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Horarios y <span className="text-primary">Cierres</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Configura las franjas horarias en las que no estarás disponible. Puedes bloquear días completos o tramos específicos.
+                    </p>
+                </div>
 
                 <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                     <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-3">Horario de:</span>
                     <select
                         value={selectedProf}
                         onChange={(e) => setSelectedProf(e.target.value)}
-                        className="h-10 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 outline-none shadow-sm cursor-pointer min-w-[140px] focus:ring-2 focus:ring-primary/20 transition-all"
+                        className="h-12 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-6 outline-none shadow-sm cursor-pointer min-w-[160px] focus:ring-2 focus:ring-primary/20 transition-all"
                     >
                         <option value="global">Centro</option>
                         {professionals.map((p: any) => (
@@ -320,7 +326,7 @@ export function ScheduleSettingsPanel() {
                         ))}
                     </select>
                 </div>
-            </div>
+            </header>
 
             {/* Calendar Container */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">

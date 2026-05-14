@@ -245,14 +245,23 @@ export function AppointmentTypesPanel() {
 
     return (
         <div className="space-y-6 flex flex-col h-full fade-in w-full text-slate-800 dark:text-slate-200">
-            <header className="flex justify-between items-start w-full mb-4">
-                <div>
-                    <h1 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">Servicios</h1>
-                    <p className="text-slate-500 font-medium mt-2 max-w-lg">Desde esta sección puedes configurar tus servicios. Define la duración, el precio, el color representativo para tu calendario y el icono que se mostrará a tus clientes en la página de reservas.</p>
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <Sparkles className="w-3 h-3" />
+                        Catálogo Operativo
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Tus <span className="text-primary">Servicios</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Gestiona el catálogo de servicios que ofreces, define duraciones, precios y personaliza la apariencia para tus clientes.
+                    </p>
                 </div>
-                <button onClick={handleSaveSettings} className="flex items-center gap-2 bg-[#2563EB] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-colors active:scale-95">
-                    <Save className="w-4 h-4" />
-                    Guardar cambios
+                <button onClick={handleSaveSettings} className="flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all active:scale-95 group">
+                    <Save className="w-5 h-5 transition-transform group-hover:scale-110" />
+                    <span className="uppercase tracking-widest text-xs">Guardar Cambios</span>
                 </button>
             </header>
 

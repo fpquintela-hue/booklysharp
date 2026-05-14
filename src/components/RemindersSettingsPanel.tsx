@@ -124,30 +124,29 @@ export function RemindersSettingsPanel() {
 
     return (
         <div className="max-w-4xl space-y-10 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
-                <div className="space-y-1">
-                    <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight uppercase">Recordatorios Automáticos</h2>
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Configura avisos automáticos para tus pacientes</p>
-                    {canUseReminders ? (
-                        <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold px-3 py-1 rounded-full bg-primary/10 text-primary">
-                            <Bell className="w-3 h-3" />
-                            {reminders.length}/{maxReminders} recordatorio{maxReminders !== 1 ? 's' : ''} usados
-                        </span>
-                    ) : (
-                        <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700">
-                            <AlertCircle className="w-3 h-3" />
-                            No disponible en tu plan actual
-                        </span>
-                    )}
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <Bell className="w-3 h-3" />
+                        Notificaciones Automáticas
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Canales de <span className="text-primary">Recordatorio</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Configura avisos automáticos por WhatsApp o Email para reducir el ausentismo y mantener a tus pacientes informados.
+                    </p>
                 </div>
                 <Button 
                     onClick={addReminder} 
                     disabled={reminders.length >= maxReminders || !canUseReminders}
-                    className="rounded-2xl h-12 px-6 bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-slate-200 dark:shadow-none transition-all active:scale-[0.98] shrink-0"
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 transition-all active:scale-95 group"
                 >
-                    <Plus className="w-4 h-4 mr-2" /> Añadir Recordatorio
+                    <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+                    <span className="uppercase tracking-widest text-xs">Añadir Recordatorio</span>
                 </Button>
-            </div>
+            </header>
 
             {reminders.length === 0 ? (
                 <div className="py-20 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-800/20 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">

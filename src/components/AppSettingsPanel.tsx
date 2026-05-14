@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSettings } from '@/context/settings-context';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/mock-service';
-import { Loader2, Check, Save, Globe } from 'lucide-react';
+import { Loader2, Check, Save, Globe, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
@@ -70,7 +70,21 @@ export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-            {/* Header / Page Title is handled by the parent SettingsPage, but we keep the main layout */}
+            {/* Header Section */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                        <Fingerprint className="w-3 h-3" />
+                        Marca Propia
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        Identidad de <span className="text-primary">Negocio</span>
+                    </h1>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        Configura los elementos básicos de tu marca, el nombre de tu portal y los detalles visuales que verán tus clientes al reservar.
+                    </p>
+                </div>
+            </header>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 {/* SECTION 1: Identidad del Negocio */}
