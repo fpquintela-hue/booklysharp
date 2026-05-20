@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 
-// Una ruta GET simple que lanza un error intencionadamente para probar la integración de Sentry
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  throw new Error("Sentry Test Error: This is a controlled exception to verify Sentry configuration.");
-  
-  // This code will never be reached, but satisfies TypeScript
-  return NextResponse.json({ success: true });
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+  const dsnExists = !!dsn;
+  const dsnLength = dsn?.length || 0;
+  const dsnStart = dsn ? dsn.substring(0, 20) + "..." : "none";
+
+  return NextResponse.json({
+    message: "Verificación de DSN de Sentry",
+    dsnExists,
+    dsnLength,
+    dsnStart,
+    nodeEnv: process.env.NODE_ENV
+  });
 }
