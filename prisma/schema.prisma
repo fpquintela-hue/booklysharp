@@ -9,27 +9,27 @@ datasource db {
 }
 
 model Tenant {
-  id                  String   @id @default(cuid())
-  alias               String   @unique
-  nombre_comercial    String
-  telefono            String?
+  id               String  @id @default(cuid())
+  alias            String  @unique
+  nombre_comercial String
+  telefono         String?
 
   nivel_de_suscripcion  String?
   fecha_fin_suscripcion DateTime?
-  
-  subscription_plan     String?   @default("trial") // Gratuito, Individual, Profesional, trial
-  subscription_status   String?   @default("trial") // active, expired, trial
-  auto_renew            Boolean   @default(true)
-  expires_at            DateTime?
-  billing_info          String?   // JSON string storing full info
-  payment_methods       String?   // JSON string storing safe token structures
-  
-  pais                String?
-  provincia           String?
-  ciudad              String?
-  calle               String?
-  numero              String?
-  codigo_postal       String?
+
+  subscription_plan   String?   @default("trial") // Gratuito, Individual, Profesional, trial
+  subscription_status String?   @default("trial") // active, expired, trial
+  auto_renew          Boolean   @default(true)
+  expires_at          DateTime?
+  billing_info        String? // JSON string storing full info
+  payment_methods     String? // JSON string storing safe token structures
+
+  pais          String?
+  provincia     String?
+  ciudad        String?
+  calle         String?
+  numero        String?
+  codigo_postal String?
 
   facturacion_pais          String?
   facturacion_provincia     String?
@@ -38,13 +38,13 @@ model Tenant {
   facturacion_numero        String?
   facturacion_codigo_postal String?
 
-  forma_de_pago       String?
-  datos_de_pago       String?
+  forma_de_pago String?
+  datos_de_pago String?
 
-  maxAppointmentTypes Int      @default(4)
-  maxProfessionals    Int      @default(3)
+  maxAppointmentTypes Int @default(4)
+  maxProfessionals    Int @default(3)
 
-  createdAt           DateTime @default(now())
+  createdAt DateTime @default(now())
 
   users            User[]
   patients         Patient[]
@@ -64,86 +64,97 @@ model SuperAdmin {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  name             String
-  apellidos        String   @default("")
-  role             String   @default("USER") // ADMIN, USER
-  password         String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  calendarViewMode String?  @default("vista1")
-  language         String?  @default("gl")
-  theme            String?  @default("light")
-  primaryColor     String?  @default("#2563eb")
-  bloqueado        Boolean  @default(false)
-  is_verified           Boolean  @default(false)
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String
+  apellidos             String    @default("")
+  role                  String    @default("USER") // ADMIN, USER
+  password              String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  calendarViewMode      String?   @default("vista1")
+  language              String?   @default("gl")
+  theme                 String?   @default("light")
+  primaryColor          String?   @default("#2563eb")
+  bloqueado             Boolean   @default(false)
+  is_verified           Boolean   @default(false)
   verification_token    String?
   verify_token_expires  DateTime?
-  first_login_completed Boolean  @default(false)
-  
-  tenantId         String?
-  tenant           Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  first_login_completed Boolean   @default(false)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
 }
 
 model Patient {
-  id           String        @id @default(cuid())
-  name         String
-  apellidos    String        @default("")
-  phone        String
-  email        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  bloqueado    Boolean       @default(false)
-  notes        String?
+  id            String        @id @default(cuid())
+  name          String
+  apellidos     String        @default("")
+  phone         String
+  email         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  bloqueado     Boolean       @default(false)
+  notes         String?
   treatmentPlan String?
-  tenantId     String?
-  tenant       Tenant?       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  appointments Appointment[]
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments  Appointment[]
+
+  @@index([tenantId])
+  @@index([tenantId, email])
+  @@index([tenantId, phone])
 }
 
 model Appointment {
-  id             String        @id @default(cuid())
-  start          DateTime
-  end            DateTime
-  type           String
-  status         String        @default("SCHEDULED")
-  notes          String?
+  id     String   @id @default(cuid())
+  start  DateTime
+  end    DateTime
+  type   String
+  status String   @default("SCHEDULED")
+  notes  String?
 
   googleEventId  String?
   patientId      String
   professionalId String?
-  tenantId       String?
+  tenantId       String
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  tenant         Tenant?       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   patient        Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
   professional   Professional? @relation(fields: [professionalId], references: [id])
   reminders      Reminder[]
+
+  @@index([tenantId])
+  @@index([tenantId, start, end])
 }
 
 model AppointmentType {
-  id       String  @id @default(cuid())
-  name     String
-  duration Int     @default(30)
+  id          String  @id @default(cuid())
+  name        String
+  duration    Int     @default(30)
   color       String  @default("#3b82f6")
   price       Float?
   image       String?
   description String?
-  tenantId    String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
+  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([name, tenantId])
+  @@index([tenantId])
 }
 
 model Setting {
-  id       String  @id @default(cuid())
+  id       String @id @default(cuid())
   key      String
   value    String
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([key, tenantId])
+  @@index([tenantId])
 }
 
 model DayConfig {
@@ -151,35 +162,38 @@ model DayConfig {
   date           String // YYYY-MM-DD
   professionalId String? // If null, applies globally
   isBlocked      Boolean
-  tenantId       String?
-  tenant         Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([date, professionalId, tenantId])
+  @@index([tenantId])
 }
 
 model Professional {
-  id                  String        @id @default(cuid())
-  name                String
-  email               String?
-  phone               String?
-  color               String        @default("#10b981")
-  isActive            Boolean       @default(true)
-  googleAccessToken   String?
-  googleRefreshToken  String?
-  googleCalendarId    String?
-  description         String?
-  image               String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  tenantId            String?
-  tenant              Tenant?       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  appointments        Appointment[]
+  id                 String        @id @default(cuid())
+  name               String
+  email              String?
+  phone              String?
+  color              String        @default("#10b981")
+  isActive           Boolean       @default(true)
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleCalendarId   String?
+  description        String?
+  image              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  tenantId           String
+  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments       Appointment[]
+
+  @@index([tenantId])
 }
 
 model Reminder {
   id            String      @id @default(cuid())
-  type          String      // EMAIL, WHATSAPP, APP
-  timeMinutes   Int         // 0, 5, 15, 30, 60, 1440, 10080
+  type          String // EMAIL, WHATSAPP, APP
+  timeMinutes   Int // 0, 5, 15, 30, 60, 1440, 10080
   status        String      @default("PENDING") // PENDING, SENT, FAILED
   appointmentId String
   appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)

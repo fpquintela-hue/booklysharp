@@ -10,7 +10,6 @@ const prisma = new PrismaClient();
 async function run() {
     const settings = await prisma.setting.findMany({
         where: {
-            tenantId: null,
             key: {
                 in: [
                     'GLOBAL_SMTP_HOST',

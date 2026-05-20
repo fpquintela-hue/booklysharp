@@ -5,6 +5,16 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Seeding database...')
 
+  let defaultTenant = await prisma.tenant.findUnique({ where: { alias: 'default' } });
+  if (!defaultTenant) {
+    defaultTenant = await prisma.tenant.create({
+      data: {
+        alias: 'default',
+        nombre_comercial: 'Default Tenant',
+      }
+    });
+  }
+
   // Create initial admin user
   let admin = await prisma.user.findFirst({
     where: { email: 'admin@agenda.muller' }
@@ -17,6 +27,7 @@ async function main() {
         name: 'Administrador',
         role: 'ADMIN',
         password: 'admin', // En un entorno real, usar hashing
+        tenantId: defaultTenant.id
       },
     });
   }
@@ -32,6 +43,7 @@ async function main() {
         name: 'Paciente de Prueba',
         phone: '600000000',
         email: 'prueba@test.com',
+        tenantId: defaultTenant.id,
         appointments: {
           create: {
             start: new Date(),
@@ -39,6 +51,7 @@ async function main() {
             type: 'ORDINARY',
             status: 'SCHEDULED',
             notes: 'Cita de prueba inicial',
+            tenantId: defaultTenant.id
           }
         }
       }
