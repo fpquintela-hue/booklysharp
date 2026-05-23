@@ -52,38 +52,25 @@ const features = [
 
 export function Features() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
+  const firstSetRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
   useEffect(() => {
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    
     let animationFrameId: number;
     let lastTime = performance.now();
     let accumulator = 0;
     
     const scroll = (time: number) => {
-      if (!isPaused && scrollRef.current) {
+      if (!isPaused && scrollRef.current && firstSetRef.current) {
         const deltaTime = time - lastTime;
-        accumulator += deltaTime * 0.04; // Adjust speed here (40px per second)
+        accumulator += deltaTime * 0.15; // Faster speed (150px per second)
         
         if (accumulator >= 1) {
           const pixelsToScroll = Math.floor(accumulator);
-          const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+          const jumpPoint = firstSetRef.current.offsetWidth + 24; // 24px = gap-6
           
-          if (scrollLeft >= scrollWidth - clientWidth - 1) {
-            scrollRef.current.scrollLeft = 0;
+          if (scrollRef.current.scrollLeft >= jumpPoint) {
+            scrollRef.current.scrollLeft = scrollRef.current.scrollLeft - jumpPoint + pixelsToScroll;
           } else {
             scrollRef.current.scrollLeft += pixelsToScroll;
           }
@@ -96,23 +83,75 @@ export function Features() {
 
     animationFrameId = requestAnimationFrame(scroll);
 
-    return () => {
-      window.removeEventListener('resize', checkScroll);
-      cancelAnimationFrame(animationFrameId);
-    };
+    return () => cancelAnimationFrame(animationFrameId);
   }, [isPaused]);
 
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+  const scrollLeftBtn = () => {
+    if (scrollRef.current && firstSetRef.current) {
+      const jumpPoint = firstSetRef.current.offsetWidth + 24;
+      if (scrollRef.current.scrollLeft <= 0) {
+        scrollRef.current.scrollLeft = jumpPoint;
+      }
+      scrollRef.current.scrollBy({ left: -450, behavior: 'smooth' });
     }
   };
 
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+  const scrollRightBtn = () => {
+    if (scrollRef.current && firstSetRef.current) {
+      const jumpPoint = firstSetRef.current.offsetWidth + 24;
+      if (scrollRef.current.scrollLeft >= jumpPoint) {
+        scrollRef.current.scrollLeft = scrollRef.current.scrollLeft - jumpPoint;
+      }
+      scrollRef.current.scrollBy({ left: 450, behavior: 'smooth' });
     }
   };
+
+  const renderFeature = (feature: any, i: number, isDuplicate = false) => (
+    <motion.div
+      key={isDuplicate ? `dup-${i}` : i}
+      className={`shrink-0 rounded-[2rem] border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex overflow-hidden min-h-[420px] md:min-h-[520px] ${
+        feature.image 
+          ? 'w-[320px] md:w-[850px] flex-col md:flex-row' 
+          : 'w-[280px] md:w-[380px] flex-col p-8 md:p-10'
+      }`}
+      initial={{ opacity: 0, x: 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.5, delay: isDuplicate ? 0 : i * 0.1 }}
+    >
+      {feature.image ? (
+        <>
+          <div className="p-8 md:p-12 md:w-[40%] flex flex-col justify-center bg-white z-10 shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+              {feature.icon}
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">{feature.title}</h3>
+            <p className="text-slate-600 text-lg leading-relaxed font-medium">
+              {feature.description}
+            </p>
+          </div>
+          <div className="relative w-full md:w-[60%] min-h-[250px] md:min-h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 overflow-hidden">
+            <Image 
+              src={feature.image} 
+              alt={feature.title} 
+              fill
+              className="object-cover object-left-top md:object-left p-4 md:p-8 transform group-hover:scale-[1.02] transition-transform duration-700"
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+            {feature.icon}
+          </div>
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
+          <p className="text-slate-600 leading-relaxed font-medium">
+            {feature.description}
+          </p>
+        </>
+      )}
+    </motion.div>
+  );
 
   return (
     <section id="funciones" className="py-24 bg-slate-50 relative overflow-hidden">
@@ -132,17 +171,15 @@ export function Features() {
           
           <div className="flex items-center gap-3 shrink-0">
             <button 
-              onClick={scrollLeft}
-              disabled={!canScrollLeft}
-              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:text-slate-600 disabled:hover:bg-white transition-all shadow-sm"
+              onClick={scrollLeftBtn}
+              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 transition-all shadow-sm"
               aria-label="Anterior"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button 
-              onClick={scrollRight}
-              disabled={!canScrollRight}
-              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:text-slate-600 disabled:hover:bg-white transition-all shadow-sm"
+              onClick={scrollRightBtn}
+              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 transition-all shadow-sm"
               aria-label="Siguiente"
             >
               <ChevronRight className="w-6 h-6" />
@@ -152,13 +189,11 @@ export function Features() {
       </div>
 
       <div className="w-full relative px-4 md:px-6">
-        {/* Gradients to indicate scroll */}
         <div className="absolute left-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
         <div className="absolute right-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
         
         <div 
           ref={scrollRef}
-          onScroll={checkScroll}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchStart={() => setIsPaused(true)}
@@ -166,59 +201,12 @@ export function Features() {
           className="flex gap-6 overflow-x-auto hide-scrollbar pb-12 pt-4"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {/* Spacer for initial margin alignment with container */}
-          <div className="w-[calc((100vw-min(100vw,1536px))/2)] md:w-[calc((100vw-min(100vw,1536px)+24px)/2)] shrink-0 hidden 2xl:block"></div>
-          <div className="w-0 md:w-2 shrink-0 2xl:hidden"></div>
-
-          {features.map((feature, i) => (
-            <motion.div
-              key={i}
-              className={`shrink-0 rounded-[2rem] border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex overflow-hidden min-h-[420px] md:min-h-[520px] ${
-                feature.image 
-                  ? 'w-[320px] md:w-[850px] flex-col md:flex-row' 
-                  : 'w-[280px] md:w-[380px] flex-col p-8 md:p-10'
-              }`}
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
-              {feature.image ? (
-                <>
-                  <div className="p-8 md:p-12 md:w-[40%] flex flex-col justify-center bg-white z-10 shrink-0">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                    <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                      {feature.description}
-                    </p>
-                  </div>
-                  <div className="relative w-full md:w-[60%] min-h-[250px] md:min-h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 overflow-hidden">
-                    <Image 
-                      src={feature.image} 
-                      alt={feature.title} 
-                      fill
-                      className="object-cover object-left-top md:object-left p-4 md:p-8 transform group-hover:scale-[1.02] transition-transform duration-700"
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed font-medium">
-                    {feature.description}
-                  </p>
-                </>
-              )}
-            </motion.div>
-          ))}
-          
-          {/* End spacer */}
-          <div className="w-4 md:w-12 shrink-0"></div>
+          <div ref={firstSetRef} className="flex gap-6 shrink-0">
+            {features.map((feature, i) => renderFeature(feature, i, false))}
+          </div>
+          <div className="flex gap-6 shrink-0 pr-12">
+            {features.map((feature, i) => renderFeature(feature, i, true))}
+          </div>
         </div>
       </div>
       
