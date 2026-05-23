@@ -2,13 +2,21 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, CalendarSync, ShieldCheck, Smartphone, SmartphoneNfc, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Bot, CalendarSync, ShieldCheck, Smartphone, SmartphoneNfc, Zap, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
+import Image from 'next/image';
 
 const features = [
   {
     icon: <Zap className="w-6 h-6 text-amber-500" />,
     title: 'Facilidad Radical',
-    description: 'Tan intuitiva que no necesitas manual. Configura tus servicios y horarios en 5 minutos y empieza a recibir reservas hoy mismo.'
+    description: 'Tan intuitiva que no necesitas manual. Configura tus servicios y horarios en 5 minutos y empieza a recibir reservas hoy mismo.',
+    image: '/assets/semana.png'
+  },
+  {
+    icon: <BarChart3 className="w-6 h-6 text-blue-500" />,
+    title: 'Estadísticas Avanzadas',
+    description: 'Toma el control absoluto de tu negocio. Visualiza la evolución de tus reservas, analiza tus ganancias y mide tu rendimiento diario con gráficas claras para tomar decisiones basadas en datos reales.',
+    image: '/assets/estadistica.png'
   },
   {
     icon: <CalendarSync className="w-6 h-6 text-[#0c63ce]" />,
@@ -142,9 +150,19 @@ export function Features() {
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-              <p className="text-slate-600 leading-relaxed font-medium">
+              <p className={`text-slate-600 leading-relaxed font-medium ${feature.image ? 'mb-6' : ''}`}>
                 {feature.description}
               </p>
+              {feature.image && (
+                <div className="mt-auto relative w-full rounded-xl overflow-hidden border border-slate-100 shadow-inner bg-slate-50 flex-1 min-h-[120px]">
+                  <Image 
+                    src={feature.image} 
+                    alt={feature.title} 
+                    fill
+                    className="object-cover object-top transform group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              )}
             </motion.div>
           ))}
           
