@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useParams } from 'next/navigation';
 import {
     CalendarDays,
@@ -59,10 +60,14 @@ export function Sidebar() {
             style={{ width: 80 }}
         >
             <div>
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-xl"
-                style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))', opacity: 0.9, boxShadow: '0 4px 14px rgba(var(--primary-rgb),.3)', fontFamily: 'Manrope,sans-serif' }}>
-                {(settings.appTitle ?? alias ?? 'A').charAt(0).toUpperCase()}
+              <div className="w-12 h-12 relative flex items-center justify-center overflow-hidden">
+                <Image 
+                  src="/assets/logo_bookly2.png" 
+                  alt="BooklySharp Logo" 
+                  fill
+                  className="object-contain drop-shadow-sm"
+                  priority
+                />
               </div>
             </div>
 
