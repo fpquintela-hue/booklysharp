@@ -102,9 +102,6 @@ export function Hero() {
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent border-slate-600 text-white hover:bg-white/10 hover:text-white">
-            Ver demo
-          </Button>
         </motion.div>
 
         <motion.div 
@@ -169,9 +166,10 @@ export function Hero() {
                 <p className="text-xs text-slate-400">Marzo 2026</p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex bg-white/5 border border-white/10 rounded-lg p-1">
-                  <div className="px-3 py-1 text-xs font-medium text-white bg-white/10 rounded-md">Semana</div>
-                  <div className="px-3 py-1 text-xs font-medium text-slate-400">Mes</div>
+                <div className="hidden sm:flex bg-white/5 border border-white/10 rounded-lg p-1 items-center">
+                  <div className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors cursor-pointer">Día</div>
+                  <div className="px-3 py-1 text-xs font-medium text-white bg-white/10 rounded-md shadow-sm">Semana</div>
+                  <div className="px-3 py-1 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors cursor-pointer">Mes</div>
                 </div>
                 <div className="h-8 px-4 bg-[#0c63ce] text-white text-xs font-semibold rounded-lg flex items-center cursor-pointer transition-colors shadow-lg shadow-[#0c63ce]/20">
                   + Nueva Cita

@@ -1,7 +1,8 @@
 'use client';
 
+import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, CalendarSync, ShieldCheck, Smartphone, SmartphoneNfc, Zap } from 'lucide-react';
+import { Bot, CalendarSync, ShieldCheck, Smartphone, SmartphoneNfc, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const features = [
   {
@@ -10,7 +11,7 @@ const features = [
     description: 'Tan intuitiva que no necesitas manual. Configura tus servicios y horarios en 5 minutos y empieza a recibir reservas hoy mismo.'
   },
   {
-    icon: <CalendarSync className="w-6 h-6 text-primary" />,
+    icon: <CalendarSync className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Sincronización Total',
     description: 'Conecta con Google Calendar, Apple y Outlook. Olvídate de citas duplicadas y solapamientos embarazosos.'
   },
@@ -37,51 +38,126 @@ const features = [
 ];
 
 export function Features() {
-  return (
-    <section id="funciones" className="py-24 bg-white relative">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.h2 
-            className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            Por qué Booklysharp es la <span className="text-[#0c63ce]">única herramienta</span> de reservas que necesitarás
-          </motion.h2>
-          <motion.p 
-            className="text-lg text-slate-600"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            Sustituye a tus hojas de cálculo, a las libretas de papel y a las notas de voz de WhatsApp a las 11 de la noche.
-          </motion.p>
-        </div>
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, i) => (
-            <motion.div
-              key={i}
-              className="p-8 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section id="funciones" className="py-24 bg-slate-50 relative overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
+          <div className="max-w-3xl">
+            <motion.h2 
+              className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 text-balance"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center mb-6">
+              Por qué Booklysharp es la <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0c63ce] to-indigo-600">única herramienta</span> de reservas que necesitarás
+            </motion.h2>
+            <motion.p 
+              className="text-lg text-slate-600 max-w-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Sustituye a tus hojas de cálculo, a las libretas de papel y a las notas de voz de WhatsApp a las 11 de la noche.
+            </motion.p>
+          </div>
+          
+          <div className="flex items-center gap-3 shrink-0">
+            <button 
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
+              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:text-slate-600 disabled:hover:bg-white transition-all shadow-sm"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button 
+              onClick={scrollRight}
+              disabled={!canScrollRight}
+              className="w-12 h-12 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-[#0c63ce] hover:border-[#0c63ce] hover:bg-blue-50 disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:text-slate-600 disabled:hover:bg-white transition-all shadow-sm"
+              aria-label="Siguiente"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full relative px-4 md:px-6">
+        {/* Gradients to indicate scroll */}
+        <div className="absolute left-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
+        
+        <div 
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-12 pt-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {/* Spacer for initial margin alignment with container */}
+          <div className="w-[calc((100vw-min(100vw,1536px))/2)] md:w-[calc((100vw-min(100vw,1536px)+24px)/2)] shrink-0 snap-start hidden 2xl:block"></div>
+          <div className="w-0 md:w-2 shrink-0 snap-start 2xl:hidden"></div>
+
+          {features.map((feature, i) => (
+            <motion.div
+              key={i}
+              className="w-[280px] md:w-[360px] shrink-0 snap-center p-8 rounded-3xl border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex flex-col"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            >
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
-              <p className="text-slate-600 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+              <p className="text-slate-600 leading-relaxed font-medium">
                 {feature.description}
               </p>
             </motion.div>
           ))}
+          
+          {/* End spacer */}
+          <div className="w-4 md:w-12 shrink-0 snap-end"></div>
         </div>
       </div>
+      
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 }

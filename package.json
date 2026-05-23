@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "reminder": "node scripts/reminder-worker.js"
+    "reminder": "node scripts/reminder-worker.js",
+    "seed:fake": "npx ts-node scripts/seed_fake_data.ts"
   },
   "prisma": {
     "seed": "npx ts-node --esm prisma/seed.ts"
