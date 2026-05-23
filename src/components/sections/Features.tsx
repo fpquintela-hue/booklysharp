@@ -21,22 +21,26 @@ const features = [
   {
     icon: <CalendarSync className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Sincronización Total',
-    description: 'Conecta con Google Calendar, Apple y Outlook. Olvídate de citas duplicadas y solapamientos embarazosos.'
+    description: 'Conecta con Google Calendar, Apple y Outlook. Olvídate de citas duplicadas y solapamientos embarazosos.',
+    image: '/assets/sincronizacion.png'
   },
   {
     icon: <Bot className="w-6 h-6 text-indigo-500" />,
     title: 'Asistente Inteligente',
-    description: 'Envía recordatorios automáticos por SMS y WhatsApp. Reduce tus "no-shows" (ausencias) hasta un 90%.'
+    description: 'Envía recordatorios automáticos por email y WhatsApp. Reduce tus "no-shows" (ausencias) hasta un 90%.',
+    image: '/assets/asistente.png'
   },
   {
     icon: <ShieldCheck className="w-6 h-6 text-emerald-500" />,
     title: 'Seguridad de Grado Bancario',
-    description: 'Cumplimos con RGPD. Tus datos y los de tus clientes están encriptados y protegidos con los máximos estándares.'
+    description: 'Cumplimos con RGPD. Tus datos y los de tus clientes están encriptados y protegidos con los máximos estándares.',
+    image: '/assets/seguridad.png'
   },
   {
     icon: <Smartphone className="w-6 h-6 text-pink-500" />,
     title: 'Tu agenda, en tu bolsillo',
-    description: 'Gestión completa desde el móvil. Aplicaciones nativas fluidas para iOS y Android.'
+    description: 'Gestión completa desde el móvil. Aplicaciones nativas fluidas para iOS y Android.',
+    image: '/assets/agenda_movil.png'
   },
   {
     icon: <SmartphoneNfc className="w-6 h-6 text-cyan-500" />,
@@ -61,7 +65,25 @@ export function Features() {
   useEffect(() => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
+    
+    // Autoplay implementation
+    const autoScrollTimer = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        // if reached the end, reset to 0
+        if (scrollLeft >= scrollWidth - clientWidth - 20) {
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          // scroll forward by one feature card width (approx 350+24 gap)
+          scrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+        }
+      }
+    }, 3500);
+
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+      clearInterval(autoScrollTimer);
+    };
   }, []);
 
   const scrollLeft = () => {
