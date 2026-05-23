@@ -34,7 +34,7 @@ const features = [
     icon: <ShieldCheck className="w-6 h-6 text-emerald-500" />,
     title: 'Seguridad de Grado Bancario',
     description: 'Cumplimos con RGPD. Tus datos y los de tus clientes están encriptados y protegidos con los máximos estándares.',
-    image: '/assets/seguridad.png'
+    image: '/assets/bancario.png'
   },
   {
     icon: <Smartphone className="w-6 h-6 text-pink-500" />,
@@ -45,7 +45,8 @@ const features = [
   {
     icon: <SmartphoneNfc className="w-6 h-6 text-cyan-500" />,
     title: 'Pagos Integrados',
-    description: 'Cobra fianzas por adelantado mediante Stripe o PayPal y despídete de perder dinero por cancelaciones de última hora.'
+    description: 'Cobra fianzas por adelantado mediante Stripe o PayPal y despídete de perder dinero por cancelaciones de última hora.',
+    image: '/assets/pagos.png'
   }
 ];
 
@@ -53,6 +54,8 @@ export function Features() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const [isPaused, setIsPaused] = useState(false);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -66,25 +69,38 @@ export function Features() {
     checkScroll();
     window.addEventListener('resize', checkScroll);
     
-    // Autoplay implementation
-    const autoScrollTimer = setInterval(() => {
-      if (scrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-        // if reached the end, reset to 0
-        if (scrollLeft >= scrollWidth - clientWidth - 20) {
-          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          // scroll forward by one feature card width (approx 350+24 gap)
-          scrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    let accumulator = 0;
+    
+    const scroll = (time: number) => {
+      if (!isPaused && scrollRef.current) {
+        const deltaTime = time - lastTime;
+        accumulator += deltaTime * 0.04; // Adjust speed here (40px per second)
+        
+        if (accumulator >= 1) {
+          const pixelsToScroll = Math.floor(accumulator);
+          const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+          
+          if (scrollLeft >= scrollWidth - clientWidth - 1) {
+            scrollRef.current.scrollLeft = 0;
+          } else {
+            scrollRef.current.scrollLeft += pixelsToScroll;
+          }
+          accumulator -= pixelsToScroll;
         }
       }
-    }, 3500);
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
 
     return () => {
       window.removeEventListener('resize', checkScroll);
-      clearInterval(autoScrollTimer);
+      cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isPaused]);
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -143,17 +159,21 @@ export function Features() {
         <div 
           ref={scrollRef}
           onScroll={checkScroll}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-12 pt-4"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          className="flex gap-6 overflow-x-auto hide-scrollbar pb-12 pt-4"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Spacer for initial margin alignment with container */}
-          <div className="w-[calc((100vw-min(100vw,1536px))/2)] md:w-[calc((100vw-min(100vw,1536px)+24px)/2)] shrink-0 snap-start hidden 2xl:block"></div>
-          <div className="w-0 md:w-2 shrink-0 snap-start 2xl:hidden"></div>
+          <div className="w-[calc((100vw-min(100vw,1536px))/2)] md:w-[calc((100vw-min(100vw,1536px)+24px)/2)] shrink-0 hidden 2xl:block"></div>
+          <div className="w-0 md:w-2 shrink-0 2xl:hidden"></div>
 
           {features.map((feature, i) => (
             <motion.div
               key={i}
-              className={`shrink-0 snap-center rounded-[2rem] border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex overflow-hidden min-h-[420px] md:min-h-[520px] ${
+              className={`shrink-0 rounded-[2rem] border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex overflow-hidden min-h-[420px] md:min-h-[520px] ${
                 feature.image 
                   ? 'w-[320px] md:w-[850px] flex-col md:flex-row' 
                   : 'w-[280px] md:w-[380px] flex-col p-8 md:p-10'
@@ -198,7 +218,7 @@ export function Features() {
           ))}
           
           {/* End spacer */}
-          <div className="w-4 md:w-12 shrink-0 snap-end"></div>
+          <div className="w-4 md:w-12 shrink-0"></div>
         </div>
       </div>
       

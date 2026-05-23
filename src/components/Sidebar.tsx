@@ -60,12 +60,12 @@ export function Sidebar() {
             style={{ width: 80 }}
         >
             <div>
-              <div className="w-12 h-12 relative flex items-center justify-center bg-white rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 transition-transform hover:scale-105 duration-300">
+              <div className="w-12 h-12 relative flex items-center justify-center rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 transition-transform hover:scale-105 duration-300 overflow-hidden">
                 <Image 
                   src="/assets/logo_bookly2.png" 
                   alt="BooklySharp Logo" 
                   fill
-                  className="object-contain p-1.5 drop-shadow-sm"
+                  className="object-cover"
                   priority
                 />
               </div>
