@@ -90,15 +90,6 @@ export function Features() {
             >
               Por qué Booklysharp es la <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0c63ce] to-indigo-600">única herramienta</span> de reservas que necesitarás
             </motion.h2>
-            <motion.p 
-              className="text-lg text-slate-600 max-w-2xl"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              Sustituye a tus hojas de cálculo, a las libretas de papel y a las notas de voz de WhatsApp a las 11 de la noche.
-            </motion.p>
           </div>
           
           <div className="flex items-center gap-3 shrink-0">
@@ -140,28 +131,46 @@ export function Features() {
           {features.map((feature, i) => (
             <motion.div
               key={i}
-              className="w-[280px] md:w-[360px] shrink-0 snap-center p-8 rounded-3xl border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex flex-col"
+              className={`shrink-0 snap-center rounded-[2rem] border border-slate-200/60 bg-white shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-slate-300/50 transition-all duration-300 group flex overflow-hidden min-h-[420px] md:min-h-[520px] ${
+                feature.image 
+                  ? 'w-[320px] md:w-[850px] flex-col md:flex-row' 
+                  : 'w-[280px] md:w-[380px] flex-col p-8 md:p-10'
+              }`}
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-              <p className={`text-slate-600 leading-relaxed font-medium ${feature.image ? 'mb-6' : ''}`}>
-                {feature.description}
-              </p>
-              {feature.image && (
-                <div className="mt-auto relative w-full rounded-xl overflow-hidden border border-slate-100 shadow-inner bg-slate-50 flex-1 min-h-[120px]">
-                  <Image 
-                    src={feature.image} 
-                    alt={feature.title} 
-                    fill
-                    className="object-cover object-top transform group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
+              {feature.image ? (
+                <>
+                  <div className="p-8 md:p-12 md:w-[40%] flex flex-col justify-center bg-white z-10 shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">{feature.title}</h3>
+                    <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                      {feature.description}
+                    </p>
+                  </div>
+                  <div className="relative w-full md:w-[60%] min-h-[250px] md:min-h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 overflow-hidden">
+                    <Image 
+                      src={feature.image} 
+                      alt={feature.title} 
+                      fill
+                      className="object-cover object-left-top md:object-left p-4 md:p-8 transform group-hover:scale-[1.02] transition-transform duration-700"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
+                  <p className="text-slate-600 leading-relaxed font-medium">
+                    {feature.description}
+                  </p>
+                </>
               )}
             </motion.div>
           ))}
