@@ -54,6 +54,8 @@ export function Features() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const firstSetRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const isManualScrollingRef = useRef(false);
+  const manualScrollTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -61,7 +63,7 @@ export function Features() {
     let accumulator = 0;
     
     const scroll = (time: number) => {
-      if (!isPaused && scrollRef.current && firstSetRef.current) {
+      if (!isPaused && !isManualScrollingRef.current && scrollRef.current && firstSetRef.current) {
         const deltaTime = time - lastTime;
         accumulator += deltaTime * 0.15; // Faster speed (150px per second)
         
@@ -86,8 +88,17 @@ export function Features() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPaused]);
 
+  const pauseForManualScroll = () => {
+    isManualScrollingRef.current = true;
+    if (manualScrollTimer.current) clearTimeout(manualScrollTimer.current);
+    manualScrollTimer.current = setTimeout(() => {
+      isManualScrollingRef.current = false;
+    }, 800); // 800ms allows smooth scroll to finish
+  };
+
   const scrollLeftBtn = () => {
     if (scrollRef.current && firstSetRef.current) {
+      pauseForManualScroll();
       const jumpPoint = firstSetRef.current.offsetWidth + 24;
       if (scrollRef.current.scrollLeft <= 0) {
         scrollRef.current.scrollLeft = jumpPoint;
@@ -98,6 +109,7 @@ export function Features() {
 
   const scrollRightBtn = () => {
     if (scrollRef.current && firstSetRef.current) {
+      pauseForManualScroll();
       const jumpPoint = firstSetRef.current.offsetWidth + 24;
       if (scrollRef.current.scrollLeft >= jumpPoint) {
         scrollRef.current.scrollLeft = scrollRef.current.scrollLeft - jumpPoint;
