@@ -359,11 +359,6 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-transparent -z-10" />
                             <div className="flex justify-between items-start">
                                 <div className="space-y-4 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border", getTypeColor())}>
-                                            {appointment.type}
-                                        </span>
-                                    </div>
                                     <h2 className="text-3xl font-black tracking-tight text-slate-800 dark:text-white flex items-center gap-3">
                                         Editar Cita
                                     </h2>
@@ -373,73 +368,71 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
 
                         {/* Edit Form Content */}
                         <div className="px-8 pb-8 -mt-2 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 pt-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.date')}</Label>
+                            <div className="space-y-4 md:space-y-6 animate-in slide-in-from-bottom-4 duration-500 pt-4">
+                                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                                    <div className="space-y-1 md:space-y-2">
+                                        <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.date')}</Label>
                                         <div className="relative">
-                                            <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                             <Input
                                                 type="date"
                                                 value={editDate}
                                                 onChange={e => setEditDate(e.target.value)}
-                                                className="h-12 pl-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all font-bold"
+                                                className="h-10 md:h-12 px-2 md:px-4 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all font-bold text-xs md:text-sm"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.time')}</Label>
+                                    <div className="space-y-1 md:space-y-2">
+                                        <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.time')}</Label>
                                         <div className="relative flex-1">
-                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                                             <Input
                                                 type="time"
                                                 value={editTime}
                                                 onChange={e => setEditTime(e.target.value)}
-                                                className="h-12 pl-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all font-bold"
+                                                className="h-10 md:h-12 px-2 md:px-4 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all font-bold text-xs md:text-sm"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.duration')}</Label>
+                                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                                    <div className="space-y-1 md:space-y-2">
+                                        <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.duration')}</Label>
                                         <Select onValueChange={setEditDuration} value={editDuration}>
-                                            <SelectTrigger className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-4 font-bold">
+                                            <SelectTrigger className="h-10 md:h-12 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-3 md:px-4 font-bold text-xs md:text-sm">
                                                 <SelectValue placeholder={t('modal.duration')} />
                                             </SelectTrigger>
                                             <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-2xl">
-                                                <SelectItem value="30" className="rounded-xl my-1">{t('modal.min_30')}</SelectItem>
-                                                <SelectItem value="60" className="rounded-xl my-1">{t('modal.hour_1')}</SelectItem>
-                                                <SelectItem value="90" className="rounded-xl my-1">{t('modal.hours_1_5')}</SelectItem>
-                                                <SelectItem value="0" className="rounded-xl my-1">{t('modal.no_duration')}</SelectItem>
+                                                <SelectItem value="30" className="rounded-xl my-1 text-xs md:text-sm">{t('modal.min_30')}</SelectItem>
+                                                <SelectItem value="60" className="rounded-xl my-1 text-xs md:text-sm">{t('modal.hour_1')}</SelectItem>
+                                                <SelectItem value="90" className="rounded-xl my-1 text-xs md:text-sm">{t('modal.hours_1_5')}</SelectItem>
+                                                <SelectItem value="0" className="rounded-xl my-1 text-xs md:text-sm">{t('modal.no_duration')}</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.type_label')}</Label>
+                                    <div className="space-y-1 md:space-y-2">
+                                        <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.type_label')}</Label>
                                         <Select onValueChange={setEditType} value={editType}>
-                                            <SelectTrigger className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-4 font-bold capitalize text-slate-900 dark:text-white">
+                                            <SelectTrigger className="h-10 md:h-12 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-3 md:px-4 font-bold capitalize text-slate-900 dark:text-white text-xs md:text-sm">
                                                 <SelectValue placeholder={t('modal.select_placeholder')} />
                                             </SelectTrigger>
                                             <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-2xl dark:bg-slate-900 dark:text-white">
                                                 {appointmentTypes.map(t => (
-                                                    <SelectItem key={t.id} value={t.name.toUpperCase()} className="rounded-xl my-1 capitalize">{t.name}</SelectItem>
+                                                    <SelectItem key={t.id} value={t.name.toUpperCase()} className="rounded-xl my-1 capitalize text-xs md:text-sm">{t.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.professional_label')}</Label>
+                                <div className="space-y-1 md:space-y-2">
+                                    <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.professional_label')}</Label>
                                     <Select onValueChange={setEditProfessionalId} value={editProfessionalId}>
-                                        <SelectTrigger className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-4 font-bold text-slate-900 dark:text-white">
+                                        <SelectTrigger className="h-10 md:h-12 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 px-3 md:px-4 font-bold text-slate-900 dark:text-white text-xs md:text-sm">
                                             <SelectValue placeholder={t('modal.select_prof_placeholder')} />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-2xl dark:bg-slate-900 dark:text-white">
                                             {professionals.map(p => (
-                                                <SelectItem key={p.id} value={p.id} className="rounded-xl my-1">
+                                                <SelectItem key={p.id} value={p.id} className="rounded-xl my-1 text-xs md:text-sm">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
                                                         {p.name}
@@ -450,13 +443,13 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                                     </Select>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.notes')}</Label>
+                                <div className="space-y-1 md:space-y-2">
+                                    <Label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('modal.notes')}</Label>
                                     <textarea
                                         value={editNotes}
                                         onChange={e => setEditNotes(e.target.value)}
                                         placeholder={t('modal.notes_placeholder')}
-                                        className="w-full min-h-[140px] p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all text-sm outline-none font-medium resize-none shadow-inner dark:text-white"
+                                        className="w-full min-h-[100px] md:min-h-[140px] p-4 md:p-6 rounded-xl md:rounded-3xl bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 focus:ring-primary/20 transition-all text-xs md:text-sm outline-none font-medium resize-none shadow-inner dark:text-white"
                                     />
                                 </div>
 
