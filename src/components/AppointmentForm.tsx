@@ -175,37 +175,37 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
             </aside>
 
             {/* Main Content */}
-            <main className={`flex-1 overflow-y-auto p-10 flex-col bg-background h-full custom-scrollbar ${step === 1 ? 'hidden md:flex' : 'flex'}`}>
+            <main className={`flex-1 overflow-y-auto p-4 md:p-10 flex-col bg-background h-full custom-scrollbar ${step === 1 ? 'hidden md:flex' : 'flex'}`}>
                 {/* Mobile back button */}
                 <Button
                     type="button"
                     variant="ghost"
-                    className="md:hidden -ml-4 -mt-4 mb-4 text-slate-500 font-bold self-start"
+                    className="md:hidden -ml-2 -mt-2 mb-2 text-slate-500 font-bold self-start text-xs"
                     onClick={() => setStep(1)}
                 >
                     <ArrowLeft className="w-4 h-4 mr-1" /> Volver a selección
                 </Button>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col h-full animate-in fade-in duration-300">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 flex flex-col h-full animate-in fade-in duration-300">
                         
                         {/* Selected User Indicator (mobile clarity or just visually confirming if not obvious in the list) */}
                         {showSelectionError && !form.watch('patientId') && (
-                            <div className="p-4 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-xl border border-rose-200 animate-in shake-2 mb-4">
-                                <p className="text-sm font-semibold flex items-center gap-2"><Info className="w-5 h-5"/>{t('modal.select_user_warning')}</p>
+                            <div className="p-3 md:p-4 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-xl border border-rose-200 animate-in shake-2 mb-2 md:mb-4">
+                                <p className="text-xs md:text-sm font-semibold flex items-center gap-2"><Info className="w-4 h-4 md:w-5 md:h-5"/>{t('modal.select_user_warning')}</p>
                             </div>
                         )}
 
                         {/* Date and Time Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <FormField
                                 control={form.control}
                                 name="date"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Fecha</FormLabel>
+                                        <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Fecha</FormLabel>
                                         <FormControl>
-                                            <Input className="w-full p-2.5 h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white" type="date" {...field} value={field.value || ''} />
+                                            <Input className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm" type="date" {...field} value={field.value || ''} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -221,11 +221,11 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
 
                                     return (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Hora</FormLabel>
-                                            <div className="flex items-center gap-2">
+                                            <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Hora</FormLabel>
+                                            <div className="flex items-center gap-1 md:gap-2">
                                                 <Select onValueChange={(val) => field.onChange(`${val}:${m}`)} value={h}>
                                                      <FormControl>
-                                                         <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white">
+                                                         <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm">
                                                              <SelectValue placeholder="HH" />
                                                          </SelectTrigger>
                                                      </FormControl>
@@ -236,7 +236,7 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                                                 <span className="text-slate-400 font-bold">:</span>
                                                 <Select onValueChange={(val) => field.onChange(`${h}:${val}`)} value={m}>
                                                      <FormControl>
-                                                         <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white">
+                                                         <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm">
                                                              <SelectValue placeholder="MM" />
                                                          </SelectTrigger>
                                                      </FormControl>
@@ -253,13 +253,13 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                         </div>
 
                         {/* Type and Duration Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <FormField
                                 control={form.control}
                                 name="type"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo</FormLabel>
+                                        <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Tipo</FormLabel>
                                         <Select
                                             onValueChange={(val) => {
                                                 field.onChange(val);
@@ -271,7 +271,7 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                                             value={field.value}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white">
+                                                <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm">
                                                     <SelectValue placeholder="Tipo" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -293,10 +293,10 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                                 name="duration"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Duración</FormLabel>
+                                        <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Duración</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white">
+                                                <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm">
                                                     <SelectValue placeholder="0 min" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -325,10 +325,10 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                                 name="professionalId"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Profesional / Axenda</FormLabel>
+                                        <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Profesional / Axenda</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value || 'none'}>
                                             <FormControl>
-                                                <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm">
+                                                <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-sm">
                                                     <SelectValue placeholder="Cualquiera" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -351,16 +351,16 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                         </div>
 
                         {/* Notice and Anticipation Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <FormField
                                 control={form.control}
                                 name="reminderType"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                        <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Aviso</FormLabel>
+                                        <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Aviso</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value || 'NONE'}>
                                             <FormControl>
-                                                <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm">
+                                                <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-sm">
                                                     <SelectValue placeholder="Aviso" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -380,10 +380,10 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                                     name="reminderTime"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Antelación</FormLabel>
+                                            <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Antelación</FormLabel>
                                             <Select onValueChange={field.onChange} value={field.value || '1440'}>
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full p-2.5 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm">
+                                                    <SelectTrigger className="w-full p-2 md:p-2.5 h-10 md:h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-sm">
                                                         <SelectValue placeholder="Antelación" />
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -405,11 +405,11 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                             control={form.control}
                             name="notes"
                             render={({ field }) => (
-                                <FormItem className="flex flex-col flex-grow min-h-[120px]">
-                                    <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Notas</FormLabel>
+                                <FormItem className="flex flex-col flex-grow min-h-[80px] md:min-h-[120px]">
+                                    <FormLabel className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5 md:mb-1">Notas</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            className="w-full flex-grow p-4 resize-none min-h-[120px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white"
+                                            className="w-full flex-grow p-3 md:p-4 resize-none min-h-[80px] md:min-h-[120px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[8px] focus:ring-2 focus:ring-primary shadow-sm text-slate-900 dark:text-white text-sm"
                                             placeholder="Notas de la cita..."
                                             {...field}
                                             value={field.value || ''}
@@ -421,19 +421,19 @@ export function AppointmentForm({ onSuccess, defaultSlot, activeProfessionalId }
                         />
 
                         {form.formState.errors.root && (
-                            <div className="text-rose-500 text-sm font-medium p-3 bg-rose-50 dark:bg-rose-900/10 rounded-xl border border-rose-200">
+                            <div className="text-rose-500 text-xs md:text-sm font-medium p-2 md:p-3 bg-rose-50 dark:bg-rose-900/10 rounded-xl border border-rose-200">
                                 {form.formState.errors.root.message}
                             </div>
                         )}
 
                         {/* Actions */}
-                        <div className="pt-6 mt-auto">
+                        <div className="pt-4 md:pt-6 mt-auto pb-4 md:pb-0">
                             <Button 
                                 type="submit" 
-                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 h-14 rounded-[8px] shadow-lg hover:shadow-xl transition-all text-lg" 
+                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 md:py-4 h-12 md:h-14 rounded-[8px] shadow-lg hover:shadow-xl transition-all text-sm md:text-lg" 
                                 disabled={isLoading}
                             >
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                                {isLoading ? <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin mr-2" /> : null}
                                 Guardar
                             </Button>
                         </div>

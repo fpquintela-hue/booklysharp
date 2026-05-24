@@ -486,10 +486,10 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                     // VIEWING MODE
                     <div className="flex flex-col bg-background border-none shrink-0" style={{ maxHeight: '90dvh' }}>
                         {/* Header */}
-                        <header className="px-6 pt-6 pb-4 flex justify-between items-start border-b border-border shrink-0">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <h1 className="font-headline font-bold text-2xl tracking-tight text-slate-900 dark:text-white">
+                        <header className="px-4 md:px-6 pt-5 md:pt-6 pb-3 md:pb-4 flex justify-between items-start border-b border-border shrink-0">
+                            <div className="space-y-1 md:space-y-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h1 className="font-headline font-bold text-xl md:text-2xl tracking-tight text-slate-900 dark:text-white leading-tight">
                                         {patientInfo ? (
                                             <>
                                                 {patientInfo.apellidos && <span className="opacity-40 font-medium">{patientInfo.apellidos}, </span>}
@@ -497,78 +497,75 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                                             </>
                                         ) : appointment.patientName}
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] font-bold tracking-wider rounded-md uppercase font-label">
-                                        {appointment.type}
-                                    </span>
                                     {appointment.status === 'COMPLETED' ? (
-                                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold tracking-wider rounded-md uppercase font-label">ATENDIDO</span>
+                                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] md:text-[10px] font-bold tracking-wider rounded-md uppercase font-label">ATENDIDO</span>
                                     ) : appointment.status === 'NO_SHOW' ? (
-                                        <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-bold tracking-wider rounded-md uppercase font-label">FALTA</span>
+                                        <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[9px] md:text-[10px] font-bold tracking-wider rounded-md uppercase font-label">FALTA</span>
                                     ) : (
-                                        <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-bold tracking-wider rounded-md uppercase font-label">PEND.</span>
+                                        <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] md:text-[10px] font-bold tracking-wider rounded-md uppercase font-label">PEND.</span>
                                     )}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5 md:gap-1">
                                 <button 
                                     onClick={() => setIsEditing(true)}
-                                    className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    className="p-1.5 md:p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                 >
-                                    <Pencil className="w-[20px] h-[20px]" />
+                                    <Pencil className="w-[18px] h-[18px] md:w-[20px] md:h-[20px]" />
                                 </button>
                                 <button 
                                     onClick={() => onOpenChange(false)}
-                                    className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    className="p-1.5 md:p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                 >
-                                    <ChevronRight className="w-[20px] h-[20px]" />
+                                    <ChevronRight className="w-[18px] h-[18px] md:w-[20px] md:h-[20px]" />
                                 </button>
                                 <button 
                                     onClick={() => onOpenChange(false)}
-                                    className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ml-1"
+                                    className="p-1.5 md:p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ml-0.5 md:ml-1"
                                 >
-                                    <XCircle className="w-[20px] h-[20px]" />
+                                    <XCircle className="w-[18px] h-[18px] md:w-[20px] md:h-[20px]" />
                                 </button>
                             </div>
                         </header>
 
                         {/* Modal Content */}
-                        <main className="px-6 space-y-6 pb-6 overflow-y-auto custom-scrollbar shrink pt-4">
+                        <main className="px-4 md:px-6 space-y-4 md:space-y-6 pb-4 md:pb-6 overflow-y-auto custom-scrollbar shrink pt-3 md:pt-4">
                             {/* Appointment Info Grid */}
-                            <section className="grid grid-cols-1 gap-4">
+                            <section className="grid grid-cols-1 gap-3 md:gap-4">
                                 {/* Date Block */}
-                                <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                        <CalendarIcon className="w-5 h-5" />
+                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                        <CalendarIcon className="w-4 h-4 md:w-5 md:h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Fecha</p>
-                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-[15px] capitalize">
+                                        <p className="text-[10px] md:text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Fecha</p>
+                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-sm md:text-[15px] capitalize">
                                             {(format as any)(new Date(appointment.start), "EEEE d 'de' MMMM", { locale: dateLocale })}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Time Block */}
-                                <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                        <Clock className="w-5 h-5" />
+                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                        <Clock className="w-4 h-4 md:w-5 md:h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Horario</p>
-                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-[15px]">
+                                        <p className="text-[10px] md:text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Horario</p>
+                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-sm md:text-[15px]">
                                             {format(new Date(appointment.start), "HH:mm")} <span className="text-primary/40 mx-1">→</span> {format(new Date(appointment.end), "HH:mm")}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Specialist Block */}
-                                <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary shadow-sm border border-primary/10 shrink-0">
-                                        <User className="w-5 h-5" />
+                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-muted/40 transition-all hover:bg-muted/60">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary shadow-sm border border-primary/10 shrink-0">
+                                        <User className="w-4 h-4 md:w-5 md:h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Especialista</p>
-                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-[15px]">
+                                        <p className="text-[10px] md:text-xs font-label uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold">Especialista</p>
+                                        <p className="font-headline font-bold text-slate-900 dark:text-white text-sm md:text-[15px]">
                                             {appointment.professionalName || "Sin asignar"}
                                         </p>
                                     </div>
@@ -576,9 +573,9 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                             </section>
 
                             {/* Notifications Management */}
-                            <section className="space-y-3 pt-2">
-                                <h3 className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400 font-label px-1">Gestión de Avisos</h3>
-                                <div className="flex gap-3">
+                            <section className="space-y-2 pt-1 md:pt-2">
+                                <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400 font-label px-1">Gestión de Avisos</h3>
+                                <div className="flex gap-2 md:gap-3">
                                     <button 
                                         onClick={() => {
                                              if (patientInfo?.phone) {
@@ -594,10 +591,10 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                                              }
                                         }}
                                         disabled={!patientInfo?.phone || sendingWA}
-                                        className={cn("flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-semibold text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50",
+                                        className={cn("flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 md:py-3 px-2 md:px-4 rounded-xl bg-primary text-white font-semibold text-xs md:text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50",
                                         patientInfo?.phone ? "hover:bg-primary/90 cursor-pointer" : "cursor-not-allowed")}
                                     >
-                                        <MessageCircle className="w-[18px] h-[18px]" fill="currentColor" />
+                                        <MessageCircle className="w-4 h-4 md:w-[18px] md:h-[18px]" fill="currentColor" />
                                         WhatsApp {appointment.notifiedWA && "✓"}
                                     </button>
                                     <button 
@@ -605,45 +602,45 @@ export function AppointmentDetailsDialog({ appointment, open, onOpenChange, onDe
                                             if (patientInfo?.email) setIsEmailModalOpen(true);
                                         }}
                                         disabled={!patientInfo?.email || sendingEmail}
-                                        className={cn("flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50",
+                                        className={cn("flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 md:py-3 px-2 md:px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-200 font-semibold text-xs md:text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50",
                                         patientInfo?.email ? "cursor-pointer" : "cursor-not-allowed")}
                                     >
-                                        <Mail className="w-[18px] h-[18px]" />
+                                        <Mail className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                                         Email {appointment.notifiedEmail && "✓"}
                                     </button>
                                 </div>
                             </section>
 
                             {/* Notes Section */}
-                            <section className="space-y-3 pt-2">
-                                <h3 className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400 font-label px-1">Notas de la Cita</h3>
-                                <div className="w-full p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border-none text-slate-900 dark:text-white font-body text-sm min-h-[80px] leading-relaxed">
+                            <section className="space-y-2 pt-1 md:pt-2">
+                                <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400 font-label px-1">Notas de la Cita</h3>
+                                <div className="w-full p-3 md:p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border-none text-slate-900 dark:text-white font-body text-xs md:text-sm min-h-[60px] md:min-h-[80px] leading-relaxed">
                                     {appointment.notes || "No hay observaciones adicionales para esta cita."}
                                 </div>
                             </section>
 
                             {/* Footer Actions */}
-                            <footer className="pt-6 mt-4 flex flex-wrap items-center gap-3 border-t border-border">
+                            <footer className="pt-4 md:pt-6 mt-2 md:mt-4 flex flex-wrap items-center gap-2 md:gap-3 border-t border-border">
                                 <button 
                                     onClick={handleDelete}
                                     disabled={isDeleting}
-                                    className="flex items-center gap-2 p-3 text-rose-500 font-bold text-xs uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all disabled:opacity-50"
+                                    className="flex items-center gap-1.5 md:gap-2 p-2 md:p-3 text-rose-500 font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all disabled:opacity-50"
                                 >
-                                    <Trash2 className="w-[18px] h-[18px]" />
-                                    Eliminar
+                                    <Trash2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                                    <span className="hidden sm:inline">Eliminar</span>
                                 </button>
-                                <div className="flex-1 flex gap-3 justify-end">
+                                <div className="flex-1 flex gap-2 md:gap-3 justify-end">
                                     <button 
                                         onClick={() => handleStatusUpdate('NO_SHOW')}
                                         disabled={isLoading || appointment.status === 'NO_SHOW'}
-                                        className="px-6 py-3 rounded-xl border-2 border-primary text-primary font-bold text-xs uppercase tracking-widest hover:bg-primary/5 transition-all active:scale-95 disabled:opacity-50"
+                                        className="px-4 md:px-6 py-2 md:py-3 rounded-xl border-2 border-primary text-primary font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-primary/5 transition-all active:scale-95 disabled:opacity-50"
                                     >
                                         Falta
                                     </button>
                                     <button 
                                         onClick={() => handleStatusUpdate('COMPLETED')}
                                         disabled={isLoading || appointment.status === 'COMPLETED'}
-                                        className="px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-primary text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 disabled:opacity-50"
+                                        className="px-4 md:px-6 py-2 md:py-3 rounded-xl bg-gradient-to-br from-primary to-primary text-white font-bold text-[10px] md:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 disabled:opacity-50"
                                     >
                                         Atendido
                                     </button>
