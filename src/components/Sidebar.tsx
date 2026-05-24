@@ -31,7 +31,7 @@ function initials(name: string) {
   return (p.length >= 2 ? p[0][0] + p[p.length - 1][0] : name.slice(0, 2)).toUpperCase();
 }
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose?: () => void } = {}) {
     const pathname = usePathname();
     const { logout, user } = useAuth();
     const { settings } = useSettings();
@@ -55,10 +55,17 @@ export function Sidebar() {
     if (!user) return null;
 
     return (
-        <aside
-            className="hidden md:flex flex-col items-center py-8 gap-8 flex-shrink-0 z-20 sticky top-0 h-screen transition-colors duration-300 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]"
-            style={{ width: 80 }}
-        >
+        <>
+            {mobileOpen && (
+                <div className="md:hidden fixed inset-0 bg-black/20 z-40" onClick={onClose} />
+            )}
+            <aside
+                className={cn(
+                    "flex-col items-center py-8 gap-8 flex-shrink-0 z-50 h-screen transition-colors duration-300 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]",
+                    mobileOpen ? "flex fixed left-0 top-0" : "hidden md:flex sticky top-0"
+                )}
+                style={{ width: 80 }}
+            >
             <div>
               <div className="w-12 h-12 relative flex items-center justify-center rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 transition-transform hover:scale-105 duration-300 overflow-hidden">
                 <img 
@@ -156,5 +163,6 @@ export function Sidebar() {
             {isGuideOpen && <OnboardingGuide alias={alias} onClose={() => setIsGuideOpen(false)} />}
             {isChatOpen && <DifyChatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />}
         </aside>
+        </>
     );
 }

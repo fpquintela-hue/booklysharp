@@ -16,11 +16,9 @@ import { Sidebar } from '@/components/Sidebar';
 import { OnboardingGuide } from '@/components/OnboardingGuide';
 
 // ── Lucide icons (same set as Sidebar.tsx) ──────────────────────────────────
-import {
   CalendarDays, Users, LayoutDashboard, BarChart3, Globe,
   Settings, LogOut, Search, Bell, Plus, ChevronLeft, ChevronRight, HelpCircle,
-  RefreshCw, CheckCircle2, XCircle
-} from 'lucide-react';
+  RefreshCw, CheckCircle2, XCircle, Menu
 
 // ── date-fns ─────────────────────────────────────────────────────────────────
 import {
@@ -61,6 +59,11 @@ export default function TenantCalendarPage() {
 
   // FASE 5: Preparación para Onboarding Tips
   const [showTips, setShowTips] = useState(false);
+
+  // Mobile responsive states
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileRightbarOpen, setMobileRightbarOpen] = useState(false);
+
   useEffect(() => {
     if (user && user.first_login_completed === false) {
       // Also verify we haven't dismissed it this session fallback
@@ -231,7 +234,7 @@ export default function TenantCalendarPage() {
       {/* ══════════════════════════════════════════════
           SIDEBAR — Lucide icons, same style as Sidebar.tsx
       ══════════════════════════════════════════════ */}
-      <Sidebar />
+      <Sidebar mobileOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       {/* ══════════════════════════════════════════════
           MAIN AREA
@@ -239,7 +242,7 @@ export default function TenantCalendarPage() {
       <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
         <header
-          className="flex-shrink-0 flex justify-between items-center px-6 py-3 z-40 transition-colors"
+          className="hidden md:flex flex-shrink-0 justify-between items-center px-6 py-3 z-40 transition-colors"
           style={{ background: 'var(--bg-surface, rgba(255,255,255,.92))', backdropFilter: 'blur(20px)', boxShadow: 'var(--card-shadow, 0 12px 40px rgba(0,0,0,.06))', borderBottom: '1px solid var(--border-color)', minHeight: 56 }}>
 
           {/* Left: calendar toolbar portal  (CalendarView injects its toolbar here) */}
@@ -318,9 +321,14 @@ export default function TenantCalendarPage() {
           {/* ══════════════════════════════════════════
               RIGHT SIDEBAR
           ══════════════════════════════════════════ */}
+          {mobileRightbarOpen && (
+            <div className="md:hidden fixed inset-0 bg-black/20 z-40" onClick={() => setMobileRightbarOpen(false)} />
+          )}
           <aside
-            className="w-72 flex-shrink-0 flex flex-col gap-6 overflow-y-auto p-5 transition-colors"
-            style={{ background: 'var(--bg-main, #f0f4f7)', borderLeft: '1px solid var(--border-color)' }}>
+            className={`w-72 flex-shrink-0 flex-col gap-6 overflow-y-auto p-5 transition-colors bg-[var(--bg-main)] z-50 ${
+              mobileRightbarOpen ? "flex fixed right-0 top-0 bottom-0 shadow-2xl" : "hidden md:flex"
+            }`}
+            style={{ borderLeft: '1px solid var(--border-color)' }}>
 
             {/* ── Mini-calendar ─────────────────────── */}
             <section>
@@ -541,6 +549,35 @@ export default function TenantCalendarPage() {
       {showTips && (
         <OnboardingGuide alias={alias} onClose={handleCloseTips} />
       )}
+
+      {/* ── Mobile Floating Buttons ────────────────────────────────────────── */}
+      <div className="md:hidden fixed bottom-6 left-6 z-30 flex flex-col gap-4">
+        <button 
+          onClick={() => setMobileSidebarOpen(true)}
+          className="w-14 h-14 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-[var(--primary)] border border-slate-100 transition-transform active:scale-95"
+          aria-label="Abrir menú"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+      <div className="md:hidden fixed bottom-6 right-6 z-30 flex flex-col gap-4">
+        <button 
+          onClick={() => setMobileRightbarOpen(true)}
+          className="w-14 h-14 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-[var(--primary)] border border-slate-100 transition-transform active:scale-95"
+          aria-label="Abrir información"
+        >
+          <Users className="w-6 h-6" />
+        </button>
+        {/* Mobile quick add appointment button */}
+        <button 
+          onClick={openNuevaCita}
+          className="w-14 h-14 text-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.22)] flex items-center justify-center transition-transform active:scale-95"
+          style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary))' }}
+          aria-label="Nueva Cita"
+        >
+          <Plus className="w-7 h-7" />
+        </button>
+      </div>
     </div>
   );
 }
