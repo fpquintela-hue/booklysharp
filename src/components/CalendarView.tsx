@@ -396,7 +396,7 @@ export default function CalendarView({
                         {format(new Date(event.start), 'HH:mm')} - {format(new Date(event.end), 'HH:mm')}
                     </div>
                 )}
-                <div className="cp-week-patient overflow-visible whitespace-normal break-words leading-tight" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.7rem' : '0.92rem' }}>
+                <div className="cp-week-patient overflow-visible whitespace-normal break-words leading-tight" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.55rem' : '0.92rem' }}>
                     {event.patientName.includes(',')
                         ? event.patientName.split(',').reverse().map(s => s.trim()).join(' ')
                         : event.patientName}
