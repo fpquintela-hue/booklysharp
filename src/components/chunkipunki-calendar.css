@@ -407,3 +407,33 @@
     height: 100% !important;
     display: block !important;
 }
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    /* Make "+ X más" text smaller in month view to prevent overflow */
+    .chunkipunki-theme .rbc-show-more {
+        font-size: 0.65rem !important;
+        padding: 0 !important;
+        margin-top: 2px !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        font-weight: 600 !important;
+        color: var(--cp-primary) !important;
+    }
+
+    /* Compress the hours column (time gutter) to the absolute minimum width */
+    .chunkipunki-theme .rbc-time-gutter {
+        min-width: 40px !important;
+        width: 40px !important;
+    }
+
+    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
+        font-size: 0.65rem !important;
+        padding-top: 0.2rem !important;
+        justify-content: flex-end !important;
+        padding-right: 4px !important; /* Push text as close to the line as possible */
+        letter-spacing: 0 !important;
+    }
+}

@@ -312,7 +312,7 @@ export default function TenantCalendarPage() {
         <div className="flex flex-1 min-h-0 overflow-hidden">
 
           {/* CalendarView — full drag&drop, day/week/month, all dialogs */}
-          <div className="flex-1 min-w-0 overflow-hidden" style={{ padding: isClassic ? '0px' : '15px' }}>
+          <div className={`flex-1 min-w-0 overflow-hidden ${isClassic ? 'p-0' : 'p-0 md:p-[15px]'}`}>
             <CalendarView
               searchQuery={search}
               visibleProfessionalIds={visibleProfIds}
