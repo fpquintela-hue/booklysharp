@@ -16,9 +16,11 @@ import { Sidebar } from '@/components/Sidebar';
 import { OnboardingGuide } from '@/components/OnboardingGuide';
 
 // ── Lucide icons (same set as Sidebar.tsx) ──────────────────────────────────
+import {
   CalendarDays, Users, LayoutDashboard, BarChart3, Globe,
   Settings, LogOut, Search, Bell, Plus, ChevronLeft, ChevronRight, HelpCircle,
   RefreshCw, CheckCircle2, XCircle, Menu
+} from 'lucide-react';
 
 // ── date-fns ─────────────────────────────────────────────────────────────────
 import {
