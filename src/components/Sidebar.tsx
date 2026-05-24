@@ -61,12 +61,10 @@ export function Sidebar() {
         >
             <div>
               <div className="w-12 h-12 relative flex items-center justify-center rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 transition-transform hover:scale-105 duration-300 overflow-hidden">
-                <Image 
+                <img 
                   src="/assets/logo_bookly2.png" 
                   alt="BooklySharp Logo" 
-                  fill
-                  className="object-cover"
-                  priority
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
