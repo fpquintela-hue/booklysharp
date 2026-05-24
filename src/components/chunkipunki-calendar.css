@@ -297,15 +297,15 @@
 .chunkipunki-theme .cp-week-event-card {
     /* Background given inline via React now */
     border-radius: 0.5rem; /* slightly smaller rounded corners */
-    padding: 0.4rem 0.5rem; /* Reduced padding from 0.75rem */
-    height: calc(100% - 6px); /* Reduced gap */
-    width: calc(100% - 6px);
-    margin: 3px; /* Reduced margin from 8px */
+    padding: 0.4rem 0.5rem;
+    height: 100%;
+    width: 100%;
+    margin: 0;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
     display: flex;
     flex-direction: column;
     transition: box-shadow 0.2s;
-    overflow: hidden;
+    overflow: visible;
     color: white;
 }
 
@@ -410,30 +410,38 @@
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
-    /* Make "+ X más" text smaller in month view to prevent overflow */
-    .chunkipunki-theme .rbc-show-more {
+    /* Make "+ X más" text smaller in month view */
+    .chunkipunki-theme .rbc-month-view .rbc-show-more {
         font-size: 0.65rem !important;
-        padding: 0 !important;
-        margin-top: 2px !important;
-        text-align: center !important;
+        padding: 1px 2px !important;
+        margin-top: 1px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        font-weight: 600 !important;
-        color: var(--cp-primary) !important;
     }
-
-    /* Compress the hours column (time gutter) to the absolute minimum width */
+    
+    /* Make the time gutter column as narrow as possible */
     .chunkipunki-theme .rbc-time-gutter {
         min-width: 40px !important;
         width: 40px !important;
+        padding-right: 2px !important;
+    }
+    
+    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
+        font-size: 0.65rem !important; /* Smaller font for hours */
+        padding-right: 2px !important; 
     }
 
-    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
-        font-size: 0.65rem !important;
-        padding-top: 0.2rem !important;
-        justify-content: flex-end !important;
-        padding-right: 4px !important; /* Push text as close to the line as possible */
-        letter-spacing: 0 !important;
+    /* Force event to use 100% of cell width on mobile */
+    .chunkipunki-theme .rbc-time-content > * + * > * {
+        width: 100% !important;
+        left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .chunkipunki-theme .rbc-event {
+        width: 100% !important;
+        left: 0 !important;
+        padding: 0 !important;
     }
 }

@@ -27,7 +27,7 @@ export function MobileToolbar({ date, view, onView, onNavigate, label }: MobileT
     return (
         <div className="flex items-center gap-2 mb-2 pt-1 md:hidden">
             {/* View Selector */}
-            <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1 flex-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 flex shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-1 flex-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 flex shadow-sm">
                 {viewOptions.map((option) => (
                     <button
                         key={option.value}
@@ -45,7 +45,7 @@ export function MobileToolbar({ date, view, onView, onNavigate, label }: MobileT
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+            <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
                 <button onClick={() => onNavigate('PREV')} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-slate-500 dark:text-slate-400">
                     <ChevronLeft className="h-5 w-5" />
                 </button>

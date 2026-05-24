@@ -396,7 +396,7 @@ export default function CalendarView({
                         {format(new Date(event.start), 'HH:mm')} - {format(new Date(event.end), 'HH:mm')}
                     </div>
                 )}
-                <div className="cp-week-patient truncate" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.7rem' : '0.92rem', lineHeight: '1.2' }}>
+                <div className="cp-week-patient overflow-visible whitespace-normal break-words leading-tight" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.7rem' : '0.92rem' }}>
                     {event.patientName.includes(',')
                         ? event.patientName.split(',').reverse().map(s => s.trim()).join(' ')
                         : event.patientName}
@@ -422,36 +422,36 @@ export default function CalendarView({
             <div className={cn(
                 "group h-[85px] flex flex-col items-center justify-center relative w-full bg-transparent"
             )}>
-                <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => { e.stopPropagation(); toggleBlockDay(dateStr, undefined, activeProfessionalId === 'all' ? null : activeProfessionalId); }}
-                    className={cn(
-                        "p-1.5 rounded-md transition-all duration-200 absolute right-2 top-2 z-[50] cursor-pointer flex items-center justify-center bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800",
-                        isBlocked
-                            ? "text-red-500 opacity-100"
-                            : "text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-blue-400 opacity-100"
-                    )}
-                >
-                    {isBlocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                </div>
-                
                 <span className={cn(
-                    "text-[0.75rem] uppercase tracking-[0.05em] font-bold font-inter mb-1.5",
+                    "text-[0.65rem] md:text-[0.75rem] uppercase tracking-[0.05em] font-bold font-inter",
                     isToday ? "text-primary dark:text-blue-400" : "text-slate-400 dark:text-slate-500"
                 )}>
                     {dayName}
                 </span>
 
+                <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); toggleBlockDay(dateStr, undefined, activeProfessionalId === 'all' ? null : activeProfessionalId); }}
+                    className={cn(
+                        "p-1 rounded-md transition-all duration-200 z-[10] cursor-pointer flex items-center justify-center bg-transparent my-0.5 hover:bg-slate-100 dark:hover:bg-slate-800",
+                        isBlocked
+                            ? "text-red-500 opacity-100"
+                            : "text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-blue-400 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                    )}
+                >
+                    {isBlocked ? <Lock className="w-3 h-3 md:w-4 md:h-4" /> : <Unlock className="w-3 h-3 md:w-4 md:h-4" />}
+                </div>
+
                 {isToday ? (
-                     <div key={`cal-today-${dayNumber}`} className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg bg-primary"
+                     <div key={`cal-today-${dayNumber}`} className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-lg bg-primary"
                           style={{ boxShadow: '0 8px 16px -4px rgba(0, 91, 196, 0.5)' }}>
-                         <span className="font-headline text-xl font-bold text-white mb-[1px]">
+                         <span className="font-headline text-lg md:text-xl font-bold text-white mb-[1px]">
                             {dayNumber}
                          </span>
                      </div>
                 ) : (
-                    <span className="font-headline text-xl font-bold text-slate-700 dark:text-slate-300">
+                    <span className="font-headline text-lg md:text-xl font-bold text-slate-700 dark:text-slate-300">
                         {dayNumber}
                     </span>
                 )}
