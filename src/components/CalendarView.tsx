@@ -379,22 +379,24 @@ export default function CalendarView({
             <div className={containerClass} 
                  style={{ 
                     backgroundColor: softBg, 
-                    borderLeft: `5px solid ${solidBar}`,
-                    borderRadius: '8px',
-                    borderTopLeftRadius: '4px',
-                    borderBottomLeftRadius: '4px',
-                    height: 'calc(100% - 4px)',
-                    margin: '2px',
-                    padding: '4px 8px',
+                    borderLeft: `${isMobile ? '3px' : '5px'} solid ${solidBar}`,
+                    borderRadius: isMobile ? '4px' : '8px',
+                    borderTopLeftRadius: '2px',
+                    borderBottomLeftRadius: '2px',
+                    height: isMobile ? '100%' : 'calc(100% - 4px)',
+                    margin: isMobile ? '0' : '2px',
+                    padding: isMobile ? '2px 4px' : '4px 8px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    gap: '2px'
+                    gap: isMobile ? '0' : '2px'
                  }}>
-                <div className="cp-week-time" style={{ color: solidBar, fontWeight: 800, fontSize: '0.65rem' }}>
-                    {format(new Date(event.start), 'HH:mm')} - {format(new Date(event.end), 'HH:mm')}
-                </div>
-                <div className="cp-week-patient truncate" style={{ color: solidBar, fontWeight: 800, fontSize: '0.92rem', lineHeight: '1.2' }}>
+                {!isMobile && (
+                    <div className="cp-week-time" style={{ color: solidBar, fontWeight: 800, fontSize: '0.65rem' }}>
+                        {format(new Date(event.start), 'HH:mm')} - {format(new Date(event.end), 'HH:mm')}
+                    </div>
+                )}
+                <div className="cp-week-patient truncate" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.7rem' : '0.92rem', lineHeight: '1.2' }}>
                     {event.patientName.includes(',')
                         ? event.patientName.split(',').reverse().map(s => s.trim()).join(' ')
                         : event.patientName}

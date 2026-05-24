@@ -25,18 +25,18 @@ export function MobileToolbar({ date, view, onView, onNavigate, label }: MobileT
         { label: t('app.day'), value: Views.DAY },
     ];
     return (
-        <div className="flex items-center gap-2 mb-1 pt-0.5 md:hidden">
+        <div className="flex items-center gap-2 mb-2 pt-1 md:hidden">
             {/* View Selector */}
-            <div className="glass-effect p-1 flex-1 rounded-xl border border-border flex shadow-sm">
+            <div className="bg-slate-100/80 dark:bg-slate-800/80 p-1 flex-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 flex shadow-sm">
                 {viewOptions.map((option) => (
                     <button
                         key={option.value}
                         onClick={() => onView(option.value)}
                         className={cn(
-                            "flex-1 py-1 text-sm font-medium rounded-lg transition-all",
+                            "flex-1 py-1 text-sm rounded-lg transition-all",
                             view === option.value
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
+                                ? "bg-primary text-white shadow-sm font-bold"
+                                : "text-slate-500 dark:text-slate-400 font-semibold hover:text-slate-700 dark:hover:text-slate-200"
                         )}
                     >
                         {option.label}
@@ -45,14 +45,14 @@ export function MobileToolbar({ date, view, onView, onNavigate, label }: MobileT
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center gap-1 glass-effect p-1 rounded-xl border border-border shadow-sm">
-                <button onClick={() => onNavigate('PREV')} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-muted-foreground">
+            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                <button onClick={() => onNavigate('PREV')} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-slate-500 dark:text-slate-400">
                     <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button onClick={() => onNavigate('TODAY')} className="px-2 py-1 text-[11px] font-bold uppercase hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-foreground">
+                <button onClick={() => onNavigate('TODAY')} className="px-2 py-1 text-[11px] font-bold uppercase hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-slate-500 dark:text-slate-400 tracking-wider">
                     {t('app.today')}
                 </button>
-                <button onClick={() => onNavigate('NEXT')} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-muted-foreground">
+                <button onClick={() => onNavigate('NEXT')} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg text-slate-500 dark:text-slate-400">
                     <ChevronRight className="h-5 w-5" />
                 </button>
             </div>
