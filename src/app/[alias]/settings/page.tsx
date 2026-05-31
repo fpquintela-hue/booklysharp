@@ -64,19 +64,19 @@ export default function SettingsPage() {
     ];
 
     return (
-        <div className="flex h-full w-full bg-white dark:bg-slate-900">
+        <div className="flex flex-col md:flex-row h-full w-full bg-white dark:bg-slate-900 overflow-hidden">
             {/* Secondary Sidebar (Settings Menu) */}
-            <aside className="w-64 border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col shrink-0">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col shrink-0 md:h-full max-h-[40vh] md:max-h-full">
+                <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
                     <div className="flex items-center gap-2 mb-1">
                         <Link href={`/${alias}`} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
                             <ChevronLeft className="w-4 h-4 text-slate-400" />
                         </Link>
-                        <h2 className="text-xl font-black text-primary tracking-tight uppercase">{t('settings.header_title')}</h2>
+                        <h2 className="text-lg md:text-xl font-black text-primary tracking-tight uppercase">{t('settings.header_title')}</h2>
                     </div>
                 </div>
 
-                <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+                <nav className="flex-1 overflow-y-auto p-2 md:p-4 space-y-1">
                     {menuItems.map((item) => {
                         const isOperationalTab = !['appearance', 'security', 'subscription'].includes(item.id);
                         const disabled = isExpired && isOperationalTab;
@@ -104,8 +104,8 @@ export default function SettingsPage() {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 p-8 md:p-12">
-                <div className="w-full">
+            <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 p-4 sm:p-8 md:p-12 w-full">
+                <div className="w-full max-w-full overflow-x-hidden">
                     {activeTab === 'appearance' && <AppearanceSettingsPanel />}
                     {activeTab === 'security' && <SecuritySettingsPanel />}
                     {activeTab === 'subscription' && <SubscriptionSettingsPanel />}

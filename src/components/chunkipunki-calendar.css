@@ -428,7 +428,7 @@
     }
     
     .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
-        font-size: 0.65rem !important; /* Smaller font for hours */
+        font-size: 0.35rem !important; /* Smaller font for hours */
         padding-right: 2px !important; 
     }
 

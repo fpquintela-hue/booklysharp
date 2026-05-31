@@ -14,7 +14,10 @@ import {
     HelpCircle,
     Moon,
     Sun,
-    Rocket
+    Rocket,
+    Palette,
+    Lock,
+    Calendar
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -40,6 +43,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose
     const [isLogoutOpen, setIsLogoutOpen] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPERADMIN';
     const isIndividualPlan = user?.tenantSubscriptionPlan === 'individual';
@@ -129,17 +133,46 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose
 
 
 
-                <Link href={`${base}/settings`} title="Configuración"
-                    className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
-                    style={{ color: pathname.includes('/settings') ? 'var(--primary)' : 'var(--nav-icon-color, #94a3b8)', background: pathname.includes('/settings') ? 'rgba(var(--primary-rgb),.1)' : 'transparent' }}>
-                    <Settings className="h-5 w-5 group-hover:rotate-45 transition-transform duration-500" />
-                    <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                        Configuración
-                    </span>
-                </Link>
+                <div className="flex flex-col items-center gap-2">
+                    <button onClick={() => setSettingsOpen(!settingsOpen)} title="Configuración"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
+                        style={{ color: pathname.includes('/settings') ? 'var(--primary)' : 'var(--nav-icon-color, #94a3b8)', background: pathname.includes('/settings') ? 'rgba(var(--primary-rgb),.1)' : 'transparent' }}>
+                        <Settings className={cn("h-5 w-5 transition-transform duration-500", settingsOpen ? "rotate-90" : "group-hover:rotate-45")} />
+                        <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            Configuración
+                        </span>
+                    </button>
+                    
+                    <div className={cn("flex flex-col gap-2 overflow-hidden transition-all duration-300", settingsOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
+                        <Link href={`${base}/settings?tab=appearance`} title="Apariencia" className="w-10 h-10 flex items-center justify-center rounded-xl mx-auto text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group relative">
+                            <Palette className="w-4 h-4" />
+                            <span className="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Apariencia</span>
+                        </Link>
+                        <Link href={`${base}/settings?tab=security`} title="Seguridad" className="w-10 h-10 flex items-center justify-center rounded-xl mx-auto text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group relative">
+                            <Lock className="w-4 h-4" />
+                            <span className="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Seguridad</span>
+                        </Link>
+                        {isAdmin && (
+                            <>
+                                <Link href={`${base}/settings?tab=citas`} title="Servicios" className="w-10 h-10 flex items-center justify-center rounded-xl mx-auto text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group relative">
+                                    <CalendarDays className="w-4 h-4" />
+                                    <span className="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Servicios</span>
+                                </Link>
+                                <Link href={`${base}/settings?tab=horarios`} title="Horarios" className="w-10 h-10 flex items-center justify-center rounded-xl mx-auto text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group relative">
+                                    <Calendar className="w-4 h-4" />
+                                    <span className="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Horarios</span>
+                                </Link>
+                                <Link href={`${base}/settings?tab=profesionais`} title="Profesionales" className="w-10 h-10 flex items-center justify-center rounded-xl mx-auto text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors group relative">
+                                    <Users className="w-4 h-4" />
+                                    <span className="absolute left-12 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Profesionales</span>
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                </div>
 
                 <button onClick={() => setIsLogoutOpen(true)} title="Cerrar sesión"
-                    className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto"
+                    className="w-12 h-12 flex items-center justify-center rounded-xl transition-all group relative mx-auto mt-auto"
                     style={{ color: '#ef4444' }}>
                     <LogOut className="h-5 w-5" />
                     <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
