@@ -91,11 +91,13 @@ export async function POST(request: Request) {
                 data: [
                     { key: 'brandColor', value: '#2563eb', tenantId: newTenant.id },
                     { key: 'appTitle', value: nombre_comercial, tenantId: newTenant.id },
-                    // Default reminder: 24h before appointment via WhatsApp
+                    // Default reminders: Upon booking, 24h before, 1 week after
                     {
                         key: 'reminders_config',
                         value: JSON.stringify([
-                            { id: 'default_24h', time: '1_DAY', method: 'WHATSAPP' }
+                            { id: 'default_0', time: '0_MINUTES', method: 'BOTH' },
+                            { id: 'default_24h', time: '1_DAY', method: 'BOTH' },
+                            { id: 'default_1w_after', time: 'CUSTOM', customValue: -10080, method: 'BOTH' }
                         ]),
                         tenantId: newTenant.id
                     }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { UserEditDialog } from '@/components/UserEditDialog';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
     Trash2,
     ShieldCheck,
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function StaffSettingsPanel() {
+    const { t } = useTranslation();
     const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
@@ -75,16 +77,16 @@ export function StaffSettingsPanel() {
                 {/* Header Section */}
                 <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800">
                     <div className="space-y-4 max-w-2xl">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
-                            <UserCog className="w-3 h-3" />
-                            Seguridad de Organización
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-                            Miembros del <span className="text-primary">Staff</span>
-                        </h1>
-                        <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
-                            Aquí configuras el acceso a la aplicación a los miembros de tu organización, definiendo sus roles y niveles de permiso.
-                        </p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
+                        <UserCog className="w-3 h-3" />
+                        {t('settings.panel_staff_badge')}
+                    </div>
+                        <h1 className="text-2xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        {t('settings.panel_staff_title1')} <span className="text-primary">{t('settings.panel_staff_title2')}</span>
+                    </h1>
+                        <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        {t('settings.panel_staff_desc')}
+                    </p>
                     </div>
                     {isAdmin && (
                         <div className="shrink-0 pb-1">

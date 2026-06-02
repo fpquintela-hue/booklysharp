@@ -3,12 +3,11 @@
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { MobileHeader } from '@/components/MobileHeader';
-import { MobileNav } from '@/components/MobileNav';
-import { MobileUserBar } from '@/components/MobileUserBar';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSettings } from '@/context/settings-context';
 import { GlobalAppointmentDialog } from './GlobalAppointmentDialog';
+import { Menu } from 'lucide-react';
 
 import { useAuth } from '@/context/auth-context';
 
@@ -16,6 +15,7 @@ export function NavigationWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const { settings, isNotFound } = useSettings();
     const { user, isLoading: authLoading } = useAuth();
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const isPublicPage = pathname === '/' || pathname === '/registro' || pathname === '/register' || pathname.endsWith('/login') || pathname === '/superadminlogin' || pathname.endsWith('/reserve') || pathname.endsWith('/reserve-new') || pathname.endsWith('/verificar') || pathname.includes('/confirm') || pathname === '/politica-de-privacidad' || pathname === '/politica-de-cookies' || pathname === '/terminos-del-servicio';
 
     // The tenant main calendar page is a full self-contained shell — no external chrome needed
@@ -129,23 +129,27 @@ export function NavigationWrapper({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex h-full w-full">
             {/* Desktop Sidebar */}
-            <Sidebar />
+            <Sidebar mobileOpen={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col h-full relative overflow-hidden">
-                {/* Mobile Header */}
-                <MobileHeader />
-
                 {/* Content Scroll Area */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden md:p-0">
                     {children}
                 </div>
 
-                {/* Mobile Navigation */}
-                <MobileNav />
-                <MobileUserBar />
-
                 <GlobalAppointmentDialog />
+
+                {/* Mobile Floating Menu Button */}
+                <div className="md:hidden fixed bottom-6 left-6 z-30 flex flex-col gap-4">
+                        <button 
+                            onClick={() => setMobileSidebarOpen(true)}
+                            className="w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-[var(--primary)] border border-slate-100 dark:border-slate-700 transition-transform active:scale-95"
+                            aria-label="Abrir menú"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
+                    </div>
             </main>
         </div>
     );

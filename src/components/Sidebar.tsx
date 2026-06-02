@@ -18,7 +18,11 @@ import {
     Palette,
     Lock,
     Calendar,
-    ChevronLeft
+    ChevronLeft,
+    CreditCard,
+    Fingerprint,
+    Bell,
+    MessageCircle
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -88,6 +92,12 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose
                             </Link>
                             {isAdmin && (
                                 <>
+                                    <Link href={`${base}/settings?tab=subscription`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
+                                        <CreditCard className="w-4 h-4" /> Suscripción
+                                    </Link>
+                                    <Link href={`${base}/settings?tab=app`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
+                                        <Fingerprint className="w-4 h-4" /> Identidad
+                                    </Link>
                                     <Link href={`${base}/settings?tab=citas`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
                                         <CalendarDays className="w-4 h-4" /> Servicios
                                     </Link>
@@ -97,6 +107,15 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose
                                     <Link href={`${base}/settings?tab=profesionais`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
                                         <Users className="w-4 h-4" /> Profesionales
                                     </Link>
+                                    <Link href={`${base}/settings?tab=staff`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
+                                        <Users className="w-4 h-4" /> Staff
+                                    </Link>
+                                    <Link href={`${base}/settings?tab=reminders`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
+                                        <Bell className="w-4 h-4" /> Recordatorios
+                                    </Link>
+                                    <Link href={`${base}/settings?tab=whatsapp`} onClick={onClose} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all">
+                                        <MessageCircle className="w-4 h-4" /> WhatsApp
+                                    </Link>
                                 </>
                             )}
                         </nav>
@@ -104,7 +123,7 @@ export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean, onClose
                 ) : (
                     <>
                         <div>
-                          <div className="w-12 h-12 relative flex items-center justify-center rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 transition-transform hover:scale-105 duration-300 overflow-hidden">
+                          <div className="w-12 h-12 relative flex items-center justify-center rounded-xl shadow-lg shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 transition-transform hover:scale-105 duration-300 overflow-hidden">
                             <img src="/assets/logo_bookly2.png" alt="BooklySharp Logo" className="w-full h-full object-cover" />
                           </div>
                         </div>

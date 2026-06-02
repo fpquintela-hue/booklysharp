@@ -72,7 +72,7 @@ export default function UserAppPage() {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-background transition-colors duration-300">
-            <div className="max-w-6xl mx-auto w-full space-y-8 p-8">
+            <div className="max-w-6xl mx-auto w-full space-y-8 p-4 sm:p-8 pt-16 sm:pt-8">
                 <header className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-4">
                         <div className="bg-primary/10 p-3 rounded-2xl">

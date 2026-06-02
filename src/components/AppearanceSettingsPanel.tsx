@@ -3,9 +3,9 @@
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/auth-context';
 import { userService } from '@/lib/mock-service';
-import { Check, Square, Monitor, Globe, Palette } from 'lucide-react';
+import { Check, Square, Monitor, Globe, Palette, Plus, Pipette } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettings } from '@/context/settings-context';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ export function AppearanceSettingsPanel() {
     const { t } = useTranslation();
     const { settings, updateSettings } = useSettings();
     const [mounted, setMounted] = useState(false);
+    const customColorRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setMounted(true);
@@ -41,15 +42,15 @@ export function AppearanceSettingsPanel() {
             {/* Header Section */}
             <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10 px-2 lg:px-8">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                         <Palette className="w-3 h-3" />
-                        Identidad Visual
+                        {t('settings.panel_appearance_badge')}
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-                        Apariencia de la <span className="text-primary">Interfaz</span>
+                    <h1 className="text-2xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        {t('settings.panel_appearance_title1')} <span className="text-primary">{t('settings.panel_appearance_title2')}</span>
                     </h1>
-                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
-                        Personaliza cómo se ve tu plataforma, desde el esquema de colores hasta el modo de visualización del calendario.
+                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        {t('settings.panel_appearance_desc')}
                     </p>
                 </div>
             </header>
@@ -259,8 +260,9 @@ export function AppearanceSettingsPanel() {
                             ))}
                             
                             {/* Custom Color Picker */}
-                            <div className="relative group">
+                            <div className="relative">
                                 <input
+                                    ref={customColorRef}
                                     type="color"
                                     value={user?.primaryColor || '#005bc4'}
                                     onChange={async (e) => {
@@ -271,14 +273,30 @@ export function AppearanceSettingsPanel() {
                                             updateSettings({ primaryColor: c });
                                         }
                                     }}
-                                    className="w-11 h-11 rounded-full border-none p-0 cursor-pointer overflow-hidden appearance-none"
-                                    style={{ backgroundColor: 'transparent' }}
+                                    className="sr-only"
                                 />
-                                {!colors.includes(user?.primaryColor || '') && (
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <Check className="w-4 h-4 text-white drop-shadow-md" />
-                                    </div>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => customColorRef.current?.click()}
+                                    className={cn(
+                                        "w-11 h-11 rounded-full flex items-center justify-center text-white transition-all overflow-hidden relative group shadow-sm",
+                                        !colors.includes(user?.primaryColor || '') 
+                                            ? "ring-4 ring-primary/20 scale-110 shadow-md" 
+                                            : "hover:scale-110 hover:shadow-sm"
+                                    )}
+                                    style={
+                                        !colors.includes(user?.primaryColor || '')
+                                            ? { backgroundColor: user?.primaryColor }
+                                            : { backgroundImage: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' }
+                                    }
+                                    title="Elegir color personalizado"
+                                >
+                                    {!colors.includes(user?.primaryColor || '') ? (
+                                        <Check className="w-4 h-4 text-white drop-shadow-md relative z-10" />
+                                    ) : (
+                                        <Pipette className="w-4 h-4 text-white drop-shadow-md relative z-10 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-transform" />
+                                    )}
+                                </button>
                             </div>
                         </div>
                         <p className="mt-3 text-[10px] font-medium text-slate-400 italic">{t('settings.primary_color_desc')}</p>

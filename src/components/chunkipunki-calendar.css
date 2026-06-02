@@ -114,11 +114,11 @@
 .chunkipunki-theme .rbc-header {
     border: none !important;
     padding: 0 !important;
-    background: transparent !important;
+    background: var(--cp-surface-container-lowest) !important;
 }
 
 .chunkipunki-theme .rbc-header + .rbc-header {
-    border-left: none !important;
+    border-left: 1px solid color-mix(in srgb, var(--cp-on-surface) 5%, transparent) !important;
 }
 
 /* Remove default event styles in chunkipunki to apply custom CSS */
@@ -174,12 +174,22 @@
 
 .chunkipunki-theme .rbc-time-header {
     border: none !important;
-    background-color: transparent !important;
+    background-color: var(--cp-surface-container-lowest) !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--cp-on-surface) 5%, transparent) !important;
 }
 
 .chunkipunki-theme .rbc-time-header-content {
     border-left: none !important;
-    background: transparent !important;
+    background: var(--cp-surface-container-lowest) !important;
+}
+
+.chunkipunki-theme .rbc-time-header-gutter {
+    border-right: 1px solid color-mix(in srgb, var(--cp-on-surface) 5%, transparent) !important;
+    background: var(--cp-surface-container-lowest) !important;
+}
+
+.chunkipunki-theme .rbc-header.rbc-today {
+    background: color-mix(in srgb, var(--cp-primary) 5%, transparent) !important;
 }
 
 .chunkipunki-theme .rbc-time-content {
@@ -250,12 +260,12 @@
 /* Remove duplicated border selector */
 
 .chunkipunki-theme .rbc-time-gutter {
-    border-right: 1px solid var(--cp-outline-variant) !important;
-    background-color: transparent !important;
+    border-right: 1px solid color-mix(in srgb, var(--cp-on-surface) 5%, transparent) !important;
+    background-color: var(--cp-surface-container-lowest) !important;
 }
 
 .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
-    border: none !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--cp-on-surface) 5%, transparent) !important;
     color: var(--cp-outline);
     font-size: 0.75rem; /* label-sm */
     font-family: 'Inter', sans-serif;
@@ -421,14 +431,16 @@
     }
     
     /* Make the time gutter column as narrow as possible */
-    .chunkipunki-theme .rbc-time-gutter {
+    .chunkipunki-theme .rbc-time-gutter,
+    .chunkipunki-theme .rbc-time-header-gutter {
         min-width: 40px !important;
         width: 40px !important;
         padding-right: 2px !important;
     }
     
-    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group {
-        font-size: 0.35rem !important; /* Smaller font for hours */
+    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group,
+    .chunkipunki-theme .rbc-time-gutter .rbc-timeslot-group .rbc-label {
+        font-size: 0.45rem !important; /* Smaller font for hours */
         padding-right: 2px !important; 
     }
 

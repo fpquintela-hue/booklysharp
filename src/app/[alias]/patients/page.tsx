@@ -165,14 +165,21 @@ export default function PatientsPage() {
     };
 
     return (
-        <div className="p-8 md:p-12 min-h-[calc(100vh-76px)] transition-colors bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <div className="p-4 pt-16 md:p-12 min-h-[calc(100vh-76px)] transition-colors bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+            {/* Back Button (Mobile only) */}
+            <div className="md:hidden mb-6">
+                <Link href={basePath} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 font-medium transition-colors">
+                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    Volver al calendario
+                </Link>
+            </div>
             {/* Action Header Section */}
             <section className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                 <div>
                     <span className="text-xs font-bold tracking-[0.1em] text-primary dark:text-blue-400 uppercase font-label">Listado Histórico</span>
                     <h2 className="text-4xl font-extrabold tracking-tight font-headline text-slate-900 dark:text-white mt-1">Clientes</h2>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <input
                         type="file"
                         ref={fileInputRef}

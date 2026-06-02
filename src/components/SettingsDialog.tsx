@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Settings, Moon, Sun, Lock, Palette, Calendar, Check, Bell, MessageCircle, Fingerprint, CalendarDays, Users } from 'lucide-react';
+import { Settings, Moon, Sun, Lock, Palette, Calendar, Check, Bell, MessageCircle, Fingerprint, CalendarDays, Users, UserCog } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AppSettingsPanel } from './AppSettingsPanel';
 import { AppointmentTypesPanel } from './AppointmentTypesPanel';
@@ -211,7 +211,7 @@ export function SettingsDialog({ open: controlledOpen, onOpenChange: controlledO
                                             : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50 dark:hover:text-slate-300 dark:hover:bg-slate-800/50"
                                     )}
                                 >
-                                    <Users className="w-4 h-4" />
+                                    <UserCog className="w-4 h-4" />
                                     Staff
                                 </button>
                             )}

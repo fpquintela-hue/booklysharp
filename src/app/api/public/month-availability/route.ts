@@ -47,8 +47,8 @@ export async function GET(request: Request) {
             return acc;
         }, {} as Record<string, string>);
 
-        const open1 = settingsMap['startTime'] || settingsMap['open_hour'] || '08:00';
-        const close1 = settingsMap['endTime'] || settingsMap['close_hour'] || '14:00';
+        const open1 = settingsMap['startTime'] || settingsMap['open_hour'] || '07:00';
+        const close1 = settingsMap['endTime'] || settingsMap['close_hour'] || '21:00';
         const open2 = settingsMap['open_hour_afternoon']; 
         const close2 = settingsMap['close_hour_afternoon'];
         const blockedSlotsGlobal = settingsMap['blockedSlots'] ? JSON.parse(settingsMap['blockedSlots']) : [];

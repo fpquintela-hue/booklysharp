@@ -5,11 +5,15 @@ import { useSettings } from '@/context/settings-context';
 import { MobileSettingsDialog } from './MobileSettingsDialog';
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export function MobileHeader() {
     const { settings } = useSettings();
     const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const pathname = usePathname();
+
+    if (pathname?.includes('/settings')) return null;
 
     useEffect(() => {
         setMounted(true);

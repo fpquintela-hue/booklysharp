@@ -202,15 +202,15 @@ export function ProfessionalsPanel() {
             {/* Header Section */}
             <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                         <User className="w-3 h-3" />
-                        Equipo de Especialistas
+                        {t('settings.panel_prof_badge')}
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-                        Tus <span className="text-primary">Profesionales</span>
+                    <h1 className="text-2xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        {t('settings.panel_prof_title1')} <span className="text-primary">{t('settings.panel_prof_title2')}</span>
                     </h1>
-                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
-                        Gestiona el equipo de profesionales de tu centro, configura sus perfiles públicos y vincula sus calendarios para una sincronización total.
+                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        {t('settings.panel_prof_desc')}
                     </p>
                 </div>
                 {!showAddForm && (

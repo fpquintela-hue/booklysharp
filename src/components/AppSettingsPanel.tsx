@@ -7,13 +7,15 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
     const { settings, refreshSettings } = useSettings();
+    const { t } = useTranslation();
     const [appTitle, setAppTitle] = useState(settings.appTitle || '');
     const [appDescription, setAppDescription] = useState(settings.appDescription || '');
-    const [startTime, setStartTime] = useState(settings.startTime || '09:00');
-    const [endTime, setEndTime] = useState(settings.endTime || '20:00');
+    const [startTime, setStartTime] = useState(settings.startTime || '07:00');
+    const [endTime, setEndTime] = useState(settings.endTime || '21:00');
     const [gridStep, setGridStep] = useState(settings.gridStep || '30');
     const [timezone, setTimezone] = useState(settings.timezone || 'Europe/Madrid');
     const [loading, setLoading] = useState(false);
@@ -73,15 +75,15 @@ export function AppSettingsPanel({ onClose }: { onClose: () => void }) {
             {/* Header Section */}
             <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
                 <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                         <Fingerprint className="w-3 h-3" />
-                        Marca Propia
+                        {t('settings.panel_app_badge')}
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-                        Identidad de <span className="text-primary">Negocio</span>
+                    <h1 className="text-2xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
+                        {t('settings.panel_app_title1')} <span className="text-primary">{t('settings.panel_app_title2')}</span>
                     </h1>
-                    <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
-                        Configura los elementos básicos de tu marca, el nombre de tu portal y los detalles visuales que verán tus clientes al reservar.
+                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                        {t('settings.panel_app_desc')}
                     </p>
                 </div>
             </header>

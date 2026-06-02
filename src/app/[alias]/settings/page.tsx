@@ -8,11 +8,13 @@ import {
     CalendarDays, 
     Calendar, 
     Users, 
+    UserCog,
     Bell, 
     MessageCircle,
     ChevronLeft,
     Mail,
-    CreditCard
+    CreditCard,
+    Menu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -47,6 +49,7 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<'appearance' | 'security' | 'app' | 'horarios' | 'citas' | 'profesionais' | 'email' | 'whatsapp' | 'reminders' | 'subscription' | 'staff'>(
         isExpired ? 'subscription' : (queryTab as any) || 'appearance'
     );
+    const [isMobileMenuExpanded, setIsMobileMenuExpanded] = useState(false);
 
     const menuItems = [
         { id: 'appearance', label: t('settings.tab_appearance'), icon: Palette },
@@ -57,26 +60,50 @@ export default function SettingsPage() {
             { id: 'citas', label: 'Servicios', icon: CalendarDays },
             { id: 'horarios', label: t('settings.tab_horarios'), icon: Calendar },
             { id: 'profesionais', label: 'Profesionales', icon: Users },
-            { id: 'staff', label: 'Staff', icon: Users },
+            { id: 'staff', label: 'Staff', icon: UserCog },
             { id: 'reminders', label: 'Recordatorios', icon: Bell },
             { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
         ] : []),
     ];
 
     return (
-        <div className="flex flex-col md:flex-row h-full w-full bg-white dark:bg-slate-900 overflow-hidden">
+        <div className="flex flex-row h-full w-full bg-white dark:bg-slate-900 overflow-hidden relative">
+            {/* Mobile backdrop */}
+            {isMobileMenuExpanded && (
+                <div 
+                    className="md:hidden fixed inset-0 bg-black/20 z-10" 
+                    onClick={() => setIsMobileMenuExpanded(false)} 
+                />
+            )}
+
+            {/* Dummy placeholder to prevent content shift when aside becomes absolute */}
+            <div className={cn("shrink-0 md:hidden transition-all duration-300", isMobileMenuExpanded ? "w-[60px]" : "w-0 hidden")} />
+
             {/* Secondary Sidebar (Settings Menu) */}
-            <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col shrink-0 md:h-full max-h-[40vh] md:max-h-full">
-                <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
-                    <div className="flex items-center gap-2 mb-1">
+            <aside className={cn(
+                "border-r border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col shrink-0 h-full transition-all duration-300",
+                isMobileMenuExpanded ? "w-64 absolute left-0 top-0 z-20" : "w-[60px] md:w-64 relative z-10"
+            )}>
+                <div className={cn(
+                    "p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0 flex items-center",
+                    isMobileMenuExpanded ? "justify-between" : "justify-center md:justify-start"
+                )}>
+                    <div className={cn("flex items-center gap-2", !isMobileMenuExpanded && "hidden md:flex")}>
                         <Link href={`/${alias}`} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
                             <ChevronLeft className="w-4 h-4 text-slate-400" />
                         </Link>
-                        <h2 className="text-lg md:text-xl font-black text-primary tracking-tight uppercase">{t('settings.header_title')}</h2>
+                        <h2 className="text-lg md:text-xl font-black text-primary tracking-tight uppercase truncate">{t('settings.header_title')}</h2>
                     </div>
+                    {/* Toggle button for mobile */}
+                    <button 
+                        className="md:hidden p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        onClick={() => setIsMobileMenuExpanded(!isMobileMenuExpanded)}
+                    >
+                        {isMobileMenuExpanded ? <ChevronLeft className="w-5 h-5 text-slate-500" /> : <Menu className="w-5 h-5 text-slate-500" />}
+                    </button>
                 </div>
 
-                <nav className="flex-1 overflow-y-auto p-2 md:p-4 space-y-1">
+                <nav className="flex-1 overflow-y-auto p-2 md:p-4 space-y-2">
                     {menuItems.map((item) => {
                         const isOperationalTab = !['appearance', 'security', 'subscription'].includes(item.id);
                         const disabled = isExpired && isOperationalTab;
@@ -85,18 +112,27 @@ export default function SettingsPage() {
                             <button
                                 key={item.id}
                                 disabled={!!disabled}
-                                onClick={() => !disabled && setActiveTab(item.id as any)}
+                                onClick={() => {
+                                    if (!disabled) {
+                                        setActiveTab(item.id as any);
+                                        setIsMobileMenuExpanded(false);
+                                    }
+                                }}
+                                title={item.label}
                                 className={cn(
-                                    "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                                    "flex items-center rounded-xl text-sm font-bold transition-all",
+                                    isMobileMenuExpanded ? "w-full px-4 py-3 gap-3" : "w-10 h-10 justify-center mx-auto md:w-full md:px-4 md:py-3 md:gap-3",
                                     disabled ? "opacity-50 cursor-not-allowed text-slate-400" :
                                     activeTab === item.id
                                         ? "bg-white dark:bg-slate-800 text-primary dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
                                         : "text-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
                                 )}
                             >
-                                <item.icon className="w-4 h-4" />
-                                {item.label}
-                                {disabled && <Lock className="w-3 h-3 ml-auto opacity-50" />}
+                                <item.icon className="w-5 h-5 shrink-0" />
+                                <span className={cn("truncate", !isMobileMenuExpanded && "hidden md:block")}>
+                                    {item.label}
+                                </span>
+                                {disabled && <Lock className="w-3 h-3 ml-auto opacity-50 shrink-0" />}
                             </button>
                         );
                     })}

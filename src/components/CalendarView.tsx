@@ -73,8 +73,8 @@ export default function CalendarView({
 
     const dateLocale = lang === 'gl' ? gl : es;
 
-    const startTimeStr = settings.startTime || '09:00';
-    const endTimeStr = settings.endTime || '20:00';
+    const startTimeStr = settings.startTime || '07:00';
+    const endTimeStr = settings.endTime || '21:00';
     const gridStep = parseInt(settings.gridStep || '30');
     const viewMode = user?.calendarViewMode || settings.calendarViewMode || 'vista1';
 
@@ -379,24 +379,22 @@ export default function CalendarView({
             <div className={containerClass} 
                  style={{ 
                     backgroundColor: softBg, 
-                    borderLeft: `${isMobile ? '3px' : '5px'} solid ${solidBar}`,
-                    borderRadius: isMobile ? '4px' : '8px',
-                    borderTopLeftRadius: '2px',
-                    borderBottomLeftRadius: '2px',
-                    height: isMobile ? '100%' : 'calc(100% - 4px)',
-                    margin: isMobile ? '0' : '2px',
+                    borderLeft: `${isMobile ? '4px' : '6px'} solid ${solidBar}`,
+                    borderRadius: isMobile ? '6px' : '12px',
+                    height: isMobile ? '100%' : 'calc(100% - 2px)',
+                    margin: isMobile ? '0' : '0 0 2px 0',
                     padding: isMobile ? '2px 4px' : '4px 8px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    gap: isMobile ? '0' : '2px'
+                    gap: isMobile ? '0' : '0px'
                  }}>
                 {!isMobile && (
-                    <div className="cp-week-time" style={{ color: solidBar, fontWeight: 800, fontSize: '0.65rem' }}>
+                    <div className="cp-week-time" style={{ color: solidBar, fontWeight: 600, fontSize: '0.68rem', marginBottom: '1px' }}>
                         {format(new Date(event.start), 'HH:mm')} - {format(new Date(event.end), 'HH:mm')}
                     </div>
                 )}
-                <div className="cp-week-patient overflow-visible whitespace-normal break-words leading-tight" style={{ color: solidBar, fontWeight: 800, fontSize: isMobile ? '0.55rem' : '0.92rem' }}>
+                <div className="cp-week-patient overflow-visible whitespace-normal break-words leading-tight" style={{ color: solidBar, fontWeight: 700, fontSize: isMobile ? '0.6rem' : '0.82rem' }}>
                     {event.patientName.includes(',')
                         ? event.patientName.split(',').reverse().map(s => s.trim()).join(' ')
                         : event.patientName}
@@ -437,7 +435,7 @@ export default function CalendarView({
                         "p-1 rounded-md transition-all duration-200 z-[10] cursor-pointer flex items-center justify-center bg-transparent my-0.5 hover:bg-slate-100 dark:hover:bg-slate-800",
                         isBlocked
                             ? "text-red-500 opacity-100"
-                            : "text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-blue-400 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                            : "text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-blue-400 opacity-100"
                     )}
                 >
                     {isBlocked ? <Lock className="w-3 h-3 md:w-4 md:h-4" /> : <Unlock className="w-3 h-3 md:w-4 md:h-4" />}

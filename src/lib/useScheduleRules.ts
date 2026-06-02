@@ -93,9 +93,14 @@ export function useScheduleRules(blockedDays: Record<string, boolean> = {}, sett
             return { valid: false, message: check.reason };
         }
 
+        const openStr = settings.startTime || '07:00';
+        const closeStr = settings.endTime || '21:00';
+        const minHour = parseInt(openStr.split(':')[0], 10);
+        const maxHour = parseInt(closeStr.split(':')[0], 10);
+
         const hour = getHours(date);
-        if (hour < 9 || hour >= 20) {
-            return { valid: false, message: 'La agenda solo permite citas entre las 09:00 y las 20:00.' };
+        if (hour < minHour || hour >= maxHour) {
+            return { valid: false, message: `La agenda solo permite citas entre las ${openStr} y las ${closeStr}.` };
         }
 
         return { valid: true };

@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useSettings } from '@/context/settings-context';
 import { format, startOfDay, startOfMonth, endOfMonth, isSameDay, isSameMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
 import { es, gl } from 'date-fns/locale';
+import Link from 'next/link';
 import { BarChart3, CalendarDays, CheckCircle2, TrendingUp, AlertTriangle, User, PieChart, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -171,6 +172,8 @@ export default function StatsPage() {
     const planId = normalizePlanId(user?.tenantPlan || user?.tenantSubscriptionPlan);
     const isProfessional = planId === 'profesional';
 
+    const basePath = user?.tenantAlias ? `/${user.tenantAlias}` : '/';
+
     return (
         <div className={cn(
             "flex-1 flex flex-col h-full relative overflow-hidden bg-background",
@@ -179,8 +182,15 @@ export default function StatsPage() {
             {/* Background Decor (Blobs) */}
             <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
 
+            <div className="md:hidden mx-4 mt-16 mb-2 z-10 relative">
+                <Link href={basePath} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 font-medium transition-colors">
+                    <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+                    Volver al calendario
+                </Link>
+            </div>
+
             <header className={cn(
-                "glass-panel mx-4 md:mx-6 mt-6 md:mt-6 mb-4 md:mb-4 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4 justify-between shrink-0 shadow-sm transition-all z-10",
+                "glass-panel mx-4 md:mx-6 mt-4 md:mt-6 mb-4 md:mb-4 p-4 rounded-xl flex flex-col md:flex-row items-center gap-4 justify-between shrink-0 shadow-sm transition-all z-10",
                 isClassic && "mx-0 md:mx-0 mt-0 md:mt-0 mb-0 md:mb-0 top-0 rounded-none border-x-0 border-t-0 shadow-none bg-white dark:bg-slate-900 border-b border-solid border-slate-300 dark:border-slate-800 backdrop-blur-none"
             )}>
                 <div className="flex items-center gap-4">

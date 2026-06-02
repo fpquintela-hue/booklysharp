@@ -1,0 +1,11 @@
+```css
+.chunkipunki-theme .rbc-time-header {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.chunkipunki-theme .rbc-time-gutter {
+    border-right: 1px solid var(--cp-outline-variant) !important;
+    background-color: transparent !important;
+}
+```

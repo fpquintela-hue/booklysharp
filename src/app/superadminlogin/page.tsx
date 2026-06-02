@@ -1148,6 +1148,28 @@ function TenantDetailModal({ tenant, onClose, onUpdate, onEnter }: { tenant: any
         forma_de_pago: tenant.forma_de_pago || '',
         datos_de_pago: tenant.datos_de_pago || ''
     });
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const handleGenerateMockData = async () => {
+        setIsGenerating(true);
+        try {
+            const res = await fetch('/api/superadmin/generate-mock-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenantId: tenant.id })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast.success(data.message || 'Datos simulados generados');
+            } else {
+                toast.error(data.error || 'Error al generar datos');
+            }
+        } catch (e) {
+            toast.error('Error de red al generar datos');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -1294,9 +1316,19 @@ function TenantDetailModal({ tenant, onClose, onUpdate, onEnter }: { tenant: any
                 </div>
 
                 <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-between shrink-0">
-                    <button onClick={() => onEnter(tenant.alias)} className="px-6 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 transition-all flex items-center gap-2">
-                        <ArrowRight className="w-4 h-4" /> Entrar al Panel
-                    </button>
+                    <div className="flex gap-2">
+                        <button onClick={() => onEnter(tenant.alias)} className="px-6 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 transition-all flex items-center gap-2">
+                            <ArrowRight className="w-4 h-4" /> Entrar al Panel
+                        </button>
+                        <button 
+                            onClick={handleGenerateMockData} 
+                            disabled={isGenerating}
+                            className="px-6 py-3 rounded-xl border-2 border-purple-200 text-purple-600 hover:bg-purple-50 font-bold transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {isGenerating ? <Activity className="w-4 h-4 animate-spin" /> : <MaterialIcon icon="science" className="text-lg" />}
+                            {isGenerating ? 'Generando...' : 'Generar Datos Simulados'}
+                        </button>
+                    </div>
                     <div className="flex gap-3">
                         <Button variant="outline" onClick={onClose} className="rounded-xl h-12 px-6">Cancelar</Button>
                         <Button onClick={handleSave} className="rounded-xl h-12 px-8 bg-blue-600 hover:bg-blue-700 font-bold">Guardar Cambios</Button>

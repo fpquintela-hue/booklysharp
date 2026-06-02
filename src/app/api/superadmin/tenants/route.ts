@@ -97,7 +97,15 @@ export async function POST(request: Request) {
             { key: 'endTime', value: endTime || '20:00' },
             { key: 'language', value: language || 'es' },
             { key: 'brandColor', value: primaryColor || '#2563EB' },
-            { key: 'calendarViewMode', value: calendarViewMode || 'vista1' }
+            { key: 'calendarViewMode', value: calendarViewMode || 'vista1' },
+            { 
+                key: 'reminders_config', 
+                value: JSON.stringify([
+                    { id: 'default_0', time: '0_MINUTES', method: 'BOTH' },
+                    { id: 'default_24h', time: '1_DAY', method: 'BOTH' },
+                    { id: 'default_1w_after', time: 'CUSTOM', customValue: -10080, method: 'BOTH' }
+                ])
+            }
         ];
 
         for (const s of initialSettings) {

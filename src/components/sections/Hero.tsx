@@ -56,7 +56,7 @@ export function Hero() {
           loop
           playsInline
           preload="auto"
-          className="w-full h-full object-cover scale-105"
+          className="w-full h-full object-cover object-center md:scale-105"
         >
           <source src="/assets/hero-bg.mp4" type="video/mp4" />
         </video>
@@ -178,9 +178,10 @@ export function Hero() {
             </div>
 
             {/* Calendar Grid Representation */}
-            <div className="flex-1 p-6 sm:p-8 bg-slate-900/30 overflow-hidden relative">
-              <div className="grid grid-cols-5 gap-4 h-full relative z-10">
-                {/* Days header */}
+            <div className="flex-1 overflow-x-auto bg-slate-900/30 custom-scrollbar">
+              <div className="min-w-[600px] sm:min-w-0 p-6 sm:p-8 h-full relative">
+                <div className="grid grid-cols-5 gap-4 h-full relative z-10">
+                  {/* Days header */}
                 {['Lunes 16', 'Martes 17', 'Miérc 18', 'Jueves 19', 'Viernes 20'].map((day, i) => (
                   <div key={i} className="flex flex-col gap-4 h-full">
                     <div className="text-xs font-medium text-slate-400 text-center pb-2 border-b border-white/5">{day}</div>
@@ -218,13 +219,14 @@ export function Hero() {
                 ))}
               </div>
               
-              {/* Background horizontal lines to simulate hours */}
-              <div className="absolute inset-x-6 sm:inset-x-8 top-16 bottom-6 flex flex-col justify-between pointer-events-none opacity-20">
-                {[...Array(5)].map((_, i) => (
-                   <div key={i} className="border-t border-white/20 w-full relative">
-                     <span className="absolute -left-6 -mt-2 text-[8px] text-slate-400">{10 + i * 2}:00</span>
-                   </div>
-                ))}
+                {/* Background horizontal lines to simulate hours */}
+                <div className="absolute inset-x-6 sm:inset-x-8 top-16 bottom-6 flex flex-col justify-between pointer-events-none opacity-20">
+                  {[...Array(5)].map((_, i) => (
+                     <div key={i} className="border-t border-white/20 w-full relative">
+                       <span className="absolute -left-6 -mt-2 text-[8px] text-slate-400">{10 + i * 2}:00</span>
+                     </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

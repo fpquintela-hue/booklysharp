@@ -204,16 +204,14 @@ export async function POST(req: Request) {
         // 6. Preparar recordatorios según config del tenant
         const remindersToCreate: any[] = [];
         
-        // Immediate confirmations (resguardo de la cita)
-        if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: 0, status: 'PENDING' });
-        if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: 0, status: 'PENDING' });
-
-
         const configStr = settingsMap['reminders_config'];
+        let hasImmediateInConfig = false;
+        
         if (configStr) {
             try {
                 const config = JSON.parse(configStr);
                 const timeMap: Record<string, number> = {
+                    '0_MINUTES': 0,
                     '30_MINUTES': 30,
                     '1_HOUR': 60,
                     '1_DAY': 1440,
@@ -222,22 +220,31 @@ export async function POST(req: Request) {
                 };
 
                 (config as any[]).forEach((r: any) => {
-                    let mins = timeMap[r.time] || 0;
+                    let mins = timeMap[r.time];
+                    if (mins === undefined) mins = 0;
+                    if (r.time === '0_MINUTES') hasImmediateInConfig = true;
+
                     if (r.time === 'CUSTOM' && r.customValue) {
                         mins = parseInt(r.customValue) || 30;
                     }
-                    if (mins > 0) {
-                        let type = (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL';
-                        if (r.method === 'WHATSAPP') type = 'WHATSAPP';
-                        if (r.method === 'EMAIL') type = 'EMAIL';
-
-                        // Only add if we have the corresponding contact info
-                        if ((type === 'WHATSAPP' && phone) || (type === 'EMAIL' && email)) {
-                            remindersToCreate.push({
-                                type,
-                                timeMinutes: mins,
-                                status: 'PENDING'
-                            });
+                    // Validamos explícitamente que no sea indefinido (puede ser 0, positivo o negativo)
+                    if (mins !== undefined) {
+                        if (r.method === 'BOTH') {
+                            if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: mins, status: 'PENDING' });
+                            if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: mins, status: 'PENDING' });
+                        } else {
+                            let type = (notificationPreference === 'WHATSAPP') ? 'WHATSAPP' : 'EMAIL';
+                            if (r.method === 'WHATSAPP') type = 'WHATSAPP';
+                            if (r.method === 'EMAIL') type = 'EMAIL';
+    
+                            // Only add if we have the corresponding contact info
+                            if ((type === 'WHATSAPP' && phone) || (type === 'EMAIL' && email)) {
+                                remindersToCreate.push({
+                                    type,
+                                    timeMinutes: mins,
+                                    status: 'PENDING'
+                                });
+                            }
                         }
                     }
                 });
@@ -248,6 +255,12 @@ export async function POST(req: Request) {
             // Default 1 day before if no config found
             if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: 1440, status: 'PENDING' });
             if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: 1440, status: 'PENDING' });
+        }
+
+        // Immediate confirmations (resguardo de la cita) fallback si no están en config
+        if (!hasImmediateInConfig) {
+            if (phone) remindersToCreate.push({ type: 'WHATSAPP', timeMinutes: 0, status: 'PENDING' });
+            if (email) remindersToCreate.push({ type: 'EMAIL', timeMinutes: 0, status: 'PENDING' });
         }
 
         // 7. Create the appointment with assigned professional

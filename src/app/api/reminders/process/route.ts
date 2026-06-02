@@ -189,9 +189,10 @@ export async function GET(request: Request) {
                 continue;
             }
 
-            // If appointment is already in the past, mark as failed if not sent within 30 mins window
-            const fiveMinutesAgo = new Date(now.getTime() - 60 * 60000); // 1 hour window
-            if (appointment.start < fiveMinutesAgo) {
+            // If targetTime was more than 1 hour ago, mark as failed to avoid sending super late reminders
+            // Exception: timeMinutes === 0 which are handled immediately or at booking time
+            const oneHourAfterTarget = new Date(targetTime.getTime() + 60 * 60000);
+            if (reminder.timeMinutes !== 0 && now > oneHourAfterTarget) {
                 await (prisma as any).reminder.update({
                     where: { id: reminder.id },
                     data: { status: 'FAILED' }
@@ -225,7 +226,12 @@ export async function GET(request: Request) {
             
             // Template selection
             let template = settings.whatsapp_template_1 || settings.whatsapp_template;
-            if (!template) {
+            
+            if (reminder.timeMinutes < 0) {
+                template = settings.whatsapp_template_after || `Hola *{{nombre}}*, esperamos que tu cita en *${settings.appTitle || 'nuestro centro'}* el pasado *{{fecha}}* haya sido de tu agrado. ¡Gracias por confiar en nosotros!`;
+            } else if (reminder.timeMinutes === 0) {
+                template = settings.whatsapp_template_immediate || `Hola *{{nombre}}*, tu cita en *${settings.appTitle || 'nuestro centro'}* para el día *{{fecha}}* ha sido confirmada. ¡Te esperamos!`;
+            } else if (!template) {
                 template = `Hola *{{nombre}}*, te recordamos tu cita en *${settings.appTitle || 'nuestro centro'}* para el día *{{fecha}}*. ¡Te esperamos!`;
             }
 
