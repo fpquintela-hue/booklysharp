@@ -11,7 +11,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, Server, Mail, ShieldCheck, Lock, Eye, EyeOff, ShieldAlert, Key } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Settings, Server, Mail, ShieldCheck, Lock, Eye, EyeOff, ShieldAlert, Key, AlertTriangle } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -33,6 +35,10 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
     const [smtpFrom, setSmtpFrom] = useState('');
     const [smtpSecure, setSmtpSecure] = useState('ssl'); // ssl, starttls, none
     const [testEmail, setTestEmail] = useState('');
+
+    // Maintenance mode state (global)
+    const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+    const [maintenanceMessage, setMaintenanceMessage] = useState('');
 
     // Change Password state
     const [currentPass, setCurrentPass] = useState('');
@@ -87,6 +93,8 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                 setSmtpPass(data.GLOBAL_SMTP_PASS || '');
                 setSmtpFrom(data.GLOBAL_SMTP_FROM || '');
                 setSmtpSecure(data.GLOBAL_SMTP_SECURE || 'ssl');
+                setMaintenanceEnabled(data.MAINTENANCE_ENABLED === 'true');
+                setMaintenanceMessage(data.MAINTENANCE_MESSAGE || '');
             }
         } catch (error) {
             console.error(error);
@@ -107,6 +115,8 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
             GLOBAL_SMTP_PASS: smtpPass,
             GLOBAL_SMTP_FROM: smtpFrom,
             GLOBAL_SMTP_SECURE: smtpSecure,
+            MAINTENANCE_ENABLED: maintenanceEnabled ? 'true' : 'false',
+            MAINTENANCE_MESSAGE: maintenanceMessage,
         };
 
         try {
@@ -117,7 +127,7 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
             });
 
             if (res.ok) {
-                toast.success('Configuración SMTP global guardada');
+                toast.success('Configuración global guardada');
                 setOpen(false);
             } else {
                 toast.error('Error al guardar configuración');
@@ -253,6 +263,38 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                                         value={smtpFrom} 
                                         onChange={e => setSmtpFrom(e.target.value)} 
                                     />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-6 border-t border-slate-100">
+                            <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-500 mb-6 px-1">
+                                <AlertTriangle className="w-4 h-4" /> Modo Mantenimiento
+                            </h3>
+                            <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6 space-y-5">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <Label className="text-sm font-black text-amber-900">Mostrar aviso en la landing</Label>
+                                        <p className="text-xs text-amber-700/80 mt-1 font-medium">
+                                            Muestra una banda de aviso en la parte superior de la página pública.
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        checked={maintenanceEnabled}
+                                        onCheckedChange={setMaintenanceEnabled}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-amber-600 ml-1">Mensaje del aviso</Label>
+                                    <Textarea
+                                        className="rounded-2xl bg-white border-amber-200 px-5 py-4 focus-visible:ring-4 focus-visible:ring-amber-500/10 transition-all font-medium min-h-[80px]"
+                                        placeholder="Estamos realizando tareas de mantenimiento. Volveremos a estar operativos en breve."
+                                        value={maintenanceMessage}
+                                        onChange={e => setMaintenanceMessage(e.target.value)}
+                                    />
+                                    <p className="text-[11px] text-amber-700/70 ml-1">
+                                        Si lo dejas vacío se usará un mensaje por defecto.
+                                    </p>
                                 </div>
                             </div>
                         </div>

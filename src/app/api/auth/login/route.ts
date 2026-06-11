@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { signSession, SESSION_COOKIE, SESSION_MAX_AGE } from '@/lib/session';
+
+const sessionCookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
+    maxAge: SESSION_MAX_AGE,
+};
 
 export async function POST(request: Request) {
     try {
@@ -43,11 +52,14 @@ export async function POST(request: Request) {
             }
 
             if (superadmin && await checkAndUpdatePassword(superadmin, password, true)) {
-                return NextResponse.json({
+                const token = await signSession({ sub: superadmin.id, role: 'SUPERADMIN' });
+                const res = NextResponse.json({
                     id: superadmin.id,
                     username: superadmin.username,
                     role: 'SUPERADMIN'
                 });
+                res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
+                return res;
             }
             return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
         }
@@ -72,9 +84,23 @@ export async function POST(request: Request) {
             }
 
             // We no longer block login for expired subscriptions; we just pass the info.
-            
-            return NextResponse.json({
-                ...user,
+
+            // Nunca devolver hash de contraseña ni tokens de verificación
+            const {
+                password: _password,
+                verification_token: _verificationToken,
+                verify_token_expires: _verifyTokenExpires,
+                ...safeUser
+            } = user as any;
+
+            const token = await signSession({
+                sub: user.id,
+                role: user.role,
+                tenantId: user.tenantId,
+            });
+
+            const res = NextResponse.json({
+                ...safeUser,
                 tenantAlias: user.tenant.alias,
                 tenantExpiresAt: user.tenant.expires_at || user.tenant.fecha_fin_suscripcion,
                 tenantSubscriptionStatus: user.tenant.subscription_status,
@@ -85,6 +111,8 @@ export async function POST(request: Request) {
                 tenantBillingInfo: user.tenant.billing_info,
                 tenantPaymentMethods: user.tenant.payment_methods
             });
+            res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
+            return res;
         }
 
         return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });

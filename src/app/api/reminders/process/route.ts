@@ -137,6 +137,15 @@ async function getTransporter() {
 
 export async function GET(request: Request) {
     try {
+        // Solo el worker de recordatorios puede disparar el motor.
+        // Sin CRON_SECRET configurado, el endpoint queda cerrado (fail-closed).
+        const cronSecret = process.env.CRON_SECRET;
+        const provided = request.headers.get('x-cron-secret')
+            || new URL(request.url).searchParams.get('secret');
+        if (!cronSecret || provided !== cronSecret) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
         const now = new Date();
         
         // 1. Fetch all pending reminders

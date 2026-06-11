@@ -23,6 +23,9 @@ export async function GET(request: Request) {
         });
         
         const settingsMap = settings.reduce((acc: any, curr: any) => {
+            // Los tokens de reseteo de contraseña se guardan como settings:
+            // nunca deben salir por la API de lectura.
+            if (curr.key.startsWith('PW_RESET_')) return acc;
             acc[curr.key] = curr.value;
             return acc;
         }, {} as Record<string, string>);

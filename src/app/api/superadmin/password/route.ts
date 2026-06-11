@@ -30,12 +30,7 @@ export async function POST(request: Request) {
         }
 
         if (!isMatch) {
-            // Check against debug fallback if the user is stuck because of my recent change
-            if (currentPassword === '1234admin') {
-                isMatch = true;
-            } else {
-                return NextResponse.json({ error: 'Contraseña actual incorrecta' }, { status: 401 });
-            }
+            return NextResponse.json({ error: 'Contraseña actual incorrecta' }, { status: 401 });
         }
 
         // Hashing nueva contraseña

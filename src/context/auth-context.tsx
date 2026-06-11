@@ -45,6 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         if (parsedUser.theme) {
                             setTheme(parsedUser.theme);
                         }
+                        // Validar que la cookie de sesión del servidor sigue viva;
+                        // si no (sesión antigua o expirada), limpiar el estado local.
+                        fetch('/api/auth/me').then((res) => {
+                            if (res.status === 401) {
+                                localStorage.removeItem(SESSION_KEY);
+                                setUser(null);
+                            }
+                        }).catch(() => { /* sin red: mantener estado local */ });
                     }
                 } else {
                     localStorage.removeItem(SESSION_KEY);
@@ -73,6 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Try to capture alias from URL before clearing state
         const pathParts = pathname.split('/').filter(Boolean);
         const aliasFromUrl = pathParts[0];
+
+        // Invalidar la cookie de sesión en el servidor
+        fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
 
         setUser(null);
         localStorage.removeItem(SESSION_KEY);

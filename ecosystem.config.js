@@ -1,3 +1,6 @@
+// DATABASE_URL NO se define aquí: Next.js carga el .env del proyecto
+// (PostgreSQL). Definirla en PM2 machacaría la del .env — fue el origen
+// de que las instancias apuntaran a SQLite locales distintas.
 module.exports = {
     apps: [
         {
@@ -5,8 +8,7 @@ module.exports = {
             script: 'node_modules/next/dist/bin/next',
             args: 'start',
             env: {
-                PORT: 3001,
-                DATABASE_URL: 'file:./agenda1.db'
+                PORT: 3001
             }
         },
         {
@@ -14,8 +16,14 @@ module.exports = {
             script: 'node_modules/next/dist/bin/next',
             args: 'start',
             env: {
-                PORT: 3002,
-                DATABASE_URL: 'file:./agenda2.db'
+                PORT: 3002
+            }
+        },
+        {
+            name: 'bookly-reminders',
+            script: 'scripts/reminder-worker.js',
+            env: {
+                REMINDER_API_URL: 'http://localhost:3001/api/reminders/process'
             }
         }
     ]

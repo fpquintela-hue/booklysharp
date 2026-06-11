@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { getTransporter } from '@/lib/notifications';
 
 export async function POST(request: Request) {
     try {
@@ -42,20 +43,11 @@ export async function POST(request: Request) {
         const baseUrl = new URL(request.url).origin;
         const resetUrl = `${baseUrl}/auth/reset?token=${token}`;
 
-        // Fetch SMTP settings
-        const smtpSettings = await (prisma as any).setting.findMany({
-            where: {
-                tenantId: null,
-                key: { in: ['GLOBAL_SMTP_HOST', 'GLOBAL_SMTP_USER', 'GLOBAL_SMTP_PASS', 'GLOBAL_SMTP_FROM'] }
-            }
-        });
-        
-        const config = smtpSettings.reduce((acc: any, curr: any) => {
-            acc[curr.key] = curr.value;
-            return acc;
-        }, {} as any);
+        // Envío directo via SMTP global (no usar fetch interno a /api/email:
+        // el proxy de autenticación lo bloquearía al no llevar cookie de sesión)
+        const emailSystem = await getTransporter();
 
-        if (config.GLOBAL_SMTP_HOST) {
+        if (emailSystem) {
             const emailBody = {
                 to: email,
                 subject: 'Restablecer contrasinal - booklysharp',
@@ -76,9 +68,9 @@ export async function POST(request: Request) {
                 `
             };
 
-            await fetch(`${baseUrl}/api/email`, {
-                method: 'POST',
-                body: JSON.stringify(emailBody)
+            await emailSystem.transporter.sendMail({
+                from: emailSystem.from,
+                ...emailBody
             });
         }
 
