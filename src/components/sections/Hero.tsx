@@ -71,7 +71,10 @@ export function Hero() {
   const contentY = (1 - t) * 40;
 
   return (
-    <section ref={sectionRef} className="relative h-[300vh] bg-[#f8fafc]">
+    // -mt-[73px] tira de la sección hacia arriba la altura exacta de la navbar
+    // (72px + 1px de border-b) para que la animación arranque pineada en el
+    // borde superior, detrás de la navbar translúcida, sin deriva inicial.
+    <section ref={sectionRef} className="relative -mt-[73px] h-[300vh] bg-[#f8fafc]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
 
         {/* Animación de fondo a pantalla completa */}
