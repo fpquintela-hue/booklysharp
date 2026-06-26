@@ -11,22 +11,18 @@ const framePaths = Array.from({ length: frameCount }, (_, i) =>
 export function HeroScrollAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // We track the scroll progress of this specific container.
-  // Using 'start center' means the animation starts when the top of the container hits the middle of the viewport.
-  // 'end start' means it ends when the bottom of the container hits the top of the viewport.
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start center", "end start"] 
-  });
+  // Use global scroll since this is in the Hero section at the very top of the page
+  const { scrollY } = useScroll();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    // Map scroll progress (0 to 1) to frame index (0 to 22)
-    const nextIndex = Math.min(
-      frameCount - 1,
-      Math.max(0, Math.floor(latest * frameCount))
-    );
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    // Animate over the first 600px of scrolling
+    const scrollDistance = 600; 
+    const progress = Math.min(1, Math.max(0, latest / scrollDistance));
+    
+    // Map progress (0 to 1) to frame index (0 to 22)
+    const nextIndex = Math.floor(progress * (frameCount - 1));
     setCurrentIndex(nextIndex);
   });
 
