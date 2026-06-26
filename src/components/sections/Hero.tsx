@@ -1,42 +1,92 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { HeroScrollAnimation } from './hero-animation/HeroScrollAnimation';
 
+// La landing puede scrollear dentro de la ventana O dentro de un contenedor
+// con overflow-y-auto (en esta app, el <main> de NavigationWrapper para páginas
+// públicas, porque el <body> está en overflow-hidden h-[100dvh]). Buscamos el
+// ancestro scrollable real para escuchar SU scroll; si no hay, usamos la ventana.
+function getScrollParent(node: HTMLElement | null): HTMLElement | Window {
+  let el = node?.parentElement ?? null;
+  while (el) {
+    const oy = getComputedStyle(el).overflowY;
+    if (oy === 'auto' || oy === 'scroll' || oy === 'overlay') return el;
+    el = el.parentElement;
+  }
+  return window;
+}
+
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  
-  // Track scroll progress of the entire section
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"]
-  });
+  // Progreso 0 → 1 mientras la sección está "pinneada" (sticky).
+  const [progress, setProgress] = useState(0);
 
-  // Fade in the content as we start scrolling
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.15], [0, 1]);
-  const contentY = useTransform(scrollYProgress, [0, 0.15], [40, 0]);
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const scroller = getScrollParent(section);
+    const target: HTMLElement | Window = scroller;
+    let raf = 0;
+
+    const compute = () => {
+      raf = 0;
+      const rect = section.getBoundingClientRect();
+      const vh =
+        scroller === window
+          ? window.innerHeight
+          : (scroller as HTMLElement).clientHeight;
+      // Distancia que la sección permanece pinneada (alto total menos un viewport).
+      const total = rect.height - vh;
+      // Cuánto hemos scrolleado pasada la parte superior de la sección.
+      const scrolled = -rect.top;
+      const p = total > 0 ? Math.min(1, Math.max(0, scrolled / total)) : 0;
+      setProgress(p);
+    };
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(compute);
+    };
+
+    compute();
+    target.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      target.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  // El contenido aparece alrededor de la mitad de la animación.
+  const t = Math.min(1, Math.max(0, (progress - 0.35) / 0.2));
+  const contentOpacity = t;
+  const contentY = (1 - t) * 40;
 
   return (
-    <section ref={sectionRef} className="relative h-[250vh] bg-[#f8fafc]">
+    <section ref={sectionRef} className="relative h-[300vh] bg-[#f8fafc]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        
-        {/* Full-screen background animation */}
+
+        {/* Animación de fondo a pantalla completa */}
         <div className="absolute inset-0 z-0">
-          <HeroScrollAnimation />
-          {/* Optional subtle gradient overlay to ensure text readability */}
+          <HeroScrollAnimation progress={progress} />
+          {/* Degradado sutil para asegurar legibilidad del texto */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent pointer-events-none" />
         </div>
 
-        {/* Overlay Content */}
+        {/* Contenido superpuesto */}
         <div className="relative z-10 flex h-full items-center">
           <div className="mx-auto w-full max-w-7xl px-6">
-            <motion.div 
-              style={{ opacity: reduce ? 1 : contentOpacity, y: reduce ? 0 : contentY }}
+            <div
+              style={{
+                opacity: contentOpacity,
+                transform: `translateY(${contentY}px)`,
+              }}
               className="max-w-2xl"
             >
               <span className="inline-flex items-center gap-2 rounded-full border border-[#0c63ce]/20 bg-[#0c63ce]/5 px-4 py-1.5 text-sm font-semibold text-[#0c63ce]">
@@ -90,7 +140,7 @@ export function Hero() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
