@@ -1,0 +1,400 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  --font-body: Inter, sans-serif;
+  
+  --color-primary: var(--primary, #004ac6);
+  --color-background: var(--bg-main, #faf8ff);
+  --color-surface: var(--bg-surface, #ffffff);
+  --color-border: var(--border-color, rgba(172,179,183,0.1));
+}
+
+:root {
+  --bg-main: #eef2f6;
+  --bg-surface: #ffffff;
+  --bg-sidebar: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: rgba(172,179,183,0.15);
+  
+  /* Shadcn UI compatibility mapping */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: var(--primary);
+  
+  --cal-bg: #f7f9fb;
+  --cal-header-bg: #f7f9fb;
+  --cal-slot-bg: #f7f9fb;
+  --cal-slot-alt-bg: #f0f4f7;
+  --cal-grid-border: rgba(172,179,183,0.08);
+  --cal-header-border: rgba(172,179,183,0.15);
+  --cal-time-color: #94a3b8;
+  --cal-event-text: #ffffff;
+}
+
+.dark {
+  --bg-main: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-sidebar: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255,255,255,0.08);
+
+  /* Shadcn UI compatibility mapping */
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+  --primary: #3b82f6;
+  --primary-foreground: #0f172a;
+  --secondary: #334155;
+  --secondary-foreground: #f8fafc;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #334155;
+  --accent-foreground: #f8fafc;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f8fafc;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3b82f6;
+
+  --cal-bg: #0f172a;
+  --cal-header-bg: #1e293b;
+  --cal-slot-bg: #0f172a;
+  --cal-slot-alt-bg: #1e293b;
+  --cal-grid-border: rgba(255,255,255,0.05);
+  --cal-header-border: rgba(255,255,255,0.1);
+  --cal-time-color: #64748b;
+  --cal-event-text: #f8fafc;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.font-headline {
+  font-family: var(--font-headline);
+}
+
+/* ============================================
+   CALENDAR — Main Reset & Base
+   ============================================ */
+.rbc-calendar {
+  font-family: var(--font-body);
+  background: var(--cal-bg);
+  color: var(--text-main);
+  border: none !important;
+  border-radius: 1rem; /* Modern card aesthetic */
+  overflow: hidden !important;
+}
+
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view,
+.rbc-time-header-gutter,
+.rbc-time-gutter {
+  background: var(--cal-bg) !important;
+}
+
+.rbc-day-bg {
+  background: var(--cal-bg) !important;
+}
+
+.classic-mode .rbc-calendar,
+.classic-mode .rbc-month-view,
+.classic-mode .rbc-time-view {
+  border-radius: 0 !important;
+}
+
+/* Global Classic Mode Overrides */
+.classic-mode * {
+  border-radius: 0 !important;
+}
+
+.classic-mode .rounded-xl,
+.classic-mode .rounded-2xl,
+.classic-mode .rounded-3xl,
+.classic-mode .rounded-full {
+  border-radius: 0 !important;
+}
+
+/* ============================================
+   HEADER RESET & UNIFICATION
+   ============================================ */
+.rbc-time-header {
+  overflow: visible !important;
+  border: none !important;
+  background: var(--cal-bg) !important;
+  border-bottom: 1px solid var(--cal-header-border) !important; /* Header bottom line */
+}
+
+.rbc-time-header-content {
+  border-left: 1px solid var(--cal-header-border) !important;
+}
+
+.rbc-time-header.rbc-overflowing,
+.rbc-time-gutter,
+.rbc-time-header-gutter {
+  background: var(--cal-bg) !important;
+}
+
+.rbc-time-header > .rbc-row:first-child {
+  background: var(--cal-bg) !important;
+}
+
+.rbc-row.rbc-time-header-content {
+  border-left: 1px solid var(--cal-header-border) !important;
+  background: var(--cal-bg) !important;
+}
+
+.rbc-time-header-content,
+.rbc-time-header-content .rbc-row,
+.rbc-time-header-content .rbc-allday-cell,
+.rbc-time-header-gutter {
+  border: none !important;
+  overflow: visible !important;
+  background: var(--cal-bg) !important;
+}
+
+/* Vertical continuity through the all-day/header background */
+.rbc-time-header-content .rbc-day-bg {
+  border-right: 1px solid var(--cal-header-border) !important;
+  border-left: none !important;
+}
+
+.rbc-time-header-content .rbc-day-bg:last-child {
+  border-right: none !important;
+}
+
+.rbc-header {
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  font-size: 0.75rem !important;
+  min-height: 85px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--cal-bg) !important;
+  border-right: 1px solid var(--cal-header-border) !important; /* RESTORED GREY BORDER */
+  transition: all 0.2s ease;
+}
+
+.rbc-header.rbc-today {
+  background: var(--cal-bg) !important;
+  color: var(--primary) !important;
+}
+
+.rbc-header + .rbc-header {
+  border-left: 1px solid var(--cal-header-border) !important;
+}
+
+/* Tiny bar above today's header removed since it's fully colored now */
+.rbc-header.rbc-today::after {
+  display: none;
+}
+
+.rbc-time-header-content {
+  min-height: 85px !important;
+}
+
+.rbc-time-header-cell {
+  border-right: 1px solid var(--cal-header-border) !important;
+}
+
+/* Hide only ALL-DAY events in week/day view, but keep rows for month view */
+.rbc-time-view .rbc-row-content {
+  display: none !important;
+}
+
+/* ============================================
+   GRID & COLUMNS
+   ============================================ */
+.rbc-time-content {
+  border-top: none !important;
+}
+
+.rbc-day-slot {
+  border-left: none !important; /* Remove any left border */
+  border-right: 1px solid var(--cal-grid-border) !important; /* Unified vertical divide */
+  background-color: var(--cal-slot-bg) !important;
+}
+
+.rbc-day-slot:last-child {
+  border-right: none !important;
+}
+
+/* ============================================
+   TIME SLOTS (Grid Rows)
+   ============================================ */
+.rbc-timeslot-group {
+  border-bottom: 1px solid var(--cal-slot-alt-bg) !important; /* Softer divider */
+  min-height: 52px !important; /* Slightly more padding in height */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.rbc-time-slot {
+  flex: 1;
+  background-image: none !important;
+  background-color: transparent !important;
+  border-top: none !important;
+}
+
+/* Half-hour alternate lines */
+.rbc-timeslot-group > .rbc-time-slot:nth-child(2) {
+  background-color: var(--cal-slot-alt-bg) !important;
+  border-top: 1px solid var(--cal-slot-alt-bg) !important; /* Softer divider */
+}
+
+/* ============================================
+   TIME GUTTER (Hours Column)
+   ============================================ */
+.rbc-time-gutter {
+  background-color: transparent !important;
+  border: none !important;
+  border-right: 1px solid var(--cal-header-border) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.rbc-time-gutter .rbc-timeslot-group {
+  border-bottom: 1px solid transparent !important;
+}
+
+.rbc-time-gutter .rbc-label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  padding: 12px 16px 0 8px !important; /* More padding in gutter */
+  text-align: right !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+/* ============================================
+   STATES & HIGHLIGHTS & BLOCKED SLOTS
+   ============================================ */
+.rbc-today {
+  background-color: rgba(59, 130, 246, 0.04) !important; 
+}
+
+.dark .rbc-today {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.rbc-time-header .rbc-today {
+  background-color: transparent !important;
+}
+
+.centro-closed-slot, .blocked-day-slot, .blocked-background-slot {
+  background-color: var(--cal-slot-alt-bg) !important;
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+/* ============================================
+   REACT-CALENDAR (Widgets)
+   ============================================ */
+.react-calendar__tile--active {
+  background: var(--color-primary, #004ac6) !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+
+.react-calendar__tile--now {
+  background: rgba(var(--primary-rgb, 0, 74, 198), 0.1) !important;
+  color: var(--color-primary, #004ac6) !important;
+  border-radius: 8px !important;
+}
+
+.rbc-off-range-bg {
+  background-color: var(--cal-slot-alt-bg) !important;
+}
+
+/* ============================================
+   EVENTS & UI
+   ============================================ */
+.rbc-event {
+  border-radius: 6px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.rbc-event-label {
+  display: none !important;
+}
+
+.rbc-current-time-indicator {
+  background-color: #ba1a1a !important;
+  height: 2px !important;
+}
+
+.rbc-current-time-indicator::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: #ba1a1a !important;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.15);
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Grid border fixes */
+.rbc-month-row,
+.rbc-month-view,
+.rbc-time-content,
+.rbc-time-header {
+  border-color: var(--cal-grid-border) !important;
+}
+
+.rbc-header,
+.rbc-day-bg,
+.rbc-day-slot {
+  border-color: var(--cal-grid-border) !important;
+}
+
+.rbc-time-gutter .rbc-timeslot-group,
+.rbc-timeslot-group {
+  border-color: var(--cal-header-border) !important;
+}
+
+
+.primary-gradient {
+  background: linear-gradient(135deg, #004ac6 0%, #2563eb 100%);
+}

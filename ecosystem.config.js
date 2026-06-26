@@ -8,7 +8,7 @@ module.exports = {
             script: 'node_modules/next/dist/bin/next',
             args: 'start',
             env: {
-                PORT: 3001
+                PORT: 3000
             }
         },
         {
@@ -16,14 +16,14 @@ module.exports = {
             script: 'node_modules/next/dist/bin/next',
             args: 'start',
             env: {
-                PORT: 3002
+                PORT: 3001
             }
         },
         {
             name: 'bookly-reminders',
             script: 'scripts/reminder-worker.js',
             env: {
-                REMINDER_API_URL: 'http://localhost:3001/api/reminders/process'
+                REMINDER_API_URL: 'http://localhost:3000/api/reminders/process'
             }
         }
     ]

@@ -1,40 +1,62 @@
 'use client';
-import { motion } from 'framer-motion';
-import { MessageCircle, Clock, CalendarX } from 'lucide-react';
+
+import { motion, useReducedMotion } from 'framer-motion';
+import { MessageCircle, CalendarX, Clock } from 'lucide-react';
+
+const PROBLEMS = [
+  {
+    icon: MessageCircle,
+    title: 'Mensajes a las 11 de la noche',
+    body: 'Clientes escribiendo por WhatsApp a deshoras esperando respuesta inmediata para reservar.',
+  },
+  {
+    icon: CalendarX,
+    title: 'Los clientes que no aparecen',
+    body: 'Ese hueco en la agenda que nadie ocupa y que no puedes cobrar, una y otra vez.',
+  },
+  {
+    icon: Clock,
+    title: 'Horas perdidas cuadrando citas',
+    body: 'El interminable "¿qué día te viene bien?" que te roba tiempo de atender a quien tienes delante.',
+  },
+];
 
 export function Problem() {
+  const reduce = useReducedMotion();
+
   return (
-    <section className="py-24 bg-slate-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-slate-900">
-            Gestionar tu agenda a mano te está costando dinero (y salud mental)
+    <section className="bg-white py-20 md:py-28">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 lg:grid-cols-12 lg:gap-16">
+        <div className="lg:col-span-5">
+          <h2 className="text-balance text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
+            Gestionar la agenda a mano te cuesta dinero y tranquilidad
           </h2>
-          <p className="text-lg text-slate-600">
-            Sabemos cómo es tu día a día. Estás atendiendo a un cliente y el teléfono no para de sonar.
+          <p className="mt-6 text-lg leading-relaxed text-slate-600">
+            Conocemos tu día a día: atiendes a un cliente mientras el teléfono no para de sonar.
+            Estos tres problemas se repiten en cada negocio antes de automatizar.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><MessageCircle size={100} /></div>
-            <div className="text-[#0c63ce] mb-4 bg-[#0c63ce]/10 w-12 h-12 flex items-center justify-center rounded-xl"><MessageCircle /></div>
-            <h3 className="text-xl font-bold mb-3">Mensajes a las 11 PM</h3>
-            <p className="text-slate-600">Clientes escribiendo por WhatsApp a deshoras esperando respuestas inmediatas para reservar.</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><CalendarX size={100} /></div>
-            <div className="text-[#0c63ce] mb-4 bg-[#0c63ce]/10 w-12 h-12 flex items-center justify-center rounded-xl"><CalendarX /></div>
-            <h3 className="text-xl font-bold mb-3">Los "No-Shows"</h3>
-            <p className="text-slate-600">Ese cliente que no aparece y no avisa, dejándote un hueco en la agenda que no puedes cobrar.</p>
-          </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5"><Clock size={100} /></div>
-            <div className="text-[#0c63ce] mb-4 bg-[#0c63ce]/10 w-12 h-12 flex items-center justify-center rounded-xl"><Clock /></div>
-            <h3 className="text-xl font-bold mb-3">Tiempo perdido</h3>
-            <p className="text-slate-600">Horas a la semana cruzando mensajes de "qué día te viene bien", "el jueves a las 5 no puedo".</p>
-          </div>
-        </div>
+        <ul className="lg:col-span-7">
+          {PROBLEMS.map((problem, i) => (
+            <motion.li
+              key={problem.title}
+              initial={reduce ? false : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-start gap-5 border-t border-slate-200 py-7 first:border-t-0 first:pt-0"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0c63ce]/10 text-[#0c63ce]">
+                <problem.icon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">{problem.title}</h3>
+                <p className="mt-2 leading-relaxed text-slate-600">{problem.body}</p>
+              </div>
+            </motion.li>
+          ))}
+        </ul>
       </div>
     </section>
   );

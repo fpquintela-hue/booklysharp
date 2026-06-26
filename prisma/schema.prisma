@@ -147,11 +147,11 @@ model AppointmentType {
 }
 
 model Setting {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   key      String
   value    String
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([key, tenantId])
   @@index([tenantId])

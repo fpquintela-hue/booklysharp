@@ -32,6 +32,7 @@ import { SubscriptionSettingsPanel } from '@/components/SubscriptionSettingsPane
 import { StaffSettingsPanel } from '@/components/StaffSettingsPanel';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
+import { normalizePlanId } from '@/lib/subscription-plans';
 
 export default function SettingsPage() {
     const { user } = useAuth();
@@ -51,6 +52,8 @@ export default function SettingsPage() {
     );
     const [isMobileMenuExpanded, setIsMobileMenuExpanded] = useState(false);
 
+    const planId = normalizePlanId(user?.tenantPlan || user?.tenantSubscriptionPlan);
+
     const menuItems = [
         { id: 'appearance', label: t('settings.tab_appearance'), icon: Palette },
         { id: 'security', label: t('settings.tab_security'), icon: Lock },
@@ -60,7 +63,7 @@ export default function SettingsPage() {
             { id: 'citas', label: 'Servicios', icon: CalendarDays },
             { id: 'horarios', label: t('settings.tab_horarios'), icon: Calendar },
             { id: 'profesionais', label: 'Profesionales', icon: Users },
-            { id: 'staff', label: 'Staff', icon: UserCog },
+            ...(planId === 'profesional' ? [{ id: 'staff', label: 'Staff', icon: UserCog }] : []),
             { id: 'reminders', label: 'Recordatorios', icon: Bell },
             { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
         ] : []),
@@ -121,7 +124,7 @@ export default function SettingsPage() {
                                 title={item.label}
                                 className={cn(
                                     "flex items-center rounded-xl text-sm font-bold transition-all",
-                                    isMobileMenuExpanded ? "w-full px-4 py-3 gap-3" : "w-10 h-10 justify-center mx-auto md:w-full md:px-4 md:py-3 md:gap-3",
+                                    isMobileMenuExpanded ? "w-full px-4 py-3 gap-3 justify-start" : "w-10 h-10 justify-center mx-auto md:w-full md:justify-start md:px-4 md:py-3 md:gap-3",
                                     disabled ? "opacity-50 cursor-not-allowed text-slate-400" :
                                     activeTab === item.id
                                         ? "bg-white dark:bg-slate-800 text-primary dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"

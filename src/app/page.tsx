@@ -21,23 +21,25 @@ export default async function Home() {
   const maintenance = await getMaintenanceStatus();
 
   return (
-    <main className="min-h-screen bg-slate-50 selection:bg-primary/30 selection:text-primary-dark">
-      {maintenance.enabled && <MaintenanceBanner message={maintenance.message} />}
-      <Navbar />
-      
+    <div className="font-headline min-h-screen bg-white text-slate-900 antialiased selection:bg-[#0c63ce]/20 selection:text-[#0a52ab]">
+      <div className="sticky top-0 z-50">
+        <Navbar />
+        {maintenance.enabled && <MaintenanceBanner message={maintenance.message} />}
+      </div>
+
       <Hero />
-      <SocialProof /> {/* Los logos de empresas que ya lo usan */}
-      <Problem />     {/* Agitamos el dolor */}
-      <UseCases />    {/* Segmentamos al cliente */}
-      <Features />    {/* Demostramos el valor técnico */}
-      <Testimonials /> {/* Social proof extra */}
-      <Pricing />     {/* Cerramos la venta */}
-      <FAQ />         {/* Eliminamos dudas finales */}
-      <CTASection />  {/* Última oportunidad de conversión */}
-      
+      <SocialProof /> {/* Sectores que ya lo usan */}
+      <Problem />     {/* El dolor */}
+      <UseCases />    {/* A quién va dirigido */}
+      <Features />    {/* El valor del producto */}
+      <Testimonials /> {/* Prueba social */}
+      <Pricing />     {/* La venta */}
+      <FAQ />         {/* Dudas finales */}
+      <CTASection />  {/* Conversión final + bloque oscuro de cierre */}
+
       <FAB />         {/* Botón flotante de contacto */}
-      
+
       <Footer />
-    </main>
+    </div>
   );
 }

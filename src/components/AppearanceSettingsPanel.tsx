@@ -3,7 +3,7 @@
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/auth-context';
 import { userService } from '@/lib/mock-service';
-import { Check, Square, Monitor, Globe, Palette, Plus, Pipette } from 'lucide-react';
+import { Check, Square, Monitor, Globe, Palette, Plus, Pipette, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -62,7 +62,10 @@ export function AppearanceSettingsPanel() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* CLARO Card */}
                         <div 
-                            className="relative group cursor-pointer"
+                            className={cn(
+                                "relative p-6 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer hover:shadow-sm",
+                                theme === 'light' ? "bg-white dark:bg-slate-900 border-primary" : "bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:bg-slate-100"
+                            )}
                             onClick={async () => {
                                 setTheme('light');
                                 if (user) {
@@ -72,31 +75,28 @@ export function AppearanceSettingsPanel() {
                             }}
                         >
                             <div className={cn(
-                                "h-48 rounded-2xl bg-white dark:bg-slate-900 border-2 overflow-hidden flex flex-col p-4 transition-all hover:shadow-md",
-                                theme === 'light' ? "border-primary shadow-sm bg-primary/5" : "border-slate-200 dark:border-slate-800"
+                                "w-12 h-12 rounded-xl flex items-center justify-center",
+                                theme === 'light' ? "bg-primary/10 text-primary" : "bg-slate-200 dark:bg-slate-800 text-slate-500"
                             )}>
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className={cn(
-                                        "text-sm font-black uppercase tracking-tight",
-                                        theme === 'light' ? "text-primary" : "text-slate-700 dark:text-slate-300"
-                                    )}>Claro</span>
-                                    {theme === 'light' && (
-                                        <div className="bg-primary text-white rounded-full p-0.5 flex items-center justify-center">
-                                            <Check className="w-3.5 h-3.5" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-auto space-y-2 opacity-80">
-                                    <div className="h-3 w-2/3 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                                    <div className="h-3 w-full bg-slate-100 dark:bg-slate-800/80 rounded"></div>
-                                    <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                                </div>
+                                <Sun className="w-5 h-5" />
                             </div>
+                            <div className="flex-grow">
+                                <h3 className={cn("font-black uppercase tracking-tight", theme === 'light' ? "text-slate-900 dark:text-white" : "text-slate-500")}>CLARO</h3>
+                                <p className="text-xs text-slate-500 font-medium mt-0.5">Tema luminoso por defecto.</p>
+                            </div>
+                            {theme === 'light' && (
+                                <div className="bg-primary text-white rounded-full p-0.5">
+                                    <Check className="w-3.5 h-3.5" />
+                                </div>
+                            )}
                         </div>
 
                         {/* OSCURO Card */}
                         <div 
-                            className="relative group cursor-pointer"
+                            className={cn(
+                                "relative p-6 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer hover:shadow-sm",
+                                theme === 'dark' ? "bg-white dark:bg-slate-900 border-primary" : "bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:bg-slate-100"
+                            )}
                             onClick={async () => {
                                 setTheme('dark');
                                 if (user) {
@@ -106,26 +106,20 @@ export function AppearanceSettingsPanel() {
                             }}
                         >
                             <div className={cn(
-                                "h-48 rounded-2xl bg-slate-950 border-2 overflow-hidden flex flex-col p-4 transition-all hover:bg-slate-900",
-                                theme === 'dark' ? "border-primary shadow-sm bg-primary/20" : "border-slate-800 dark:border-slate-700"
+                                "w-12 h-12 rounded-xl flex items-center justify-center",
+                                theme === 'dark' ? "bg-primary/10 text-primary" : "bg-slate-200 dark:bg-slate-800 text-slate-500"
                             )}>
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className={cn(
-                                        "text-sm font-black uppercase tracking-tight",
-                                        theme === 'dark' ? "text-primary-foreground" : "text-slate-300"
-                                    )}>Oscuro</span>
-                                    {theme === 'dark' && (
-                                        <div className="bg-primary text-white rounded-full p-0.5 flex items-center justify-center">
-                                            <Check className="w-3.5 h-3.5" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-auto space-y-2 opacity-80">
-                                    <div className="h-3 w-2/3 bg-slate-800 rounded"></div>
-                                    <div className="h-3 w-full bg-slate-900 rounded"></div>
-                                    <div className="h-3 w-1/2 bg-slate-800 rounded"></div>
-                                </div>
+                                <Moon className="w-5 h-5" />
                             </div>
+                            <div className="flex-grow">
+                                <h3 className={cn("font-black uppercase tracking-tight", theme === 'dark' ? "text-slate-900 dark:text-white" : "text-slate-500")}>OSCURO</h3>
+                                <p className="text-xs text-slate-500 font-medium mt-0.5">Para entornos de poca luz.</p>
+                            </div>
+                            {theme === 'dark' && (
+                                <div className="bg-primary text-white rounded-full p-0.5">
+                                    <Check className="w-3.5 h-3.5" />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>

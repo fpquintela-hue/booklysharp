@@ -1,44 +1,47 @@
 'use client';
 
-import { motion } from 'framer-motion';
+const SECTORS = [
+  'Peluquerías', 'Barberías', 'Centros de uñas', 'Cuidado de la piel',
+  'Maquillaje', 'Podología', 'Masajistas', 'Nutricionistas',
+  'Terapeutas', 'Entrenadores personales', 'Spa', 'Servicios para mascotas',
+  'Depilación', 'Freelancers',
+];
 
 export function SocialProof() {
   return (
-    <section className="py-20 bg-slate-900 overflow-hidden relative border-t border-slate-800/50">
-      <div className="container mx-auto px-4 md:px-6 relative z-20">
-        <p className="text-center text-sm font-semibold text-slate-300 uppercase tracking-widest mb-12">
-          ES EL MOTOR DE RESERVAS ELEGIDO POR +2,000 PROFESIONALES DE
+    <section className="overflow-hidden border-y border-slate-200 bg-slate-50 py-16">
+      <div className="mx-auto max-w-7xl px-6">
+        <p className="text-center text-base font-semibold text-slate-500">
+          El motor de reservas elegido por más de 2.000 profesionales de
         </p>
-        
-        {/* Infinite scroll carousel effect using Framer Motion */}
-        <div className="flex space-x-6 animate-scroll w-max">
-          {[...Array(2)].map((_, idx) => (
-            <div key={idx} className="flex space-x-6 items-center justify-between transition-all duration-300">
-              {[
-                "Peluquerías", "Barberías", "Centros de Uñas", "Cuidado de la piel",
-                "Maquillaje", "Podología", "Masajistas", "Nutricionistas",
-                "Terapeutas", "Entrenador personal", "Spa", "Servicios para mascotas",
-                "Depilación", "Freelancers"
-              ].map((sector) => (
-                <div key={sector} className="px-6 py-3 rounded-full bg-slate-800/50 backdrop-blur-sm shadow-sm border border-slate-700/50 text-slate-200 font-medium whitespace-nowrap hover:bg-slate-700/80 hover:border-slate-600 transition-all">
+      </div>
+
+      <div className="relative mt-10">
+        {/* Edge fades */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-slate-50 to-transparent md:w-32" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-slate-50 to-transparent md:w-32" />
+
+        <div className="flex w-max gap-4 animate-marquee">
+          {[0, 1].map((set) => (
+            <div key={set} className="flex shrink-0 gap-4" aria-hidden={set === 1}>
+              {SECTORS.map((sector) => (
+                <span
+                  key={sector}
+                  className="whitespace-nowrap rounded-full border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 shadow-sm"
+                >
                   {sector}
-                </div>
+                </span>
               ))}
             </div>
           ))}
         </div>
       </div>
-      
-      {/* CSS For the infite scroll */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 1.5rem)); }
-        }
-        .animate-scroll {
-          animation: scroll 40s linear infinite;
-        }
-      `}} />
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-50% - 0.5rem)); } }
+        .animate-marquee { animation: marquee 45s linear infinite; }
+        @media (prefers-reduced-motion: reduce) { .animate-marquee { animation: none; } }
+      ` }} />
     </section>
   );
 }

@@ -297,14 +297,15 @@ export function AppointmentTypesPanel() {
                                 <div
                                     key={type.id}
                                     className={cn(
-                                        "bg-slate-50 dark:bg-slate-800/40 rounded-3xl p-6 border-2 transition-all duration-300 flex flex-col relative overflow-hidden",
+                                        "bg-slate-50 dark:bg-slate-800/40 border-2 transition-all duration-300 relative overflow-hidden",
                                         editingId === type.id 
-                                            ? "border-[#2563EB] ring-8 ring-blue-500/5 shadow-2xl z-10 scale-[1.02]" 
-                                            : "border-slate-100 dark:border-slate-800 hover:border-blue-500/30 hover:shadow-xl"
+                                            ? "rounded-3xl p-6 flex flex-col border-[#2563EB] ring-8 ring-blue-500/5 shadow-2xl z-10 scale-[1.02]" 
+                                            : "rounded-2xl p-6 flex items-center gap-4 border-slate-100 dark:border-slate-800 hover:border-blue-500/30 hover:shadow-md cursor-pointer group/card"
                                     )}
+                                    onClick={() => { if (editingId !== type.id) startEdit(type); }}
                                 >
                                     {editingId === type.id ? (
-                                        <div className="flex flex-col h-full gap-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="flex flex-col h-full gap-5 animate-in fade-in slide-in-from-bottom-2 duration-300 cursor-default" onClick={e => e.stopPropagation()}>
                                             <div className="space-y-4">
                                                 <div className="space-y-1.5">
                                                     <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-[#2563EB]">Nombre del Servicio</Label>
@@ -387,51 +388,43 @@ export function AppointmentTypesPanel() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col h-full cursor-pointer group/card" onClick={() => startEdit(type)}>
-                                            <div className="flex justify-between items-start mb-5">
-                                                <div 
-                                                    className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 group-hover/card:scale-110 shadow-lg shadow-black/5 overflow-hidden border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-                                                    style={{ color: type.color }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        startEdit(type); 
-                                                        setIconPickerOpen(true);
-                                                    }}
-                                                >
-                                                    {renderIcon(type.image)}
-                                                </div>
-                                                <div className="flex flex-col gap-1 items-end">
-                                                    <span className="px-3 py-1 bg-green-500/10 text-green-600 text-[10px] font-black rounded-full uppercase tracking-tighter">Activo</span>
-                                                    <div className="w-4 h-4 rounded-full mt-1 border-2 border-white shadow-sm" style={{ backgroundColor: type.color }} />
-                                                </div>
+                                        <>
+                                            <div 
+                                                className="w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                                                style={{ color: type.color }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    startEdit(type); 
+                                                    setIconPickerOpen(true);
+                                                }}
+                                            >
+                                                {renderIcon(type.image, "w-6 h-6")}
                                             </div>
                                             
-                                            <h4 className="font-black text-slate-900 dark:text-white text-xl capitalize truncate transition-colors group-hover/card:text-[#2563EB]">{type.name}</h4>
-                                            
-                                            <div className="flex items-center gap-2 mt-2 text-slate-400 dark:text-slate-500">
-                                                {type.duration === 0 ? <InfinityIcon className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                                                <span className="text-xs font-black uppercase tracking-widest">
-                                                    {type.duration === 0 ? 'SIN LÍMITE' : `${type.duration} MINUTOS`}
-                                                </span>
-                                            </div>
-                                            
-                                            <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50 flex justify-between items-center">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inversión</span>
-                                                    <span className="text-2xl font-black text-slate-900 dark:text-white">
+                                            <div className="flex-grow flex flex-col">
+                                                <h4 className="font-black text-slate-900 dark:text-white text-base capitalize truncate transition-colors group-hover/card:text-[#2563EB]">{type.name}</h4>
+                                                
+                                                <div className="flex items-center gap-1.5 mt-0.5 text-slate-400 dark:text-slate-500">
+                                                    {type.duration === 0 ? <InfinityIcon className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">
+                                                        {type.duration === 0 ? 'SIN LÍMITE' : `${type.duration} MIN`}
+                                                    </span>
+                                                    <span className="text-[10px] font-black mx-1 opacity-50">•</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">
                                                         {type.price != null ? `${type.price.toFixed(2)}€` : 'Gratis'}
                                                     </span>
                                                 </div>
-                                                <div className="flex items-center gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-300 translate-x-4 group-hover/card:translate-x-0">
-                                                    <button onClick={(e) => { e.stopPropagation(); setTypeToDelete(type); }} className="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                                                        <Trash2 className="w-5 h-5" />
-                                                    </button>
-                                                    <button onClick={(e) => { e.stopPropagation(); startEdit(type); }} className="p-2.5 bg-blue-50 text-[#2563EB] rounded-xl hover:bg-[#2563EB] hover:text-white transition-all shadow-lg shadow-blue-500/10">
-                                                        <Pencil className="w-5 h-5" />
-                                                    </button>
-                                                </div>
                                             </div>
-                                        </div>
+                                            
+                                            <div className="flex items-center gap-1.5 opacity-0 group-hover/card:opacity-100 transition-all duration-300">
+                                                <button onClick={(e) => { e.stopPropagation(); setTypeToDelete(type); }} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={(e) => { e.stopPropagation(); startEdit(type); }} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-[#2563EB] hover:text-white rounded-lg transition-colors">
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             ))}

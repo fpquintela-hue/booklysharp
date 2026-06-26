@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar, Views } from 'react-big-calendar';
 import { dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
@@ -11,8 +11,7 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { useSettings } from '@/context/settings-context';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, Calendar as CalendarIcon, Info, Clock } from 'lucide-react';
+import { CalendarOff, Trash2, Calendar as CalendarIcon, Eraser, Pencil, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiFetch } from '@/lib/mock-service';
 import {
@@ -20,355 +19,320 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
 } from "@/components/ui/dialog";
-import { Copy, Trash, CalendarOff, History } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-import { Switch } from '@/components/ui/switch';
-
-const locales = {
-    'es': es,
-    'gl': gl,
-};
+// ── Locales ──────────────────────────────────────────────────────────
+const locales = { es, gl };
 
 const localizer = dateFnsLocalizer({
-    format: (date: any, formatStr: any, options: any) => (format as any)(date, formatStr, options),
-    parse: (str: any, formatStr: any, options: any) => (parse as any)(str, formatStr, new Date(), options),
-    startOfWeek: (date: any, options: any) => (startOfWeek as any)(date, { ...options, weekStartsOn: 1 }),
+    format: (date: any, fmt: any, opts: any) => (format as any)(date, fmt, opts),
+    parse:  (str: any, fmt: any, opts: any) => (parse as any)(str, fmt, new Date(), opts),
+    startOfWeek: (date: any, opts: any) => (startOfWeek as any)(date, { ...opts, weekStartsOn: 1 }),
     getDay,
     locales,
 });
 
 const DnDCalendar = withDragAndDrop(Calendar as any);
 
+// ── Types ────────────────────────────────────────────────────────────
 interface BlockedSlot {
-    dayOfWeek: number;
-    startTime: string; // HH:mm
-    endTime: string; // HH:mm
+    dayOfWeek: number;   // 0=Sun … 6=Sat (JS getDay convention)
+    startTime: string;   // "HH:mm"
+    endTime:   string;   // "HH:mm"
 }
 
+// Fixed Monday base so column positions map to weekdays deterministically
+const BASE_DATE = new Date(2024, 0, 1); // Mon 1 Jan 2024
+
+// ── Component ────────────────────────────────────────────────────────
 export function ScheduleSettingsPanel() {
     const { settings, refreshSettings } = useSettings();
     const { t, lang } = useTranslation();
-    const [saving, setSaving] = useState(false);
 
+    // Professionals dropdown
     const [professionals, setProfessionals] = useState<any[]>([]);
     const [selectedProf, setSelectedProf] = useState<string>('global');
 
+    // Slots state
     const [slots, setSlots] = useState<BlockedSlot[]>([]);
-    const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
-    const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+    // Edit dialog
+    const [editingSlot, setEditingSlot] = useState<{ idx: number; slot: BlockedSlot } | null>(null);
+    const [editStart, setEditStart] = useState('');
+    const [editEnd,   setEditEnd]   = useState('');
 
-    // Dialog states for new features
+    // Holidays dialog (kept as requested)
     const [holidaysOpen, setHolidaysOpen] = useState(false);
-    const [recurringOpen, setRecurringOpen] = useState(false);
-    const [historyOpen, setHistoryOpen] = useState(false);
 
-    // Manual Block Config State
-    const [manualDayOpen, setManualDayOpen] = useState(false);
-    const [manualDayTarget, setManualDayTarget] = useState<number>(1);
-    const [manualDayLabel, setManualDayLabel] = useState<string>('');
-    const [manualStartTime, setManualStartTime] = useState('09:00');
-    const [manualEndTime, setManualEndTime] = useState('14:00');
-    const [manualAllDay, setManualAllDay] = useState(false);
-
-    // To allow drag/drop, we maintain dummy events on a specific "dummy week"
-    const [events, setEvents] = useState<any[]>([]);
-
-    const baseDate = new Date(2024, 0, 1); // Jan 1, 2024 is a Monday
-
-    const openTime = settings.startTime || '07:00';
-    const closeTime = settings.endTime || '21:00';
-    const [openH, openM] = openTime.split(':').map(Number);
+    // ── Opening hours from Identity settings ─────────────────────────
+    const openTime  = settings.startTime || '07:00';
+    const closeTime = settings.endTime   || '21:00';
+    const [openH,  openM]  = openTime.split(':').map(Number);
     const [closeH, closeM] = closeTime.split(':').map(Number);
 
-    // Create Date objects for min/max on the baseDate
-    const calendarMin = new Date(2024, 0, 1, openH, openM, 0);
-    const calendarMax = new Date(2024, 0, 1, closeH, closeM, 0);
+    const calendarMin = useMemo(() => new Date(2024, 0, 1, openH, openM, 0), [openH, openM]);
+    const calendarMax = useMemo(() => new Date(2024, 0, 1, closeH, closeM, 0), [closeH, closeM]);
 
-    // Calculate full height based on time range so ALL slots render and are interactive
-    const totalMinutes = (closeH * 60 + closeM) - (openH * 60 + openM);
-    // As per user request, height is slightly reduced but CSS handles the compact flex
-    const calendarHeight = Math.max(350, (Math.ceil(totalMinutes / 15) * 50) * 0.4);
-
-    const handleQuickBlockAllDay = (date: Date) => {
-        const dayOfWeek = getDay(date);
-        const isFullDayBlocked = slots.some(s => 
-            s.dayOfWeek === dayOfWeek && 
-            s.startTime === openTime && 
-            s.endTime === closeTime
-        );
-
-        let newSlots;
-        if (isFullDayBlocked) {
-            newSlots = slots.filter(s => 
-                !(s.dayOfWeek === dayOfWeek && s.startTime === openTime && s.endTime === closeTime)
-            );
-            toast.success(`Día desbloqueado`);
-        } else {
-            const newSlot: BlockedSlot = { dayOfWeek, startTime: openTime, endTime: closeTime };
-            newSlots = [...slots, newSlot];
-            toast.success(`Día bloqueado por completo`);
-        }
-        
-        setSlots(newSlots);
-        saveSettingsToApi(newSlots);
-    };
-
-    const CustomHeader = ({ label, date }: { label: string, date: Date }) => {
-        const dayOfWeek = getDay(date);
-        const isFullDayBlocked = slots.some(s => 
-            s.dayOfWeek === dayOfWeek && 
-            s.startTime === openTime && 
-            s.endTime === closeTime
-        );
-
-        return (
-            <div className="flex flex-col items-center justify-center py-4 gap-3 w-full h-full min-h-[100px] relative z-50">
-                <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-black text-slate-500 dark:text-slate-400">
-                    {label}
-                </span>
-                <div className="flex items-center gap-4">
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setManualDayTarget(getDay(date));
-                            setManualDayLabel(label);
-                            setManualStartTime(openTime);
-                            setManualEndTime(closeTime);
-                            setManualAllDay(false);
-                            setManualDayOpen(true);
-                        }}
-                        className="p-2 bg-slate-200 dark:bg-slate-700 hover:bg-primary text-slate-600 dark:text-slate-300 hover:text-white rounded-xl transition-all shadow-sm active:scale-90"
-                        title="Configurar cierre manual"
-                    >
-                        <Clock className="w-4 h-4" />
-                    </button>
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleQuickBlockAllDay(date);
-                        }}
-                        className={cn(
-                            "p-2 rounded-xl transition-all shadow-sm active:scale-90",
-                            isFullDayBlocked 
-                                ? "bg-rose-500 text-white hover:bg-rose-600" 
-                                : "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white"
-                        )}
-                        title={isFullDayBlocked ? "Desbloquear día" : "Bloquear todo el día"}
-                    >
-                        <CalendarOff className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-        );
-    };
-
+    // ── Data fetching ────────────────────────────────────────────────
     useEffect(() => {
-        apiFetch('professionals')
-            .then(data => setProfessionals(data))
-            .catch(console.error);
+        apiFetch('professionals').then(setProfessionals).catch(console.error);
     }, []);
 
     useEffect(() => {
-        if (selectedProf === 'global') {
-            const initialSlots = settings.blockedSlots ? JSON.parse(settings.blockedSlots) : [];
-            setSlots(initialSlots);
-        } else {
-            const profSlots = settings[`blockedSlots_${selectedProf}`];
-            const initialSlots = profSlots ? JSON.parse(profSlots) : [];
-            setSlots(initialSlots);
-        }
+        const key = selectedProf === 'global' ? 'blockedSlots' : `blockedSlots_${selectedProf}`;
+        const raw = settings[key];
+        setSlots(raw ? JSON.parse(raw) : []);
     }, [selectedProf, settings]);
 
+    // ── Persistence ──────────────────────────────────────────────────
+    const settingKey = useCallback(
+        () => (selectedProf === 'global' ? 'blockedSlots' : `blockedSlots_${selectedProf}`),
+        [selectedProf],
+    );
 
-
-    // Helper to convert BlockedSlot to an Event on our dummy week
-    const slotsToEvents = (currentSlots: BlockedSlot[]) => {
-        return currentSlots.map((slot, idx) => {
-            const [sh, sm] = slot.startTime.split(':').map(Number);
-            const [eh, em] = slot.endTime.split(':').map(Number);
-
-            const isTargetSunday = slot.dayOfWeek === 0;
-            const diff = isTargetSunday ? 6 : slot.dayOfWeek - 1;
-
-            const date = new Date(baseDate);
-            date.setDate(baseDate.getDate() + diff);
-
-            const start = new Date(date);
-            start.setHours(sh, sm, 0, 0);
-
-            const end = new Date(date);
-            end.setHours(eh, em, 0, 0);
-
-            return {
-                id: idx,
-                title: t('type.blocked'),
-                start,
-                end,
-                slotData: slot
-            };
-        });
-    };
-
-    // Initialize events from slots
-    useEffect(() => {
-        setEvents(slotsToEvents(slots));
-    }, [slots]);
-
-    const getSettingKey = () => selectedProf === 'global' ? 'blockedSlots' : `blockedSlots_${selectedProf}`;
-
-    const saveSettingsToApi = async (newSlots: BlockedSlot[]) => {
+    const persist = useCallback(async (next: BlockedSlot[]) => {
         try {
             await apiFetch('settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    [getSettingKey()]: JSON.stringify(newSlots)
-                })
+                body: JSON.stringify({ [settingKey()]: JSON.stringify(next) }),
             });
             await refreshSettings();
-        } catch (e) {
+        } catch {
             toast.error(t('settings.error_saving'));
-            throw e;
         }
-    };
+    }, [settingKey, refreshSettings, t]);
 
-    const handleSaveManual = () => {
-        let sh = manualStartTime;
-        let eh = manualEndTime;
-        if (manualAllDay) {
-            sh = openTime;
-            eh = closeTime;
+    const applySlots = useCallback((next: BlockedSlot[]) => {
+        setSlots(next);
+        persist(next);
+    }, [persist]);
+
+    // ── Quick actions per day ────────────────────────────────────────
+    const blockFullDay = useCallback((dayOfWeek: number) => {
+        const alreadyFull = slots.some(
+            s => s.dayOfWeek === dayOfWeek && s.startTime === openTime && s.endTime === closeTime,
+        );
+        if (alreadyFull) {
+            // Toggle off
+            applySlots(slots.filter(s =>
+                !(s.dayOfWeek === dayOfWeek && s.startTime === openTime && s.endTime === closeTime),
+            ));
+            toast.success(t('calendar.unlock_day'));
+        } else {
+            // Replace all day blocks with one full-day block
+            const filtered = slots.filter(s => s.dayOfWeek !== dayOfWeek);
+            applySlots([...filtered, { dayOfWeek, startTime: openTime, endTime: closeTime }]);
+            toast.success(t('calendar.lock_day'));
         }
-        
-        const newSlot: BlockedSlot = { dayOfWeek: manualDayTarget, startTime: sh, endTime: eh };
-        const newSlots = [...slots, newSlot];
-        setSlots(newSlots);
-        saveSettingsToApi(newSlots);
-        setManualDayOpen(false);
-        toast.success(`Cierre manual añadido para ${manualDayLabel}`);
-    };
+    }, [slots, openTime, closeTime, applySlots, t]);
 
-    const handleSelectSlot = async ({ start, end }: { start: Date, end: Date }) => {
-        const sh = format(start, 'HH:mm');
-        const eh = format(end, 'HH:mm');
-        const dayOfWeek = getDay(start);
-
-        const newSlot: BlockedSlot = { dayOfWeek, startTime: sh, endTime: eh };
-        const newSlots = [...slots, newSlot];
-        setSlots(newSlots);
-        saveSettingsToApi(newSlots);
-    };
-
-    const handleEventDrop = async ({ event, start, end }: any) => {
-        const newSlots = [...slots];
-        const sh = format(start, 'HH:mm');
-        const eh = format(end, 'HH:mm');
-        const dayOfWeek = getDay(start);
-
-        newSlots[event.id] = { dayOfWeek, startTime: sh, endTime: eh };
-        setSlots(newSlots);
-        saveSettingsToApi(newSlots);
-    };
-
-    const handleEventResize = async ({ event, start, end }: any) => {
-        const newSlots = [...slots];
-        const sh = format(start, 'HH:mm');
-        const eh = format(end, 'HH:mm');
-        const dayOfWeek = getDay(start);
-
-        newSlots[event.id] = { dayOfWeek, startTime: sh, endTime: eh };
-        setSlots(newSlots);
-        saveSettingsToApi(newSlots);
-    };
-
-    const executeDelete = async (slotId: number) => {
-        const newSlots = slots.filter((_s: BlockedSlot, i: number) => i !== slotId);
-        setSlots(newSlots);
-        setConfirmDeleteId(null);
-
-        try {
-            await saveSettingsToApi(newSlots);
-            toast.success(t('settings.blocked_slot_deleted'));
-        } catch (e) {
-            // Error handling done in saveSettingsToApi
-        }
-    };
-
-    const handleSelectEvent = (event: any) => {
-        setConfirmDeleteId(event.id);
-    };
-
-    const handleClearAll = () => {
-        setConfirmClearOpen(true);
-    };
-
-    const confirmClear = async () => {
-        setSlots([]);
-        await saveSettingsToApi([]);
-        setConfirmClearOpen(false);
+    const clearDay = useCallback((dayOfWeek: number) => {
+        const next = slots.filter(s => s.dayOfWeek !== dayOfWeek);
+        if (next.length === slots.length) return; // nothing to clear
+        applySlots(next);
         toast.success(t('common.deleted'));
-    };
+    }, [slots, applySlots, t]);
 
-    const handleSave = async () => {
-        setSaving(true);
-        try {
-            await saveSettingsToApi(slots);
-            toast.success(t('settings.save_success'));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setSaving(false);
-        }
-    };
+    // ── Drag & drop / select ─────────────────────────────────────────
+    const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
+        applySlots([...slots, {
+            dayOfWeek: getDay(start),
+            startTime: format(start, 'HH:mm'),
+            endTime:   format(end,   'HH:mm'),
+        }]);
+    }, [slots, applySlots]);
 
+    const handleEventDrop = useCallback(({ event, start, end }: any) => {
+        const next = [...slots];
+        next[event.id] = {
+            dayOfWeek: getDay(start),
+            startTime: format(start, 'HH:mm'),
+            endTime:   format(end,   'HH:mm'),
+        };
+        applySlots(next);
+    }, [slots, applySlots]);
 
+    const handleEventResize = useCallback(({ event, start, end }: any) => {
+        const next = [...slots];
+        next[event.id] = {
+            dayOfWeek: getDay(start),
+            startTime: format(start, 'HH:mm'),
+            endTime:   format(end,   'HH:mm'),
+        };
+        applySlots(next);
+    }, [slots, applySlots]);
 
+    // ── Click on event → open edit dialog ────────────────────────────
+    const handleSelectEvent = useCallback((event: any) => {
+        const slot = slots[event.id];
+        if (!slot) return;
+        setEditingSlot({ idx: event.id, slot });
+        setEditStart(slot.startTime);
+        setEditEnd(slot.endTime);
+    }, [slots]);
+
+    const handleEditSave = useCallback(() => {
+        if (!editingSlot) return;
+        const next = [...slots];
+        next[editingSlot.idx] = { ...editingSlot.slot, startTime: editStart, endTime: editEnd };
+        applySlots(next);
+        setEditingSlot(null);
+        toast.success(t('settings.save_success'));
+    }, [editingSlot, editStart, editEnd, slots, applySlots, t]);
+
+    const handleEditDelete = useCallback(() => {
+        if (!editingSlot) return;
+        applySlots(slots.filter((_, i) => i !== editingSlot.idx));
+        setEditingSlot(null);
+        toast.success(t('settings.blocked_slot_deleted'));
+    }, [editingSlot, slots, applySlots, t]);
+
+    // ── Slot → BigCalendar events ────────────────────────────────────
+    const events = useMemo(() => slots.map((slot, idx) => {
+        const [sh, sm] = slot.startTime.split(':').map(Number);
+        const [eh, em] = slot.endTime.split(':').map(Number);
+        const diff = slot.dayOfWeek === 0 ? 6 : slot.dayOfWeek - 1;
+
+        const day = new Date(BASE_DATE);
+        day.setDate(BASE_DATE.getDate() + diff);
+
+        const start = new Date(day); start.setHours(sh, sm, 0, 0);
+        const end   = new Date(day); end.setHours(eh, em, 0, 0);
+
+        return { id: idx, title: t('type.blocked'), start, end, slotData: slot };
+    }), [slots, t]);
+
+    // ── Day name helper ──────────────────────────────────────────────
+    const dayNames = useMemo(() => {
+        const locale = lang === 'gl' ? gl : es;
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(BASE_DATE);
+            d.setDate(BASE_DATE.getDate() + i);
+            const name = format(d, 'EEEE', { locale });
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        });
+    }, [lang]);
+
+    // ── Custom header with action buttons ────────────────────────────
+    const CustomHeader = useCallback(({ label, date }: { label: string; date: Date }) => {
+        const dow = getDay(date);
+        const isFull = slots.some(
+            s => s.dayOfWeek === dow && s.startTime === openTime && s.endTime === closeTime,
+        );
+
+        return (
+            <div className="flex flex-col items-center justify-center py-2.5 gap-1.5 w-full">
+                <span className="text-[11px] md:text-xs uppercase tracking-widest font-black text-slate-600 dark:text-slate-300 select-none">
+                    {label}
+                </span>
+                <div className="flex items-center gap-1 px-1">
+                    <button
+                        onClick={e => { e.stopPropagation(); blockFullDay(dow); }}
+                        className={cn(
+                            "p-1.5 rounded-lg transition-all active:scale-90 border",
+                            isFull
+                                ? "bg-rose-500 text-white border-rose-600 hover:bg-rose-600 shadow-sm"
+                                : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700",
+                        )}
+                        title={isFull ? (t('calendar.unlock_day')) : (t('calendar.lock_day'))}
+                    >
+                        <CalendarOff className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={e => { e.stopPropagation(); clearDay(dow); }}
+                        className="p-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-800 transition-all active:scale-90"
+                        title={t('common.delete')}
+                    >
+                        <Eraser className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+            </div>
+        );
+    }, [slots, openTime, closeTime, blockFullDay, clearDay, t]);
+
+    // ── Render ───────────────────────────────────────────────────────
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col flex-1 min-h-[700px]">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col flex-1">
+            {/* Inline CSS overrides for react-big-calendar headers */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                .schedule-panel .rbc-header {
+                    height: auto !important;
+                    min-height: 72px;
+                    overflow: visible !important;
+                    padding: 0 !important;
+                }
+                .schedule-panel .rbc-time-header-content,
+                .schedule-panel .rbc-time-header {
+                    min-height: 72px !important;
+                }
+                .schedule-panel .rbc-allday-cell {
+                    display: none !important;
+                }
+                .schedule-panel .rbc-time-view {
+                    border: none !important;
+                }
+                .schedule-panel .rbc-time-content {
+                    border-top: 1px solid var(--border-color, #e2e8f0) !important;
+                }
+                .schedule-panel .rbc-time-header-gutter {
+                    display: flex;
+                    align-items: flex-end;
+                    padding-bottom: 4px !important;
+                }
+                .schedule-panel .rbc-event {
+                    border: none !important;
+                    border-radius: 8px !important;
+                }
+            `}} />
 
-            {/* Header and Controls */}
-            {/* Header Section */}
-            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-slate-100 dark:border-slate-800 mb-10">
-                <div className="space-y-4 max-w-2xl">
+            {/* ── Header ─────────────────────────────────────────── */}
+            <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-slate-100 dark:border-slate-800 mb-8">
+                <div className="space-y-3 max-w-2xl">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                         <CalendarIcon className="w-3 h-3" />
                         {t('settings.panel_schedule_badge')}
                     </div>
-                    <h1 className="text-2xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[0.9]">
-                        {t('settings.panel_schedule_title1')} <span className="text-primary">{t('settings.panel_schedule_title2')}</span>
+                    <h1 className="text-2xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                        {t('settings.panel_schedule_title1')}{' '}
+                        <span className="text-primary">{t('settings.panel_schedule_title2')}</span>
                     </h1>
-                    <p className="text-sm md:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
                         {t('settings.panel_schedule_desc')}
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-3">Horario de:</span>
+                {/* Scope selector */}
+                <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 rounded-2xl border border-slate-200/60 dark:border-slate-700 shadow-sm w-full lg:w-auto">
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest pl-3 whitespace-nowrap hidden sm:inline">
+                        {t('settings.tab_horarios')}:
+                    </span>
                     <select
+                        id="schedule-scope-selector"
                         value={selectedProf}
-                        onChange={(e) => setSelectedProf(e.target.value)}
-                        className="h-12 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-6 outline-none shadow-sm cursor-pointer min-w-[160px] focus:ring-2 focus:ring-primary/20 transition-all"
+                        onChange={e => setSelectedProf(e.target.value)}
+                        className="h-10 w-full text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 outline-none shadow-sm cursor-pointer lg:min-w-[200px] focus:ring-2 focus:ring-primary/20 transition-all text-slate-700 dark:text-slate-200"
                     >
-                        <option value="global">Centro</option>
+                        <option value="global">🏢 Centro</option>
                         {professionals.map((p: any) => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
+                            <option key={p.id} value={p.id}>👤 {p.name}</option>
                         ))}
                     </select>
                 </div>
             </header>
 
-            {/* Calendar Container */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-                <div className="bg-slate-50/30 dark:bg-slate-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 relative chunkipunki-theme schedule-settings-theme" style={{ height: '500px' }}>
+            {/* ── Calendar table ──────────────────────────────────── */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="schedule-panel" style={{ height: 560 }}>
                     <DnDCalendar
                         localizer={localizer}
                         culture={lang === 'gl' ? 'gl' : 'es'}
                         events={events}
                         defaultView={Views.WEEK}
                         views={[Views.WEEK]}
-                        defaultDate={baseDate}
+                        defaultDate={BASE_DATE}
                         toolbar={false}
                         selectable
                         resizable
@@ -380,276 +344,178 @@ export function ScheduleSettingsPanel() {
                         timeslots={2}
                         min={calendarMin}
                         max={calendarMax}
-                        style={{ height: '500px' }}
+                        style={{ height: 560 }}
                         formats={{
-                            timeGutterFormat: (date: Date, culture?: string, localizer?: any) => 
-                                date.getMinutes() === 0 ? localizer?.format(date, 'HH:mm', culture) : '',
-                            dayFormat: (date: Date, culture?: string, localizer?: any) => {
-                                const formatted = localizer?.format(date, 'EEEE', culture) || '';
-                                return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-                            }
+                            timeGutterFormat: (date: Date, culture?: string, loc?: any) =>
+                                date.getMinutes() === 0 ? loc?.format(date, 'HH:mm', culture) : '',
+                            dayFormat: (date: Date, culture?: string, loc?: any) => {
+                                const f = loc?.format(date, 'EEEE', culture) || '';
+                                return f.charAt(0).toUpperCase() + f.slice(1);
+                            },
                         }}
                         components={{
                             header: CustomHeader,
                             event: ({ event }: any) => {
                                 if (!event.start || !event.end) return null;
-                                const isConfirming = confirmDeleteId === event.id;
-
-                                if (isConfirming) {
-                                    return (
-                                        <div className="flex flex-col items-center justify-center h-full px-1 overflow-hidden bg-rose-500/90 text-white rounded-md animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
-                                            <span className="text-[10px] font-bold mb-1">{t('settings.confirm_delete_short')}</span>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                                                    className="bg-white/20 px-2 py-0.5 rounded text-[10px] hover:bg-white/40 border border-white/30"
-                                                >NO</button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        executeDelete(event.id);
-                                                    }}
-                                                    className="bg-rose-700 px-2 py-0.5 rounded text-[10px] hover:bg-rose-800 font-bold border border-rose-900/50 cursor-pointer pointer-events-auto"
-                                                >SÍ</button>
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
                                 return (
-                                    <div className="flex flex-col items-center justify-center h-full px-1 overflow-hidden group w-full text-white cursor-pointer relative" title="Click para eliminar">
-                                        <span className="text-[10px] font-black tracking-widest uppercase">Cierre</span>
-                                        <span className="text-[8px] font-bold text-white/90">
-                                            {format(event.start as Date, 'HH:mm')} - {format(event.end as Date, 'HH:mm')}
+                                    <div
+                                        className="flex flex-col items-center justify-center h-full px-1 overflow-hidden group w-full text-white cursor-pointer relative select-none"
+                                        title={t('common.edit')}
+                                    >
+                                        <span className="text-[10px] font-black tracking-widest uppercase leading-none">
+                                            {t('settings.blocked_label')}
                                         </span>
-                                        <button
-                                            type="button"
-                                            className="mt-1 p-1 hover:bg-white/20 text-white rounded transition-colors pointer-events-auto"
-                                            onMouseDown={(e) => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                                setConfirmDeleteId(event.id);
-                                            }}
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
+                                        <span className="text-[8px] font-bold text-white/80 mt-0.5">
+                                            {format(event.start as Date, 'HH:mm')} – {format(event.end as Date, 'HH:mm')}
+                                        </span>
+                                        <div className="absolute top-0.5 right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="p-0.5 bg-white/20 rounded">
+                                                <Pencil className="w-2.5 h-2.5" />
+                                            </span>
+                                        </div>
                                     </div>
                                 );
                             },
                         }}
                         eventPropGetter={() => ({
-                            className: 'bg-[#004ac6] border-none text-white rounded-lg shadow-md hover:bg-[#003da3] transition-all text-center relative z-10 p-1',
-                            style: { padding: 0 }
+                            className: '',
+                            style: {
+                                background: 'var(--primary, #004ac6)',
+                                borderRadius: 8,
+                                border: 'none',
+                                padding: 0,
+                                boxShadow: '0 1px 3px rgba(0,0,0,.12)',
+                            },
                         })}
                     />
                 </div>
 
-                {/* Legend & Controls underneath Calendar */}
-                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded bg-[#004ac6] shadow-sm"></div>
-                        <span className="text-xs font-bold text-slate-600">Bloque Cerrado (Cierre)</span>
+                {/* Legend */}
+                <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-5 text-xs">
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded" style={{ background: 'var(--primary, #004ac6)' }} />
+                        <span className="font-bold text-slate-600 dark:text-slate-300">{t('settings.blocked_label')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded bg-white dark:bg-slate-900 border border-slate-200"></div>
-                        <span className="text-xs font-medium text-slate-500">Disponible</span>
-                    </div>
-
-                    <div className="ml-auto flex items-center gap-4">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:inline">Ajustes Rápidos:</span>
-                        <button onClick={handleClearAll} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-500 transition-colors">
-                            <Trash className="w-4 h-4 text-rose-500" />
-                            Limpiar
-                        </button>
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+                        <span className="font-medium text-slate-400">{t('settings.blocks_desc')}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Feature Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                {/* Días Festivos */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+            {/* ── Holidays card ─────────────────────────────────── */}
+            <div className="mt-8 max-w-md">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                            <CalendarOff className="w-5 h-5" />
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                            <CalendarOff className="w-4 h-4" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">Días Festivos Globales</h4>
-                            <p className="text-[11px] text-slate-500">Cierra agendas completas temporalmente.</p>
+                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">{lang === 'gl' ? 'Días Festivos Anuais' : lang === 'en' ? 'Annual Holidays' : 'Días Festivos Anuales'}</h4>
+                            <p className="text-[11px] text-slate-500">{lang === 'gl' ? 'Configura os días festivos do ano para pechar a axenda automaticamente.' : lang === 'en' ? 'Configure annual holidays to automatically close the agenda.' : 'Configura los días festivos del año para cerrar la agenda automáticamente.'}</p>
                         </div>
                     </div>
-                    <button onClick={() => setHolidaysOpen(true)} className="mt-auto px-4 py-2.5 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors w-full">
-                        Definir Calendario Festivo
-                    </button>
-                </div>
-
-                {/* Cierres Recurrentes */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                            <Clock className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">Configuración Recursiva</h4>
-                            <p className="text-[11px] text-slate-500">Patrones de cierre automático (beta).</p>
-                        </div>
-                    </div>
-                    <button onClick={() => setRecurringOpen(true)} className="mt-auto px-4 py-2.5 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors w-full">
-                        Administrar Patrones
-                    </button>
-                </div>
-
-                {/* Historial de Cambios */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                            <History className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">Auditoría / Historial</h4>
-                            <p className="text-[11px] text-slate-500">Monitoriza modificaciones en horarios.</p>
-                        </div>
-                    </div>
-                    <button onClick={() => setHistoryOpen(true)} className="mt-auto px-4 py-2.5 text-xs font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors w-full">
-                        Revisar Logs
+                    <button
+                        onClick={() => setHolidaysOpen(true)}
+                        className="px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors w-full"
+                    >
+                        {lang === 'gl' ? 'Definir Calendario Festivo' : lang === 'en' ? 'Define Holiday Calendar' : 'Definir Calendario Festivo'}
                     </button>
                 </div>
             </div>
 
-            {/* Dialog Festivos */}
-            <Dialog open={holidaysOpen} onOpenChange={setHolidaysOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
+            {/* ── Edit slot dialog ────────────────────────────────── */}
+            <Dialog open={!!editingSlot} onOpenChange={open => { if (!open) setEditingSlot(null); }}>
+                <DialogContent className="sm:max-w-sm rounded-2xl border-none shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-blue-600 flex items-center gap-2">
-                            <CalendarOff className="w-5 h-5" />
-                            Días Festivos Anuales
+                        <DialogTitle className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                            <Pencil className="w-4 h-4 text-primary" />
+                            {t('common.edit')} — {t('settings.blocked_label')}
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="py-8 text-center bg-[#004ac6]/5 dark:bg-[#004ac6]/10 rounded-2xl mt-4 border border-[#004ac6]/10">
-                        <p className="text-[#004ac6] dark:text-blue-400 font-bold mb-2 uppercase tracking-tighter text-sm">Configuración avanzada en desarrollo</p>
-                        <p className="text-[11px] text-[#004ac6]/70 font-medium leading-relaxed px-6">Por ahora utiliza o calendario semanal mestre, xa que se está deseñando a mellor forma de implementar peches avanzados e festivos para cubrir todas as necesidades.</p>
-                    </div>
-                </DialogContent>
-            </Dialog>
 
-            {/* Dialog Confirm Clear */}
-            <Dialog open={confirmClearOpen} onOpenChange={setConfirmClearOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-red-600 flex items-center gap-2">
-                            <Trash className="w-5 h-5" />
-                            ¿Limpiar Calendario?
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <p className="text-sm font-medium">Esta acción eliminará todos los bloqueos actuales en este horario. ¿Estás seguro?</p>
-                    </div>
-                    <div className="flex gap-2 justify-end">
-                        <button onClick={() => setConfirmClearOpen(false)} className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-                        <button onClick={confirmClear} className="px-4 py-2 text-sm font-bold bg-red-600 text-white hover:bg-red-700 rounded-xl">Sí, limpiar todos</button>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Dialog Cierres Recurrentes Placeholder */}
-            <Dialog open={recurringOpen} onOpenChange={setRecurringOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-emerald-600 flex items-center gap-2">
-                            <Clock className="w-5 h-5" />
-                            Patrones de Cierre
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="py-8 text-center bg-[#004ac6]/5 dark:bg-[#004ac6]/10 rounded-2xl mt-4 border border-[#004ac6]/10">
-                        <p className="text-[#004ac6] dark:text-blue-400 font-bold mb-2 uppercase tracking-tighter text-sm">Configuración avanzada en desarrollo</p>
-                        <p className="text-[11px] text-[#004ac6]/70 font-medium leading-relaxed px-6">Por ahora utiliza o calendario semanal mestre, xa que se está deseñando a mellor forma de implementar peches avanzados e festivos para cubrir todas as necesidades.</p>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Dialog Historial Placeholder */}
-            <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-purple-600 flex items-center gap-2">
-                            <History className="w-5 h-5" />
-                            Auditoría
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-3 mt-4 max-h-[300px] overflow-y-auto pr-2">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100">
-                            <p className="text-xs text-slate-500 mb-1">Hace 2 minutos</p>
-                            <p className="text-sm font-bold">Admin cerró el Lunes de 09:00 a 10:00.</p>
-                        </div>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100">
-                            <p className="text-xs text-slate-500 mb-1">Ayer</p>
-                            <p className="text-sm font-bold">Admin eliminó el cierre del Miércoles tarde.</p>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
-        {/* Dialog Manual Block */}
-            <Dialog open={manualDayOpen} onOpenChange={setManualDayOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                            <Clock className="w-5 h-5 text-primary" />
-                            Cierre Manual: {manualDayLabel}
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-6 py-6">
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                            <div>
-                                <h4 className="text-sm font-bold text-slate-800 dark:text-white">Cerrar Todo el Día</h4>
-                                <p className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Aplica a todo el horario disponible</p>
+                    {editingSlot && (
+                        <div className="space-y-5 py-4">
+                            {/* Day label */}
+                            <div className="text-center">
+                                <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                                    {dayNames[editingSlot.slot.dayOfWeek === 0 ? 6 : editingSlot.slot.dayOfWeek - 1]}
+                                </span>
                             </div>
-                            <Switch 
-                                checked={manualAllDay} 
-                                onCheckedChange={setManualAllDay} 
-                            />
-                        </div>
 
-                        {!manualAllDay && (
+                            {/* Time inputs */}
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Hora Inicio</label>
-                                    <input 
-                                        type="time" 
-                                        className="h-12 w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 rounded-2xl text-slate-900 dark:text-white px-4 font-bold outline-none"
-                                        value={manualStartTime}
-                                        onChange={(e) => setManualStartTime(e.target.value)}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">
+                                        {t('settings.start')}
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={editStart}
+                                        onChange={e => setEditStart(e.target.value)}
                                         min={openTime}
                                         max={closeTime}
+                                        className="h-11 w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 rounded-xl text-slate-900 dark:text-white px-4 font-bold outline-none"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Hora Fin</label>
-                                    <input 
-                                        type="time" 
-                                        className="h-12 w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 rounded-2xl text-slate-900 dark:text-white px-4 font-bold outline-none"
-                                        value={manualEndTime}
-                                        onChange={(e) => setManualEndTime(e.target.value)}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">
+                                        {t('settings.end')}
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={editEnd}
+                                        onChange={e => setEditEnd(e.target.value)}
                                         min={openTime}
                                         max={closeTime}
+                                        className="h-11 w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 rounded-xl text-slate-900 dark:text-white px-4 font-bold outline-none"
                                     />
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        <Button 
-                            onClick={handleSaveManual} 
-                            className="w-full h-12 rounded-2xl bg-primary hover:bg-primary-light text-white font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                    <DialogFooter className="flex gap-2 sm:justify-between">
+                        <Button
+                            variant="ghost"
+                            onClick={handleEditDelete}
+                            className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 gap-1.5"
                         >
-                            Añadir Bloqueo
+                            <Trash2 className="w-4 h-4" />
+                            {t('common.delete')}
                         </Button>
-                    </div>
+                        <Button onClick={handleEditSave} className="gap-1.5 bg-primary hover:bg-primary/90 text-white">
+                            <Check className="w-4 h-4" />
+                            {t('common.save')}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
+            {/* ── Holidays dialog (placeholder) ──────────────────── */}
+            <Dialog open={holidaysOpen} onOpenChange={setHolidaysOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-black text-blue-600 flex items-center gap-2">
+                            <CalendarOff className="w-5 h-5" />
+                            {lang === 'gl' ? 'Días Festivos Anuais' : lang === 'en' ? 'Annual Holidays' : 'Días Festivos Anuales'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-8 text-center bg-blue-50/80 dark:bg-blue-900/10 rounded-2xl mt-2 border border-blue-100 dark:border-blue-900/20">
+                        <CalendarOff className="w-8 h-8 text-blue-400 mx-auto mb-3 opacity-60" />
+                        <p className="text-blue-600 dark:text-blue-400 font-bold mb-2 uppercase tracking-tight text-sm">
+                            {lang === 'gl' ? 'Funcionalidade en desenvolvemento' : lang === 'en' ? 'Feature in development' : 'Funcionalidad en desarrollo'}
+                        </p>
+                        <p className="text-[11px] text-blue-600/60 dark:text-blue-400/60 font-medium leading-relaxed px-6">
+                            {lang === 'gl'
+                                ? 'A configuración de días festivos anuais estará dispoñible en próximas actualizacións. Por agora, podes usar o calendario semanal para xestionar os pechamentos.'
+                                : lang === 'en'
+                                ? 'Annual holiday configuration will be available in upcoming updates. For now, you can use the weekly calendar to manage closures.'
+                                : 'La configuración de días festivos anuales estará disponible en próximas actualizaciones. Por ahora, puedes usar el calendario semanal para gestionar los cierres.'}
+                        </p>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -7,13 +7,13 @@ import Image from 'next/image';
 
 const features = [
   {
-    icon: <Zap className="w-6 h-6 text-amber-500" />,
+    icon: <Zap className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Facilidad Radical',
     description: 'Tan intuitiva que no necesitas manual. Configura tus servicios y horarios en 5 minutos y empieza a recibir reservas hoy mismo.',
     image: '/assets/semana.png'
   },
   {
-    icon: <BarChart3 className="w-6 h-6 text-blue-500" />,
+    icon: <BarChart3 className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Estadísticas Avanzadas',
     description: 'Toma el control absoluto de tu negocio. Visualiza la evolución de tus reservas, analiza tus ganancias y mide tu rendimiento diario con gráficas claras para tomar decisiones basadas en datos reales.',
     image: '/assets/estadistica.png'
@@ -25,25 +25,25 @@ const features = [
     image: '/assets/sincronizacion.png'
   },
   {
-    icon: <Bot className="w-6 h-6 text-indigo-500" />,
+    icon: <Bot className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Asistente Inteligente',
     description: 'Envía recordatorios automáticos por email y WhatsApp. Reduce tus "no-shows" (ausencias) hasta un 90%.',
     image: '/assets/asistente.png'
   },
   {
-    icon: <ShieldCheck className="w-6 h-6 text-emerald-500" />,
+    icon: <ShieldCheck className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Seguridad de Grado Bancario',
     description: 'Cumplimos con RGPD. Tus datos y los de tus clientes están encriptados y protegidos con los máximos estándares.',
     image: '/assets/bancario.png'
   },
   {
-    icon: <Smartphone className="w-6 h-6 text-pink-500" />,
+    icon: <Smartphone className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Tu agenda, en tu bolsillo',
     description: 'Gestión completa desde el móvil. Aplicaciones nativas fluidas para iOS y Android.',
     image: '/assets/agenda_movil.png'
   },
   {
-    icon: <SmartphoneNfc className="w-6 h-6 text-cyan-500" />,
+    icon: <SmartphoneNfc className="w-6 h-6 text-[#0c63ce]" />,
     title: 'Pagos Integrados',
     description: 'Cobra fianzas por adelantado mediante Stripe o PayPal y despídete de perder dinero por cancelaciones de última hora.',
     image: '/assets/pagos.png'
@@ -177,7 +177,7 @@ export function Features() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              Por qué Booklysharp es la <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0c63ce] to-indigo-600">única herramienta</span> de reservas que necesitarás
+              Por qué Booklysharp es la <span className="text-[#0c63ce]">única herramienta</span> de reservas que necesitarás
             </motion.h2>
           </div>
           

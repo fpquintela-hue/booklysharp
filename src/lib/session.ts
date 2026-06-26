@@ -14,6 +14,26 @@ export interface SessionPayload {
 export const SESSION_COOKIE = 'bs_session';
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 
+/**
+ * Opciones de la cookie de sesión, calculadas según la petición.
+ *
+ * Detrás de un reverse-proxy que termina TLS (p. ej. docker-proxy), la app
+ * recibe la conexión por HTTP, así que NO podemos asumir Secure por NODE_ENV:
+ * marcaríamos la cookie como Secure y el navegador la descartaría sobre HTTP.
+ * En su lugar, solo activamos Secure si el proxy declara `x-forwarded-proto: https`.
+ * Así la cookie persiste tanto por HTTPS público como por HTTP interno.
+ */
+export function cookieOptionsFor(request: Request, maxAge: number = SESSION_MAX_AGE) {
+    const proto = (request.headers.get('x-forwarded-proto') || '').split(',')[0].trim().toLowerCase();
+    return {
+        httpOnly: true,
+        secure: proto === 'https',
+        sameSite: 'lax' as const,
+        path: '/',
+        maxAge,
+    };
+}
+
 const getSecret = (): string => {
     const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
     if (!secret) {

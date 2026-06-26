@@ -82,8 +82,11 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error saving settings:', error);
-        return NextResponse.json({ error: 'Error saving settings' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Error saving settings', detail: String(error?.message || error), code: error?.code },
+            { status: 500 }
+        );
     }
 }

@@ -95,6 +95,9 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                 setSmtpSecure(data.GLOBAL_SMTP_SECURE || 'ssl');
                 setMaintenanceEnabled(data.MAINTENANCE_ENABLED === 'true');
                 setMaintenanceMessage(data.MAINTENANCE_MESSAGE || '');
+            } else {
+                const data = await res.json().catch(() => ({} as any));
+                toast.error(`No se pudo cargar la configuración (${res.status}): ${data?.detail || data?.error || ''}`);
             }
         } catch (error) {
             console.error(error);
@@ -130,10 +133,12 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                 toast.success('Configuración global guardada');
                 setOpen(false);
             } else {
-                toast.error('Error al guardar configuración');
+                const data = await res.json().catch(() => ({} as any));
+                const reason = data?.detail || data?.error || `HTTP ${res.status}`;
+                toast.error(`Error al guardar (${res.status}): ${reason}`);
             }
-        } catch (error) {
-            toast.error('Error al guardar configuración');
+        } catch (error: any) {
+            toast.error(`Error de red al guardar: ${String(error?.message || error)}`);
         } finally {
             setIsLoading(false);
         }
@@ -183,8 +188,8 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl">
-                <DialogHeader className="p-8 bg-slate-900 text-white">
+            <DialogContent className="sm:max-w-3xl p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl flex flex-col max-h-[88vh] gap-0">
+                <DialogHeader className="p-6 sm:p-8 bg-slate-900 text-white shrink-0">
                     <DialogTitle className="text-2xl font-black flex items-center gap-3 uppercase tracking-tighter">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md">
                             <Server className="w-6 h-6 text-white" />
@@ -196,56 +201,56 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                     </p>
                 </DialogHeader>
 
-                <div className="p-8 bg-white">
-                    <form onSubmit={handleSave} className="space-y-8">
+                <div className="p-6 sm:p-8 bg-white overflow-y-auto">
+                    <form onSubmit={handleSave} className="space-y-6">
                         <div>
-                            <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500 mb-6 px-1">
+                            <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 px-1">
                                 <Mail className="w-4 h-4" /> Servidor de Correos (SMTP)
                             </h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="space-y-1.5 md:col-span-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Host SMTP</Label>
-                                    <Input 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                                        placeholder="smtp.example.com" 
-                                        value={smtpHost} 
-                                        onChange={e => setSmtpHost(e.target.value)} 
+                                    <Input
+                                        className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
+                                        placeholder="smtp.example.com"
+                                        value={smtpHost}
+                                        onChange={e => setSmtpHost(e.target.value)}
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Puerto</Label>
-                                    <Input 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                                        placeholder="465" 
-                                        value={smtpPort} 
-                                        onChange={e => setSmtpPort(e.target.value)} 
+                                    <Input
+                                        className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
+                                        placeholder="465"
+                                        value={smtpPort}
+                                        onChange={e => setSmtpPort(e.target.value)}
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Usuario</Label>
-                                    <Input 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                                        placeholder="noreply@example.com" 
-                                        value={smtpUser} 
-                                        onChange={e => setSmtpUser(e.target.value)} 
+                                    <Input
+                                        className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
+                                        placeholder="noreply@example.com"
+                                        value={smtpUser}
+                                        onChange={e => setSmtpUser(e.target.value)}
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Contraseña</Label>
-                                    <Input 
+                                    <Input
                                         type="password"
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                                        placeholder="••••••••" 
-                                        value={smtpPass} 
-                                        onChange={e => setSmtpPass(e.target.value)} 
+                                        className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
+                                        placeholder="••••••••"
+                                        value={smtpPass}
+                                        onChange={e => setSmtpPass(e.target.value)}
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <Label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 ml-1">
                                         Seguridad
                                     </Label>
                                     <Select value={smtpSecure} onValueChange={setSmtpSecure}>
-                                        <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold">
+                                        <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold">
                                             <SelectValue placeholder="Tipo connection" />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-2xl border-slate-200">
@@ -255,80 +260,86 @@ export function SuperadminSettingsDialog({ trigger }: { trigger?: React.ReactNod
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="col-span-1 space-y-2">
+                                <div className="md:col-span-3 space-y-1.5">
                                     <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Nombre Remitente</Label>
-                                    <Input 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                                        placeholder="BooklySharp" 
-                                        value={smtpFrom} 
-                                        onChange={e => setSmtpFrom(e.target.value)} 
+                                    <Input
+                                        className="h-11 rounded-xl bg-slate-50 border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
+                                        placeholder="BooklySharp"
+                                        value={smtpFrom}
+                                        onChange={e => setSmtpFrom(e.target.value)}
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-slate-100">
-                            <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-500 mb-6 px-1">
-                                <AlertTriangle className="w-4 h-4" /> Modo Mantenimiento
-                            </h3>
-                            <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6 space-y-5">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div>
-                                        <Label className="text-sm font-black text-amber-900">Mostrar aviso en la landing</Label>
-                                        <p className="text-xs text-amber-700/80 mt-1 font-medium">
-                                            Muestra una banda de aviso en la parte superior de la página pública.
+                        <div className="pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col">
+                                <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-500 mb-4 px-1">
+                                    <AlertTriangle className="w-4 h-4" /> Modo Mantenimiento
+                                </h3>
+                                <div className="rounded-2xl bg-amber-50 border border-amber-100 p-5 space-y-4 flex-1">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <Label className="text-sm font-black text-amber-900">Mostrar aviso</Label>
+                                            <p className="text-[11px] text-amber-700/80 mt-1 font-medium">
+                                                Banda de aviso en la landing pública.
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            checked={maintenanceEnabled}
+                                            onCheckedChange={setMaintenanceEnabled}
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black uppercase text-amber-600 ml-1">Mensaje del aviso</Label>
+                                        <Textarea
+                                            className="rounded-xl bg-white border-amber-200 px-4 py-3 focus-visible:ring-4 focus-visible:ring-amber-500/10 transition-all font-medium min-h-[72px] text-sm"
+                                            placeholder="Estamos realizando tareas de mantenimiento. Volveremos a estar operativos en breve."
+                                            value={maintenanceMessage}
+                                            onChange={e => setMaintenanceMessage(e.target.value)}
+                                        />
+                                        <p className="text-[11px] text-amber-700/70 ml-1">
+                                            Si lo dejas vacío se usará un mensaje por defecto.
                                         </p>
                                     </div>
-                                    <Switch
-                                        checked={maintenanceEnabled}
-                                        onCheckedChange={setMaintenanceEnabled}
-                                    />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-amber-600 ml-1">Mensaje del aviso</Label>
-                                    <Textarea
-                                        className="rounded-2xl bg-white border-amber-200 px-5 py-4 focus-visible:ring-4 focus-visible:ring-amber-500/10 transition-all font-medium min-h-[80px]"
-                                        placeholder="Estamos realizando tareas de mantenimiento. Volveremos a estar operativos en breve."
-                                        value={maintenanceMessage}
-                                        onChange={e => setMaintenanceMessage(e.target.value)}
-                                    />
-                                    <p className="text-[11px] text-amber-700/70 ml-1">
-                                        Si lo dejas vacío se usará un mensaje por defecto.
+                            </div>
+
+                            <div className="flex flex-col">
+                                <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 px-1">
+                                    Test de Envío
+                                </h3>
+                                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-5 space-y-4 flex-1 flex flex-col">
+                                    <p className="text-[11px] text-slate-500 font-medium">
+                                        Envía un correo de prueba con la configuración SMTP actual.
                                     </p>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-black uppercase text-slate-400 ml-1">Email destino</Label>
+                                        <Input
+                                            placeholder="email@recibir-test.com"
+                                            value={testEmail}
+                                            onChange={e => setTestEmail(e.target.value)}
+                                            className="h-11 rounded-xl bg-white border-none px-4 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        onClick={handleSendTestEmail}
+                                        disabled={isLoading || !testEmail}
+                                        className="h-11 rounded-xl font-black uppercase tracking-widest text-[10px] bg-slate-200 hover:bg-slate-300 active:scale-95 transition-all shadow-sm mt-auto"
+                                    >
+                                        Enviar Test
+                                    </Button>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-slate-100">
-                            <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6 px-1">
-                                Test de Envío
-                            </h3>
-                            <div className="flex gap-4">
-                                <div className="flex-1 space-y-2">
-                                    <Input 
-                                        placeholder="email@recibir-test.com" 
-                                        value={testEmail} 
-                                        onChange={e => setTestEmail(e.target.value)} 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                    />
-                                </div>
-                                <Button 
-                                    type="button" 
-                                    variant="secondary" 
-                                    onClick={handleSendTestEmail}
-                                    disabled={isLoading || !testEmail}
-                                    className="h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-slate-100 hover:bg-slate-200 px-6 active:scale-95 transition-all shadow-sm"
-                                >
-                                    Enviar Test
-                                </Button>
-                            </div>
-                        </div>
-
-                        <div className="pt-8 flex justify-end gap-4">
-                            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="h-14 rounded-2xl font-bold px-8 text-slate-400">
+                        <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">
+                            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="h-12 rounded-xl font-bold px-6 text-slate-400">
                                 Descartar
                             </Button>
-                            <Button type="submit" disabled={isLoading} className="h-14 rounded-2xl bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest text-[11px] px-10 active:scale-95 transition-all shadow-xl">
+                            <Button type="submit" disabled={isLoading} className="h-12 rounded-xl bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest text-[11px] px-8 active:scale-95 transition-all shadow-xl">
                                 {isLoading ? 'Guardando...' : 'Guardar Configuración'}
                             </Button>
                         </div>

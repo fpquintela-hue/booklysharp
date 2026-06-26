@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { signSession, SESSION_COOKIE, SESSION_MAX_AGE } from '@/lib/session';
-
-const sessionCookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge: SESSION_MAX_AGE,
-};
+import { signSession, SESSION_COOKIE, cookieOptionsFor } from '@/lib/session';
 
 export async function POST(request: Request) {
     try {
@@ -58,7 +50,7 @@ export async function POST(request: Request) {
                     username: superadmin.username,
                     role: 'SUPERADMIN'
                 });
-                res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
+                res.cookies.set(SESSION_COOKIE, token, cookieOptionsFor(request));
                 return res;
             }
             return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
@@ -111,7 +103,7 @@ export async function POST(request: Request) {
                 tenantBillingInfo: user.tenant.billing_info,
                 tenantPaymentMethods: user.tenant.payment_methods
             });
-            res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
+            res.cookies.set(SESSION_COOKIE, token, cookieOptionsFor(request));
             return res;
         }
 
