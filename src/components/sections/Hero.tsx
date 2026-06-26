@@ -30,7 +30,9 @@ export function Hero() {
     if (!section) return;
 
     const scroller = getScrollParent(section);
-    const target: HTMLElement | Window = scroller;
+    // Tipado como EventTarget para que add/removeEventListener no choque con
+    // la unión HTMLElement | Window (sus signatures difieren en TS).
+    const target: EventTarget = scroller;
     let raf = 0;
 
     const compute = () => {
